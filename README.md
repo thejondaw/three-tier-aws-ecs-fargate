@@ -1,3 +1,5 @@
+![Diagram of Project](Images/diagram.gif)
+
 # Toptal - Project
 
 - **Three-Tier Application** on `AWS`, using `Terraform`
@@ -7,8 +9,6 @@
 - Database based on `PostgreSQL`
 
 ### Diagram
-
-![Diagram of Project](Images/diagram.gif)
 
 ``` MD
 ПРОДАМ ГАРАЖ !!! Азерот, Восточные Королевства, г. Штормград, Ул. Магов, д. 42.

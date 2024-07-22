@@ -17,3 +17,11 @@ variable "bucket" {
 }
 
 # --- --- --- --- --- --- --- --- --- --- #
+
+# Variables for Subnets
+variable "subnet_ids" {
+  description = "List of subnet IDs to be used in the RDS subnet group"
+  type        = list(string)
+}
+
+# --- --- --- --- --- --- --- --- --- --- #

@@ -2,7 +2,7 @@
 
 # Virtual Private Cloud (VPC)
 resource "aws_vpc" "main" {
-  cidr_block = var.vpc_cidr
+  cidr_block       = var.vpc_cidr
   instance_tenancy = "default"
 }
 
@@ -10,10 +10,10 @@ resource "aws_vpc" "main" {
 
 # Subnet #1 - WEB (Public)
 resource "aws_subnet" "subnet_1" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = var.subnet_1_cidr
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.subnet_1_cidr
   map_public_ip_on_launch = true
-  availability_zone = "us-east-2a"
+  availability_zone       = "us-east-2a"
 }
 
 # Subnet #2 - API (Private)

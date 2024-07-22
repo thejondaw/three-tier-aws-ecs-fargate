@@ -14,6 +14,11 @@
 6.000 Голды, /wisper Вариан Ринн, ТОРГ НЕУМЕСТЕН !
 ```
 
+### Applications
+
+API works on 3000 PORT
+WEB works on 4000 PORT
+
 ### Modules
 
 > **VPC Module:**

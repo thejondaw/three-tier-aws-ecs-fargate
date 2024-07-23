@@ -9,12 +9,12 @@ provider "aws" {
 terraform {
   backend "s3" {
     bucket = var.bucket
-    key    = "toptal-assesement/terraform.tfstate"
+    key    = "toptal/terraform.tfstate"
     region = var.region
   }
 }
 
-# ================== Local Modules =================== #
+# ================== Custom Modules ================== #
 
 # "VPC" Module:
 module "vpc" {

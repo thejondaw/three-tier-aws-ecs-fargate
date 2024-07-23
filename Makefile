@@ -35,12 +35,12 @@ ECS_MODULE_PATH := Modules/ECS
 # Update repository, dependenties and validate in VPC Module:
 init-vpc:
 	git pull
-	cd $(ECS_MODULE_PATH) && terraform init --auto-approve -var-file=../../Terraform.tfvars
-	cd $(ECS_MODULE_PATH) && terraform validate --auto-approve -var-file=../../Terraform.tfvars
+	cd $(ECS_MODULE_PATH) && terraform init -var-file=../../Terraform.tfvars
+	cd $(ECS_MODULE_PATH) && terraform validate -var-file=../../Terraform.tfvars
 
 # Target for planning changes only in VPC Module:
 plan-vpc:
-	cd $(ECS_MODULE_PATH) && terraform plan --auto-approve -var-file=../../Terraform.tfvars
+	cd $(ECS_MODULE_PATH) && terraform plan -var-file=../../Terraform.tfvars
 
 # Target for applying only VPC Module:
 apply-vpc:

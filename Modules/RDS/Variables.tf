@@ -18,10 +18,20 @@ variable "bucket" {
 
 # ==================================================== #
 
-# Variable for Subnets:
+# Variables for Subnets:
 variable "subnet_ids" {
   description = "List of subnet IDs to be used in RDS Subnet Group"
   type        = list(string)
+}
+
+# CIDR Block for "Private Subnet #3":
+variable "subnet_3_cidr" {
+  default = "192.168.3.0/24"
+}
+
+# CIDR Block for "Private Subnet #4":
+variable "subnet_4_cidr" {
+  default = "192.168.4.0/24"
 }
 
 # ==================================================== #

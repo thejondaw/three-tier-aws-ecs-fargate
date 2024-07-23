@@ -1,6 +1,4 @@
-# ==================================================== #
 # ============== IAM Roles and Policies ============== #
-# ==================================================== #
 
 # "IAM role" for "ECS Task Execution #1":
 resource "aws_iam_role" "task_role_1" {
@@ -115,18 +113,14 @@ resource "aws_iam_role_policy_attachment" "policy_task_role" {
   policy_arn = aws_iam_policy.task_role_4.arn
 }
 
-# ==================================================== #
 # ================= Secrets Manager ================== #
-# ==================================================== #
 
 # "Secrets Manager" with "Database" credentials:
 data "aws_secretsmanager_secret" "secret_manager_db" {
   arn = var.secret_manager_db_arn
 }
 
-# ==================================================== #
 # ================== Security Group ================== #
-# ==================================================== #
 
 # "Security Group" for "ECS Tasks" allowing Inbound Traffic:
 resource "aws_security_group" "ecs_sg" {
@@ -155,9 +149,7 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
-# ==================================================== #
 # ========= Load Balancer and Target Groups ========== #
-# ==================================================== #
 
 # "Application Load Balancer" (ALB) configuration:
 resource "aws_lb" "app_lb" {
@@ -246,9 +238,7 @@ resource "aws_lb_listener_rule" "app_web" {
   }
 }
 
-# ==================================================== #
 # =============== ECS Task Definitions =============== #
-# ==================================================== #
 
 # "Task Definition" for "app-web":
 resource "aws_ecs_task_definition" "app_web" {
@@ -344,9 +334,7 @@ resource "aws_ecs_task_definition" "app_api" {
 TASK_DEFINITION
 }
 
-# ==================================================== #
-# --- --- --- --- --- ECS Services --- --- --- --- --- #
-# ==================================================== #
+# =================== ECS Services =================== #
 
 # "ECS Service" for "app-web":
 resource "aws_ecs_service" "app_web" {

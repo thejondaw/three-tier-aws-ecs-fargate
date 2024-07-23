@@ -7,8 +7,6 @@ variable "region" {
   default     = ""
 }
 
-# ==================================================== #
-
 # Variable for Backend
 variable "bucket" {
   description = "The name of the S3 bucket to store Terraform state"
@@ -24,31 +22,29 @@ variable "secret_manager_db_arn" {
   type        = string
 }
 
-# ==================================================== #
 # ================== VPC Variables =================== #
-# ==================================================== #
 
-# Variable of VPC
+# Variable of "VPC":
 variable "vpc_id" {
-  description = "ID of the VPC"
+  description = "ID of VPC"
   type        = string
 }
 
-# Variable of Subnet #1 (Public)
+# Variable of "Public Subnet #1 (WEB)":
 variable "subnet_web_id" {
-  description = "ID of the WEB (Public) subnet"
+  description = "ID of Public Subnet #1 (WEB)"
   type        = string
 }
 
-# Variable of Subnet #2 (Public)
+# Variable of "Public Subnet #2 (ALB)":
 variable "subnet_alb_id" {
-  description = "ID of the ALB (Public) subnet"
+  description = "ID of Public Subnet #2 (ALB)"
   type        = string
 }
 
-# Variable of Subnet #3 (Private)
+# Variable of "Private Subnet #3 (API)":
 variable "subnet_api_id" {
-  description = "ID of the API (Private) subnet"
+  description = "ID of Private Subnet #3 (API)"
   type        = string
 }
 

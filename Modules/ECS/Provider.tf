@@ -5,8 +5,6 @@ provider "aws" {
   region = var.region
 }
 
-# ==================================================== #
-
 # S3 Bucket - Backend for VPC:
 terraform {
   backend "s3" {

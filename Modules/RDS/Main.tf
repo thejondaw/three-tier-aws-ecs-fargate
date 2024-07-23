@@ -4,8 +4,8 @@
 resource "aws_db_subnet_group" "ecs_subnet_group" {
   name = "ecs-subnet-group"
   subnet_ids = [
-    aws_subnet.subnet_3_cidr.id,
-    aws_subnet.subnet_4_cidr.id
+    var.subnet_3_cidr.id,
+    var.subnet_4_cidr.id
   ]
 }
 

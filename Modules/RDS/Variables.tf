@@ -7,8 +7,6 @@ variable "region" {
   default     = ""
 }
 
-# ==================================================== #
-
 # Variable for S3 Bucket - Backend:
 variable "bucket" {
   description = "Name of S3 bucket to store Terraform state"
@@ -24,14 +22,16 @@ variable "subnet_ids" {
   type        = list(string)
 }
 
-# CIDR Block for "Private Subnet #3":
-variable "subnet_3_cidr" {
-  default = "192.168.3.0/24"
+# Variable of "Public Subnet #3 (API)":
+variable "subnet_api_id" {
+  description = "ID of Public Subnet #2 (API)"
+  type        = string
 }
 
-# CIDR Block for "Private Subnet #4":
-variable "subnet_4_cidr" {
-  default = "192.168.4.0/24"
+# Variable of "Private Subnet #4 (DB)":
+variable "subnet_db_id" {
+  description = "ID of Private Subnet #3 (DB)"
+  type        = string
 }
 
 # ==================================================== #

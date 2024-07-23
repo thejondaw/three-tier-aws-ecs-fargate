@@ -1,6 +1,4 @@
-# ==================================================== #
-# ======================= Local ====================== #
-# ==================================================== #
+# ======================= Root ======================= #
 
 # Clean up temporal and cache files:
 cache:
@@ -25,18 +23,14 @@ apply:
 destroy:
 	terraform destroy
 
-# ==================================================== #
 # ====================== Modules ===================== #
-# ==================================================== #
 
 # Variables with the path to Modules:
 VPC_MODULE_PATH := Modules/VPC
 RDS_MODULE_PATH := Modules/RDS
 ECS_MODULE_PATH := Modules/ECS
 
-# ==================================================== #
 # ======================== VPC ======================= #
-# ==================================================== #
 
 # Update repository, dependenties and validate in VPC Module:
 init-vpc:
@@ -56,9 +50,7 @@ apply-vpc:
 destroy-vpc:
 	terraform destroy -target=module.VPC
 
-# ==================================================== #
 # ======================== RDS ======================= #
-# ==================================================== #
 
 # Update repository, dependenties and validate in RDS Module:
 init-rds:
@@ -78,9 +70,7 @@ apply-rds:
 destroy-rds:
 	terraform destroy -target=module.RDS
 
-# ==================================================== #
 # ======================== ECS ======================= #
-# ==================================================== #
 
 # Update repository, dependenties and validate in ECS Module:
 init-ecs:

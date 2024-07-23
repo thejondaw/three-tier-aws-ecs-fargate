@@ -14,25 +14,26 @@ terraform {
   }
 }
 
-# ==================================================== #
 # ================== Local Modules =================== #
-# ==================================================== #
 
 # "VPC" Module:
 module "vpc" {
   source = "./Modules/VPC"
 
-  subnet_1_cidr = var.subnet_1_cidr
-  subnet_2_cidr = var.subnet_2_cidr
-  subnet_3_cidr = var.subnet_3_cidr
+  subnet_web_cidr = var.subnet_web_cidr
+  subnet_alb_cidr = var.subnet_alb_cidr
+  subnet_api_cidr = var.subnet_api_cidr
+  subnet_db_cidr  = var.subnet_db_cidr
 }
 
 # "RDS" Module:
 module "rds" {
-  source = "./Modules/RDS"
+  source        = "./Modules/RDS"
+  subnet_api_id = module.vpc.subnet_api_id
+  subnet_db_id  = module.vpc.subnet_db_id
   subnet_ids = [
-    module.vpc.subnet_3_id,
-    module.vpc.subnet_4_id
+    module.vpc.subnet_api_id,
+    module.vpc.subnet_db_id
   ]
 }
 

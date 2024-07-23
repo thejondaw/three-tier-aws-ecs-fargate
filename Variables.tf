@@ -51,31 +51,31 @@ variable "subnet_db_cidr" {
 # Variable of "VPC":
 variable "vpc_id" {
   description = "ID of VPC"
-  type        = string
+#  type        = string
 }
 
 # Variable of "Public Subnet #1 (WEB)":
 variable "subnet_web_id" {
   description = "ID of Public Subnet #1 (WEB)"
-  type        = string
+#  type        = string
 }
 
 # Variable of "Public Subnet #2 (ALB)":
 variable "subnet_alb_id" {
   description = "ID of Public Subnet #2 (ALB)"
-  type        = string
+#  type        = string
 }
 
 # Variable of "Private Subnet #3 (API)":
 variable "subnet_api_id" {
   description = "ID of Private Subnet #3 (API)"
-  type        = string
+#  type        = string
 }
 
 # Variable of "Private Subnet #4 (DB)":
 variable "subnet_db_id" {
   description = "ID of Private Subnet #4 (DB)"
-  type        = string
+#  type        = string
 }
 
 # ==================================================== #

@@ -25,7 +25,7 @@ WEB works on 4000 PORT
 
 > **VPC Module:**
 >   - VPC
->   - *Public Subnet - 1*
+>   - *Public Subnet - 2*
 >   - *Private Subnets - 2*
 >   - *Internet Gateway*
 >   - *NAT Gateway*

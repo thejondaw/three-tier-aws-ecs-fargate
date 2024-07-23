@@ -75,7 +75,7 @@ resource "aws_eip" "project-eip" {
 }
 
 # "NAT Gateway":
-resource "aws_nat_gateway" "NATgw" {
+resource "aws_nat_gateway" "ngw" {
   allocation_id = aws_eip.project-eip.id
   subnet_id     = aws_subnet.subnet_web.id
 }
@@ -89,7 +89,7 @@ resource "aws_route_table" "private_rt" {
 resource "aws_route" "private_route" {
   route_table_id         = aws_route_table.private_rt.id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.NATgw.id
+  nat_gateway_id         = aws_nat_gateway.ngw.id
 }
 
 # Association of "Private Subnet #3 (API)" with "Route Table":

@@ -34,7 +34,4 @@ variable "subnet_db_id" {
   type        = string
 }
 
-variable "subnet_api_id" {}
-variable "subnet_db_id" {}
-
 # ==================================================== #

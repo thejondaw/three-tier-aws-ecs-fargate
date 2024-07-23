@@ -4,7 +4,7 @@
 variable "region" {
   description = "Please provide a region information"
   type        = string
-  default     = ""
+  default     = "us-east-2"
 }
 
 # ==================================================== #
@@ -13,7 +13,7 @@ variable "region" {
 variable "bucket" {
   description = "Name of S3 bucket to store Terraform state"
   type        = string
-  default     = ""
+  default     = "mrjondaw"
 }
 
 # ==================================================== #

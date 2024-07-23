@@ -44,7 +44,7 @@ plan-vpc:
 
 # Target for applying only VPC Module:
 apply-vpc:
-	terraform apply -target=module.VPC
+	cd $(ECS_MODULE_PATH) && terraform apply --auto-approve -var-file=../../Terraform.tfvars
 
 # Target for destroying only VPC Module:
 destroy-vpc:

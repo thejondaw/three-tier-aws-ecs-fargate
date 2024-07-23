@@ -2,15 +2,15 @@
 
 # "AWS Provider" - Region:
 provider "aws" {
-  region = var.region
+  region = "us-east-2"
 }
 
 # "S3 Bucket" - Backend:
 terraform {
   backend "s3" {
-    bucket = var.bucket
+    bucket = "mrjondaw"
     key    = "Toptal/terraform.tfstate"
-    region = var.region
+    region = "us-east-2"
   }
 }
 

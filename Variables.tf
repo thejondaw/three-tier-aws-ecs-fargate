@@ -1,20 +1,20 @@
 # ==================================================== #
 
-# Variable for "AWS Provider" - Region:
-variable "region" {
-  description = "Please provide a region information"
-  type        = string
-  default     = ""
-}
+# # Variable for "AWS Provider" - Region:
+# variable "region" {
+#   description = "Please provide a region information"
+#   type        = string
+#   default     = ""
+# }
 
-# ==================================================== #
+# # ==================================================== #
 
-# Variable for "S3 Bucket" - Backend:
-variable "bucket" {
-  description = "Name of S3 bucket to store Terraform state"
-  type        = string
-  default     = ""
-}
+# # Variable for "S3 Bucket" - Backend:
+# variable "bucket" {
+#   description = "Name of S3 bucket to store Terraform state"
+#   type        = string
+#   default     = ""
+# }
 
 # ==================================================== #
 # ============= CIDR for VPC and Subnets ============= #

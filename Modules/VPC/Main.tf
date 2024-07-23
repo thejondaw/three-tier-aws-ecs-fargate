@@ -16,17 +16,25 @@ resource "aws_subnet" "subnet_1" {
   availability_zone       = "us-east-2a"
 }
 
-# Subnet #2 - API (Private)
+# Subnet #2 - Application Load Balancer (Public)
 resource "aws_subnet" "subnet_2" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = var.subnet_2_cidr
-  availability_zone = "us-east-2b"
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.subnet_2_cidr
+  map_public_ip_on_launch = true
+  availability_zone       = "us-east-2b"
 }
 
-# Subnet #3 - DATABASE (Private)
+# Subnet #3 - API (Private)
 resource "aws_subnet" "subnet_3" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.subnet_3_cidr
+  availability_zone = "us-east-2a"
+}
+
+# Subnet #4 - DATABASE (Private)
+resource "aws_subnet" "subnet_4" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.subnet_4_cidr
   availability_zone = "us-east-2c"
 }
 
@@ -76,12 +84,12 @@ resource "aws_route" "private_route" {
 
 # Associate Subnets (Private) with Route Table
 resource "aws_route_table_association" "Private1" {
-  subnet_id      = aws_subnet.subnet_2.id
+  subnet_id      = aws_subnet.subnet_3.id
   route_table_id = aws_route_table.private_rt.id
 }
 
 resource "aws_route_table_association" "Private2" {
-  subnet_id      = aws_subnet.subnet_3.id
+  subnet_id      = aws_subnet.subnet_4.id
   route_table_id = aws_route_table.private_rt.id
 }
 

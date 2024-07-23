@@ -2,7 +2,7 @@
 # ================== Local Modules =================== #
 # ==================================================== #
 
-# VPC Module
+# "VPC" Module:
 module "vpc" {
   source = "./Modules/VPC"
 
@@ -11,7 +11,7 @@ module "vpc" {
   subnet_3_cidr = var.subnet_3_cidr
 }
 
-# RDS Module
+# "RDS" Module:
 module "rds" {
   source = "./Modules/RDS"
   subnet_ids = [
@@ -20,7 +20,7 @@ module "rds" {
   ]
 }
 
-# ECS Module
+# "ECS" Module:
 module "ecs" {
   source                = "./Modules/ECS"
   secret_manager_db_arn = module.rds.secret_manager_db_arn

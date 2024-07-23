@@ -1,6 +1,6 @@
 # ==================================================== #
 
-# Subnet Group on Private Subnets
+# "Subnet Group" on "Private Subnets":
 resource "aws_db_subnet_group" "ecs_subnet_group" {
   name = "ecs-subnet-group"
   subnet_ids = [
@@ -11,10 +11,10 @@ resource "aws_db_subnet_group" "ecs_subnet_group" {
 
 # ==================================================== #
 
-# Security Group to PostgreSQL access
+# "Security Group" to "PostgreSQL Database" access:
 resource "aws_security_group" "ecs_db" {
   name        = "ecs-db"
-  description = "Allow PostgreSQL access"
+  description = "Allow PostgreSQL Database access"
 
   ingress {
     from_port   = 3000
@@ -33,7 +33,7 @@ resource "aws_security_group" "ecs_db" {
 
 # ==================================================== #
 
-# Radom User for Secret Manager
+# "Radom User" for "Secret Manager":
 resource "random_password" "user" {
   length  = 8
   special = false
@@ -41,7 +41,7 @@ resource "random_password" "user" {
   upper   = false
 }
 
-# Random Password for Secret Manager
+# "Random Password" for "Secret Manager":
 resource "random_password" "password" {
   length  = 16
   special = true
@@ -49,11 +49,12 @@ resource "random_password" "password" {
   upper   = false
 }
 
-# Secret Manager
+# "Secret Manager":
 resource "aws_secretsmanager_secret" "secret_manager_db" {
   name = "secret-manager-db"
 }
 
+# Attach "Credentials" for "Secret Manager":
 resource "aws_secretsmanager_secret_version" "db_credentials" {
   secret_id = aws_secretsmanager_secret.secret_manager_db.id
   secret_string = jsonencode({
@@ -66,7 +67,7 @@ resource "aws_secretsmanager_secret_version" "db_credentials" {
 
 # ==================================================== #
 
-# Database - PostgreSQL
+# "Database" - "PostgreSQL":
 resource "aws_db_instance" "default" {
   db_subnet_group_name   = aws_db_subnet_group.ecs_subnet_group.name
   allocated_storage      = 10

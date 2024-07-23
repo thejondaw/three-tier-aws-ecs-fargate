@@ -2,9 +2,9 @@
 # ============== IAM Roles and Policies ============== #
 # ==================================================== #
 
-# IAM role for ECS Task Execution:
+# "IAM role" for "ECS Task Execution #1":
 resource "aws_iam_role" "task_role_1" {
-  name = "ecs-execution-role"
+  name = "ecs-execution-role-1"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -20,9 +20,9 @@ resource "aws_iam_role" "task_role_1" {
   })
 }
 
-# IAM Role for ECS Tasks:
+# "IAM role" for "ECS Task Execution #2":
 resource "aws_iam_role" "task_role_2" {
-  name = "task-role"
+  name = "ecs-execution-role-2"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -38,7 +38,7 @@ resource "aws_iam_role" "task_role_2" {
   })
 }
 
-# IAM Policy for ECS Task Execution:
+# "IAM Policy" for "ECS Task Execution":
 resource "aws_iam_policy" "task_policy" {
   name = "ecs-execution-policy"
 
@@ -63,14 +63,14 @@ resource "aws_iam_policy" "task_policy" {
   })
 }
 
-# Attach Execution Policy to Execution Role:
+# Attach "Execution Policy" to "Execution Role":
 resource "aws_iam_role_policy_attachment" "policy_exec_role" {
   role       = aws_iam_role.task_role_1.name
   policy_arn = aws_iam_policy.task_policy.arn
 }
 
-# IAM Role for ECS Tasks with additional permissions:
-resource "aws_iam_role" "task_1" {
+# "IAM Role" for "ECS Tasks" with additional permissions:
+resource "aws_iam_role" "task_role_3" {
   name = "ecs-task-role"
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
@@ -87,8 +87,8 @@ resource "aws_iam_role" "task_1" {
   })
 }
 
-# IAM Policy for ECS Tasks:
-resource "aws_iam_policy" "task_2" {
+# "IAM Policy" for "ECS Tasks":
+resource "aws_iam_policy" "task_role_4" {
   name = "ecs-task-policy"
 
   policy = jsonencode({
@@ -109,17 +109,17 @@ resource "aws_iam_policy" "task_2" {
   })
 }
 
-# Attach Task Policy to Task Role:
+# Attach "Task Policy" to "Task Role":
 resource "aws_iam_role_policy_attachment" "policy_task_role" {
-  role       = aws_iam_role.task_1.name
-  policy_arn = aws_iam_policy.task_2.arn
+  role       = aws_iam_role.task_role_3.name
+  policy_arn = aws_iam_policy.task_role_4.arn
 }
 
 # ==================================================== #
 # ================= Secrets Manager ================== #
 # ==================================================== #
 
-# Secrets Manager with DB credentials:
+# "Secrets Manager" with "Database" credentials:
 data "aws_secretsmanager_secret" "secret_manager_db" {
   arn = var.secret_manager_db_arn
 }
@@ -128,7 +128,7 @@ data "aws_secretsmanager_secret" "secret_manager_db" {
 # ================== Security Group ================== #
 # ==================================================== #
 
-# Security group for ECS Tasks allowing Inbound Traffic:
+# "Security Group" for "ECS Tasks" allowing Inbound Traffic:
 resource "aws_security_group" "ecs_sg" {
   name        = "ecs-sg"
   description = "Allow Inbound Traffic for ECS Tasks"
@@ -159,7 +159,7 @@ resource "aws_security_group" "ecs_sg" {
 # ========= Load Balancer and Target Groups ========== #
 # ==================================================== #
 
-# Application Load Balancer configuration:
+# "Application Load Balancer" (ALB) configuration:
 resource "aws_lb" "app_lb" {
   name               = "app-lb"
   internal           = false
@@ -170,7 +170,7 @@ resource "aws_lb" "app_lb" {
   var.subnet_alb_id]
 }
 
-# Target Group for "app-web":
+# "Target Group" for "app-web":
 resource "aws_lb_target_group" "app_web" {
   name        = "app-web-tg"
   port        = 3000
@@ -183,7 +183,7 @@ resource "aws_lb_target_group" "app_web" {
   }
 }
 
-# Target Group for "app-api":
+# "Target Group" for "app-api":
 resource "aws_lb_target_group" "app_api" {
   name        = "app-api-tg"
   port        = 4000
@@ -196,7 +196,7 @@ resource "aws_lb_target_group" "app_api" {
   }
 }
 
-# Single Listener for Load Balancer:
+# Single "Listener" for "Load Balancer":
 resource "aws_lb_listener" "lb_listener" {
   load_balancer_arn = aws_lb.app_lb.arn
   port              = "80"
@@ -212,7 +212,7 @@ resource "aws_lb_listener" "lb_listener" {
   }
 }
 
-# Listener Rule for "app-api":
+# "Listener Rule" for "app-api":
 resource "aws_lb_listener_rule" "app_api" {
   listener_arn = aws_lb_listener.lb_listener.arn
   priority     = 100
@@ -229,7 +229,7 @@ resource "aws_lb_listener_rule" "app_api" {
   }
 }
 
-# Listener Rule for "app-web":
+# "Listener Rule" for "app-web":
 resource "aws_lb_listener_rule" "app_web" {
   listener_arn = aws_lb_listener.lb_listener.arn
   priority     = 90
@@ -250,7 +250,7 @@ resource "aws_lb_listener_rule" "app_web" {
 # =============== ECS Task Definitions =============== #
 # ==================================================== #
 
-# Task Definition for "app-web":
+# "Task Definition" for "app-web":
 resource "aws_ecs_task_definition" "app_web" {
   family                   = "app-web"
   execution_role_arn       = aws_iam_role.task_role_1.arn
@@ -268,7 +268,7 @@ resource "aws_ecs_task_definition" "app_web" {
     "memory": 1024,
     "portMappings": [
       {
-        "containerPort": 3000,
+        "containerPort": 4000,
         "hostPort": 3000,
         "protocol": "tcp"
       }
@@ -306,7 +306,7 @@ resource "aws_ecs_task_definition" "app_web" {
 TASK_DEFINITION
 }
 
-# Task Definition for "app-api":
+# "Task Definition" for "app-api":
 resource "aws_ecs_task_definition" "app_api" {
   family                   = "app-api"
   execution_role_arn       = aws_iam_role.task_role_1.arn
@@ -324,8 +324,8 @@ resource "aws_ecs_task_definition" "app_api" {
     "memory": 1024,
     "portMappings": [
       {
-        "containerPort": 4000,
-        "hostPort": 4000,
+        "containerPort": 3000,
+        "hostPort": 3000,
         "protocol": "tcp"
       }
     ],
@@ -348,7 +348,7 @@ TASK_DEFINITION
 # --- --- --- --- --- ECS Services --- --- --- --- --- #
 # ==================================================== #
 
-# ECS Service for "app-web":
+# "ECS Service" for "app-web":
 resource "aws_ecs_service" "app_web" {
   name            = "app-web"
   cluster         = "toptal"
@@ -363,7 +363,7 @@ resource "aws_ecs_service" "app_web" {
   load_balancer {
     target_group_arn = aws_lb_target_group.app_web.arn
     container_name   = "app-web"
-    container_port   = 3000
+    container_port   = 4000
   }
   depends_on = [
     aws_lb_listener.lb_listener,
@@ -372,7 +372,7 @@ resource "aws_ecs_service" "app_web" {
   ]
 }
 
-# ECS Service for "app-api":
+# "ECS Service" for "app-api":
 resource "aws_ecs_service" "app_api" {
   name            = "app-api"
   cluster         = "toptal"
@@ -387,7 +387,7 @@ resource "aws_ecs_service" "app_api" {
   load_balancer {
     target_group_arn = aws_lb_target_group.app_api.arn
     container_name   = "app-api"
-    container_port   = 4000
+    container_port   = 3000
   }
   depends_on = [
     aws_lb_listener.lb_listener,

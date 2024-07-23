@@ -1,14 +1,10 @@
-# make init
-# make apply
-# make destroy
-# make cache
-
 # ==================================================== #
 
+# "make cache"
 cache:
 	find / -type d  -name ".terraform" -exec rm -rf {} \;
 
-# ==================================================== #
+# =================== "make init" ==================== #
 
 pull:
 	git pull
@@ -21,12 +17,15 @@ validate: init
 
 # ==================================================== #
 
+# "make plan"
 plan:
 	terraform plan
 
+# "make apply"
 apply:
 	terraform apply --auto-approve
 
+# "make destroy"
 destroy:
 	terraform destroy --auto-approve
 

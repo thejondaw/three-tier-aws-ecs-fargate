@@ -28,21 +28,25 @@ variable "secret_manager_db_arn" {
 # ================== VPC Variables =================== #
 # ==================================================== #
 
+# Variable of VPC
 variable "vpc_id" {
   description = "ID of the VPC"
   type        = string
 }
 
+# Variable of Subnet #1 (Public)
 variable "subnet_web_id" {
   description = "ID of the WEB (Public) subnet"
   type        = string
 }
 
+# Variable of Subnet #2 (Public)
 variable "subnet_alb_id" {
   description = "ID of the ALB (Public) subnet"
   type        = string
 }
 
+# Variable of Subnet #3 (Private)
 variable "subnet_api_id" {
   description = "ID of the API (Private) subnet"
   type        = string

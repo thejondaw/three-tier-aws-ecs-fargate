@@ -1,6 +1,6 @@
 # ==================================================== #
 
-# Configure AWS Provider
+# Variable for AWS Provider - Region:
 variable "region" {
   description = "Please provide a region information"
   type        = string
@@ -9,18 +9,18 @@ variable "region" {
 
 # ==================================================== #
 
-# Variable for Backend
+# Variable for S3 Bucket - Backend:
 variable "bucket" {
-  description = "The name of the S3 bucket to store Terraform state"
+  description = "Name of S3 bucket to store Terraform state"
   type        = string
-  default     = "mrjondaw"
+  default     = ""
 }
 
 # ==================================================== #
 
-# Variables for Subnets
+# Variable for Subnets:
 variable "subnet_ids" {
-  description = "List of subnet IDs to be used in the RDS subnet group"
+  description = "List of subnet IDs to be used in RDS Subnet Group"
   type        = list(string)
 }
 

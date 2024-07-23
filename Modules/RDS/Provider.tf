@@ -1,13 +1,13 @@
 # ==================================================== #
 
-# Configure AWS Provider
+# AWS Provider - Region:
 provider "aws" {
   region = var.region
 }
 
 # ==================================================== #
 
-# Backend for RDS
+# S3 Bucket - Backend for VPC:
 terraform {
   backend "s3" {
     bucket = var.bucket

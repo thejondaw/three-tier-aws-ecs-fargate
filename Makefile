@@ -38,10 +38,6 @@ ECS_MODULE_PATH := Modules/ECS
 # ======================== VPC ======================= #
 # ==================================================== #
 
-# Clean up temporal and cache files in VPC Module:
-cache-vpc:
-	find / -type d  -name ".terraform" -exec rm -rf {} \; -target=module.VPC
-
 # Update repository, dependenties and validate in VPC Module:
 init-vpc:
 	git pull
@@ -65,10 +61,6 @@ destroy-vpc:
 # ======================== RDS ======================= #
 # ==================================================== #
 
-# Clean up temporal and cache files in RDS Module:
-cache-rds:
-	find / -type d  -name ".terraform" -exec rm -rf {} \; -target=module.RDS
-
 # Update repository, dependenties and validate in RDS Module:
 init-rds:
 	git pull
@@ -91,10 +83,6 @@ destroy-rds:
 # ==================================================== #
 # ======================== ECS ======================= #
 # ==================================================== #
-
-# Clean up temporal and cache files in ECS Module:
-cache-ecs:
-	find / -type d  -name ".terraform" -exec rm -rf {} \; -target=module.ECS
 
 # Update repository, dependenties and validate in ECS Module:
 init-ecs:

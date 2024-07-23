@@ -1,4 +1,4 @@
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #
 
 # Virtual Private Cloud (VPC)
 resource "aws_vpc" "main" {
@@ -6,7 +6,9 @@ resource "aws_vpc" "main" {
   instance_tenancy = "default"
 }
 
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #
+# Subnets #
+# ==================================================== #
 
 # Subnet #1 - WEB (Public)
 resource "aws_subnet" "subnet_1" {
@@ -38,7 +40,9 @@ resource "aws_subnet" "subnet_4" {
   availability_zone = "us-east-2c"
 }
 
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #
+# ========= Internet Gateway and Route Table ========= #
+# ==================================================== #
 
 # Internet Gateway (IGW)
 resource "aws_internet_gateway" "igw" {
@@ -60,15 +64,15 @@ resource "aws_route_table_association" "public1" {
   route_table_id = aws_route_table.public_rt.id
 }
 
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #
+# =========== NAT Gateway and Route Table ============ #
+# ==================================================== #
 
 # NAT Gateway
 resource "aws_nat_gateway" "NATgw" {
   allocation_id = aws_eip.project-eip.id
   subnet_id     = aws_subnet.subnet_1.id
 }
-
-# --- --- --- --- --- --- --- --- --- --- #
 
 # Route Table for Subnets (Private)
 resource "aws_route_table" "private_rt" {
@@ -93,8 +97,7 @@ resource "aws_route_table_association" "Private2" {
   route_table_id = aws_route_table.private_rt.id
 }
 
-# --- --- --- --- --- --- --- --- --- --- #
-
+# ==================================================== #
 
 # Security Group - Allow connect to HTTP
 resource "aws_security_group" "sec_group_http" {
@@ -128,4 +131,4 @@ resource "aws_security_group" "sec_group_http" {
   }
 }
 
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #

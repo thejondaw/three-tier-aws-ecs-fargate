@@ -3,9 +3,12 @@
 # make destroy
 # make cache
 
+# ==================================================== #
+
 cache:
 	find / -type d  -name ".terraform" -exec rm -rf {} \;
 
+# ==================================================== #
 
 pull:
 	git pull
@@ -16,6 +19,7 @@ init: pull
 validate: init
 	terraform validate 
 
+# ==================================================== #
 
 plan:
 	terraform plan
@@ -25,3 +29,5 @@ apply:
 
 destroy:
 	terraform destroy --auto-approve
+
+# ==================================================== #

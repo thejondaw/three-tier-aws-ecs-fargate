@@ -45,6 +45,7 @@ WEB works on 4000 PORT
 ``` HCL
 Variable 1
 Variable 2
+Variable 3
 ```
 
 ### Automation

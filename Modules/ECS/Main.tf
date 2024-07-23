@@ -1,6 +1,8 @@
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #
+# ============== IAM Roles and Policies ============== #
+# ==================================================== #
 
-# IAM role for ECS Task Execution
+# IAM role for ECS Task Execution:
 resource "aws_iam_role" "task_role_1" {
   name = "ecs-execution-role"
   assume_role_policy = jsonencode({
@@ -18,7 +20,7 @@ resource "aws_iam_role" "task_role_1" {
   })
 }
 
-# IAM Role for ECS Tasks
+# IAM Role for ECS Tasks:
 resource "aws_iam_role" "task_role_2" {
   name = "task-role"
   assume_role_policy = jsonencode({
@@ -36,7 +38,7 @@ resource "aws_iam_role" "task_role_2" {
   })
 }
 
-# IAM Policy for ECS Task Execution
+# IAM Policy for ECS Task Execution:
 resource "aws_iam_policy" "task_policy" {
   name = "ecs-execution-policy"
 
@@ -61,13 +63,13 @@ resource "aws_iam_policy" "task_policy" {
   })
 }
 
-# Attach Execution Policy to Execution Role
+# Attach Execution Policy to Execution Role:
 resource "aws_iam_role_policy_attachment" "policy_exec_role" {
   role       = aws_iam_role.task_role_1.name
   policy_arn = aws_iam_policy.task_policy.arn
 }
 
-# IAM Role for ECS Tasks with additional permissions
+# IAM Role for ECS Tasks with additional permissions:
 resource "aws_iam_role" "task_1" {
   name = "ecs-task-role"
   assume_role_policy = jsonencode({
@@ -85,7 +87,7 @@ resource "aws_iam_role" "task_1" {
   })
 }
 
-# IAM Policy for ECS Tasks
+# IAM Policy for ECS Tasks:
 resource "aws_iam_policy" "task_2" {
   name = "ecs-task-policy"
 
@@ -107,18 +109,26 @@ resource "aws_iam_policy" "task_2" {
   })
 }
 
-# Attach Task Policy to Task Role
+# Attach Task Policy to Task Role:
 resource "aws_iam_role_policy_attachment" "policy_task_role" {
   role       = aws_iam_role.task_1.name
   policy_arn = aws_iam_policy.task_2.arn
 }
 
-# Fetch Secret containing DB credentials from AWS Secrets Manager
+# ==================================================== #
+# ================= Secrets Manager ================== #
+# ==================================================== #
+
+# Secrets Manager with DB credentials:
 data "aws_secretsmanager_secret" "secret_manager_db" {
   arn = var.secret_manager_db_arn
 }
 
-# Security group for ECS Tasks allowing Inbound Traffic
+# ==================================================== #
+# ================== Security Group ================== #
+# ==================================================== #
+
+# Security group for ECS Tasks allowing Inbound Traffic:
 resource "aws_security_group" "ecs_sg" {
   name        = "ecs-sg"
   description = "Allow Inbound Traffic for ECS Tasks"
@@ -145,8 +155,11 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
+# ==================================================== #
+# ========= Load Balancer and Target Groups ========== #
+# ==================================================== #
 
-# Application Load Balancer configuration
+# Application Load Balancer configuration:
 resource "aws_lb" "app_lb" {
   name               = "app-lb"
   internal           = false
@@ -157,7 +170,7 @@ resource "aws_lb" "app_lb" {
   var.subnet_alb_id]
 }
 
-# Target Group for "app-web"
+# Target Group for "app-web":
 resource "aws_lb_target_group" "app_web" {
   name        = "app-web-tg"
   port        = 3000
@@ -170,7 +183,7 @@ resource "aws_lb_target_group" "app_web" {
   }
 }
 
-# Target Group for "app-api"
+# Target Group for "app-api":
 resource "aws_lb_target_group" "app_api" {
   name        = "app-api-tg"
   port        = 4000
@@ -183,7 +196,7 @@ resource "aws_lb_target_group" "app_api" {
   }
 }
 
-# Single Listener for Load Balancer
+# Single Listener for Load Balancer:
 resource "aws_lb_listener" "lb_listener" {
   load_balancer_arn = aws_lb.app_lb.arn
   port              = "80"
@@ -199,7 +212,7 @@ resource "aws_lb_listener" "lb_listener" {
   }
 }
 
-# Listener Rule for "app-api"
+# Listener Rule for "app-api":
 resource "aws_lb_listener_rule" "app_api" {
   listener_arn = aws_lb_listener.lb_listener.arn
   priority     = 100
@@ -216,7 +229,7 @@ resource "aws_lb_listener_rule" "app_api" {
   }
 }
 
-# Listener Rule for "app-web"
+# Listener Rule for "app-web":
 resource "aws_lb_listener_rule" "app_web" {
   listener_arn = aws_lb_listener.lb_listener.arn
   priority     = 90
@@ -233,7 +246,11 @@ resource "aws_lb_listener_rule" "app_web" {
   }
 }
 
-# Task Definition for "app-web"
+# ==================================================== #
+# =============== ECS Task Definitions =============== #
+# ==================================================== #
+
+# Task Definition for "app-web":
 resource "aws_ecs_task_definition" "app_web" {
   family                   = "app-web"
   execution_role_arn       = aws_iam_role.task_role_1.arn
@@ -289,31 +306,7 @@ resource "aws_ecs_task_definition" "app_web" {
 TASK_DEFINITION
 }
 
-# ECS Service for "app-web"
-resource "aws_ecs_service" "app_web" {
-  name            = "app-web"
-  cluster         = "toptal"
-  task_definition = aws_ecs_task_definition.app_web.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
-  network_configuration {
-    assign_public_ip = true
-    subnets          = [var.subnet_web_id]
-    security_groups  = [aws_security_group.ecs_sg.id]
-  }
-  load_balancer {
-    target_group_arn = aws_lb_target_group.app_web.arn
-    container_name   = "app-web"
-    container_port   = 3000
-  }
-  depends_on = [
-    aws_lb_listener.lb_listener,
-    aws_lb_listener_rule.app_api,
-    aws_lb_listener_rule.app_web
-  ]
-}
-
-# Task Definition for "app-api"
+# Task Definition for "app-api":
 resource "aws_ecs_task_definition" "app_api" {
   family                   = "app-api"
   execution_role_arn       = aws_iam_role.task_role_1.arn
@@ -351,7 +344,35 @@ resource "aws_ecs_task_definition" "app_api" {
 TASK_DEFINITION
 }
 
-# ECS Service for "app-api"
+# ==================================================== #
+# --- --- --- --- --- ECS Services --- --- --- --- --- #
+# ==================================================== #
+
+# ECS Service for "app-web":
+resource "aws_ecs_service" "app_web" {
+  name            = "app-web"
+  cluster         = "toptal"
+  task_definition = aws_ecs_task_definition.app_web.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+  network_configuration {
+    assign_public_ip = true
+    subnets          = [var.subnet_web_id]
+    security_groups  = [aws_security_group.ecs_sg.id]
+  }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.app_web.arn
+    container_name   = "app-web"
+    container_port   = 3000
+  }
+  depends_on = [
+    aws_lb_listener.lb_listener,
+    aws_lb_listener_rule.app_api,
+    aws_lb_listener_rule.app_web
+  ]
+}
+
+# ECS Service for "app-api":
 resource "aws_ecs_service" "app_api" {
   name            = "app-api"
   cluster         = "toptal"
@@ -374,4 +395,4 @@ resource "aws_ecs_service" "app_api" {
   ]
 }
 
-# ----------------------------------------------------------------
+# ==================================================== #

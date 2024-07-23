@@ -1,4 +1,4 @@
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #
 
 # Subnet Group on Private Subnets
 resource "aws_db_subnet_group" "ecs_subnet_group" {
@@ -9,7 +9,7 @@ resource "aws_db_subnet_group" "ecs_subnet_group" {
   ]
 }
 
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #
 
 # Security Group to PostgreSQL access
 resource "aws_security_group" "ecs_db" {
@@ -31,7 +31,7 @@ resource "aws_security_group" "ecs_db" {
   }
 }
 
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #
 
 # Radom User for Secret Manager
 resource "random_password" "user" {
@@ -64,7 +64,7 @@ resource "aws_secretsmanager_secret_version" "db_credentials" {
   })
 }
 
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #
 
 # Database - PostgreSQL
 resource "aws_db_instance" "default" {
@@ -82,4 +82,4 @@ resource "aws_db_instance" "default" {
   vpc_security_group_ids = [aws_security_group.ecs_db.id]
 }
 
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #

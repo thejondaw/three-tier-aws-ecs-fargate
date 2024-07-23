@@ -1,4 +1,4 @@
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #
 
 # Configure AWS Provider
 variable "region" {
@@ -7,7 +7,7 @@ variable "region" {
   default     = ""
 }
 
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #
 
 # Variable for Backend
 variable "bucket" {
@@ -16,7 +16,7 @@ variable "bucket" {
   default     = "mrjondaw"
 }
 
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #
 
 # Variable for Secret Manafer of DB
 variable "secret_manager_db_arn" {
@@ -24,7 +24,9 @@ variable "secret_manager_db_arn" {
   type        = string
 }
 
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #
+# ================== VPC Variables =================== #
+# ==================================================== #
 
 variable "vpc_id" {
   description = "ID of the VPC"
@@ -46,4 +48,4 @@ variable "subnet_api_id" {
   type        = string
 }
 
-# --- --- --- --- --- --- --- --- --- --- #
+# ==================================================== #

@@ -1,5 +1,9 @@
 # ======================= Root ======================= #
 
+# Copy ".terraformrc" into /root:
+rc:
+	cp .terraformrc ~/.terraformrc
+
 # Clean up temporal and cache files:
 cache:
 	find / -type d  -name ".terraform" -exec rm -rf {} \;

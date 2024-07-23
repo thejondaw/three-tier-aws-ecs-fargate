@@ -31,8 +31,8 @@ module "vpc" {
 module "rds" {
   source = "./Modules/RDS"
   subnet_ids = [
-    module.vpc.subnet_1_id,
-    module.vpc.subnet_2_id
+    module.vpc.subnet_3_id,
+    module.vpc.subnet_4_id
   ]
 }
 

@@ -11,7 +11,7 @@ provider "aws" {
 terraform {
   backend "s3" {
     bucket = var.bucket
-    key    = "Toptal/VPC"
+    key    = "Toptal/VPC/terraform.tfstate"
     region = var.region
   }
 }

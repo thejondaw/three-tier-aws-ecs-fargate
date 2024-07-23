@@ -1,6 +1,11 @@
 # ==================================================== #
 
-# "S3 Bucket" - Backend for "VPC":
+# "AWS Provider" - Region:
+provider "aws" {
+  region = var.region
+}
+
+# "S3 Bucket" - Backend:
 terraform {
   backend "s3" {
     bucket = var.bucket

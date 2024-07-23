@@ -123,7 +123,7 @@ resource "aws_security_group" "sec_group_vpc" {
 
   # "SSH":
   ingress {
-    description = "Allow SSH from everywhere. If ty dolboeb, it's okay."
+    description = "Allow SSH from everywhere."
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"

@@ -2,15 +2,15 @@
 
 # "AWS Provider" - Region:
 provider "aws" {
-  region = "us-east-2"
+  region = var.region
 }
 
 # "S3 Bucket" - Backend:
 terraform {
   backend "s3" {
-    bucket = "mrjondaw"
-    key    = "Toptal/terraform.tfstate"
-    region = "us-east-2"
+    bucket = var.bucket
+    key    = "toptal-assesement/terraform.tfstate"
+    region = var.region
   }
 }
 
@@ -19,7 +19,7 @@ terraform {
 # "VPC" Module:
 module "vpc" {
   source = "./Modules/VPC"
-
+  region = var.region
   subnet_web_cidr = var.subnet_web_cidr
   subnet_alb_cidr = var.subnet_alb_cidr
   subnet_api_cidr = var.subnet_api_cidr
@@ -29,6 +29,7 @@ module "vpc" {
 # "RDS" Module:
 module "rds" {
   source        = "./Modules/RDS"
+  region = var.region
   subnet_api_id = module.vpc.subnet_api_id
   subnet_db_id  = module.vpc.subnet_db_id
   subnet_ids = [
@@ -40,6 +41,7 @@ module "rds" {
 # "ECS" Module:
 module "ecs" {
   source                = "./Modules/ECS"
+  region = var.region
   secret_manager_db_arn = module.rds.secret_manager_db_arn
   vpc_id                = module.vpc.vpc_id
   subnet_web_id         = module.vpc.subnet_web_id

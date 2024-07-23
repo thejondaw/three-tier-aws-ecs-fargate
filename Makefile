@@ -41,7 +41,7 @@ ECS_MODULE_PATH := Modules/ECS
 # Update repository, dependenties and validate in VPC Module:
 init-vpc:
 	git pull
-	terraform init -target=module.VPC
+	terraform init -backend-config="key=Toptal/VPC/terraform.tfstate"
 	terraform validate -target=module.VPC
 
 # Target for planning changes only in VPC Module:
@@ -50,7 +50,6 @@ plan-vpc:
 
 # Target for applying only VPC Module:
 apply-vpc:
-	terraform init -target=module.VPC
 	terraform apply -target=module.VPC
 
 # Target for destroying only VPC Module:
@@ -64,7 +63,7 @@ destroy-vpc:
 # Update repository, dependenties and validate in RDS Module:
 init-rds:
 	git pull
-	terraform init -target=module.RDS
+	terraform init -backend-config="key=Toptal/RDS/terraform.tfstate"
 	terraform validate -target=module.RDS
 
 # Target for planning changes only in RDS Module:
@@ -73,7 +72,6 @@ plan-rds:
 
 # Target for applying only RDS Module:
 apply-rds:
-	terraform init -target=module.RDS
 	terraform apply -target=module.RDS
 
 # Target for destroying only RDS Module:
@@ -87,7 +85,7 @@ destroy-rds:
 # Update repository, dependenties and validate in ECS Module:
 init-ecs:
 	git pull
-	terraform init -target=module.ECS
+	terraform init -backend-config="key=Toptal/ECS/terraform.tfstate"
 	terraform validate -target=module.ECS
 
 # Target for planning changes only in ECS Module:
@@ -96,7 +94,6 @@ plan-ecs:
 
 # Target for applying only ECS Module:
 apply-ecs:
-	terraform init -target=module.ECS
 	terraform apply -target=module.ECS
 
 # Target for destroying only ECS Module:

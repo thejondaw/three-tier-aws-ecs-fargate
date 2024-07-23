@@ -36,7 +36,7 @@ variable "subnet_api_cidr" {
 # CIDR Block for "Private Subnet #4":
 variable "subnet_db_cidr" {
   description = "CIDR Block for Private Subnet #4 (DB)"
-  default     = "10.0.3.0/24"
+  default     = "10.0.4.0/24"
   #default     = "172.16.1.0/24"
 }
 

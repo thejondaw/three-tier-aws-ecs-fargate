@@ -8,7 +8,7 @@ cache:
 init:
 	git pull
 	terraform init -var-file=Terraform.tfvars
-	terraform validate -var-file=Terraform.tfvars
+	terraform validate
 
 # Target for planning changes:
 plan:
@@ -39,7 +39,7 @@ cache-vpc:
 init-vpc:
 	git pull
 	cd $(VPC_MODULE_PATH) && terraform init -var-file=../../Terraform.tfvars
-	cd $(VPC_MODULE_PATH) && terraform validate -var-file=../../Terraform.tfvars
+	cd $(VPC_MODULE_PATH) && terraform validate
 
 # Target for planning changes only in VPC Module:
 plan-vpc:
@@ -63,7 +63,7 @@ cache-rds:
 init-rds:
 	git pull
 	cd $(RDS_MODULE_PATH) && terraform init -var-file=../../Terraform.tfvars
-	cd $(RDS_MODULE_PATH) && terraform validate -var-file=../../Terraform.tfvars
+	cd $(RDS_MODULE_PATH) && terraform validate
 
 # Target for planning changes only in RDS Module:
 plan-rds:
@@ -87,7 +87,7 @@ cache-ecs:
 init-ecs:
 	git pull
 	cd $(ECS_MODULE_PATH) && terraform init -var-file=../../Terraform.tfvars
-	cd $(ECS_MODULE_PATH) && terraform validate -var-file=../../Terraform.tfvars
+	cd $(ECS_MODULE_PATH) && terraform validate
 
 # Target for planning changes only in ECS Module:
 plan-ecs:

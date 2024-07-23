@@ -1,18 +1,18 @@
 # ==================================================== #
 
 # "AWS Provider" - Region:
-provider "aws" {
-  region = var.region
-}
+# provider "aws" {
+#   region = var.region
+# }
 
-# "S3 Bucket" - Backend:
-terraform {
-  backend "s3" {
-    bucket = var.bucket
-    key    = "toptal-assesement/terraform.tfstate"
-    region = var.region
-  }
-}
+# # "S3 Bucket" - Backend:
+# terraform {
+#   backend "s3" {
+#     bucket = var.bucket
+#     key    = "toptal-assesement/terraform.tfstate"
+#     region = var.region
+#   }
+# }
 
 # ================== Local Modules =================== #
 

@@ -77,7 +77,7 @@ cache-vpc:
 
 # Update repository, dependenties and validate in VPC Module:
 init-vpc:
-	git pull -target=module.VPC
+	git pull
 	terraform init -target=module.VPC
 	terraform validate -target=module.VPC
 
@@ -104,7 +104,7 @@ cache-rds:
 
 # Update repository, dependenties and validate in RDS Module:
 init-rds:
-	git pull -target=module.RDS
+	git pull
 	terraform init -target=module.RDS
 	terraform validate -target=module.RDS
 
@@ -131,7 +131,7 @@ cache-ecs:
 
 # Update repository, dependenties and validate in ECS Module:
 init-ecs:
-	git pull -target=module.ECS
+	git pull
 	terraform init -target=module.ECS
 	terraform validate -target=module.ECS
 

@@ -6,6 +6,12 @@ variable "region" {
   type        = string
 }
 
+# Variable for "S3 Bucket":
+variable "bucket" {
+  description = "Name of S3 bucket"
+  type        = string
+}
+
 # ============= CIDR for VPC and Subnets ============= #
 
 # CIDR Block for "VPC":

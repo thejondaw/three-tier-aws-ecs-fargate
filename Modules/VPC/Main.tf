@@ -69,6 +69,11 @@ resource "aws_route_table_association" "public_alb" {
 
 # =========== NAT Gateway and Route Table ============ #
 
+# "Elastic IP" for "NAT Gateway":
+resource "aws_eip" "project-eip" {
+  domain = "vpc"
+}
+
 # "NAT Gateway":
 resource "aws_nat_gateway" "NATgw" {
   allocation_id = aws_eip.project-eip.id
@@ -102,8 +107,8 @@ resource "aws_route_table_association" "Private_2" {
 # ==================================================== #
 
 # "Security Group" - Allow connect to "HTTP" and "SSH":
-resource "aws_security_group" "sec_group_http_ssh" {
-  name        = "sec-group-http-ssh"
+resource "aws_security_group" "sec_group_vpc" {
+  name        = "sec-group-vpc"
   description = "Allow incoming HTTP Connections"
   vpc_id      = aws_vpc.main.id
 
@@ -118,7 +123,7 @@ resource "aws_security_group" "sec_group_http_ssh" {
 
   # "SSH":
   ingress {
-    description = "Allow HTTP from everywhere"
+    description = "Allow SSH from everywhere. If ty dolboeb, it's okay."
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"

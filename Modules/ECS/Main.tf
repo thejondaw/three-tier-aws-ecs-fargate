@@ -188,18 +188,19 @@ resource "aws_lb_target_group" "app_api" {
   }
 }
 
-# Single "Listener" for "Load Balancer":
+# "Listener" for "Load Balancer" and redirect "HTTP" to "HTTPS":
 resource "aws_lb_listener" "lb_listener" {
   load_balancer_arn = aws_lb.app_lb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
-    type = "fixed-response"
-    fixed_response {
-      content_type = "text/plain"
-      message_body = "No matching route"
-      status_code  = "404"
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
     }
   }
 }

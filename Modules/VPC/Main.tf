@@ -112,25 +112,34 @@ resource "aws_security_group" "sec_group_vpc" {
   description = "Allow incoming HTTP Connections"
   vpc_id      = aws_vpc.main.id
 
-  # "HTTP":
+  # HTTP:
   ingress {
+    description = "Allow incoming HTTP for redirect to HTTPS"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-
   }
 
-  # "SSH":
+  # HTTPS:
   ingress {
-    description = "Allow SSH from everywhere."
-    from_port   = 22
-    to_port     = 22
+    description = "Allow incoming HTTPS"
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Allow all "Outbound Traffic":
+  # SSH:
+  ingress {
+    description = "Allow SSH from only our VPC"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
+  }
+
+  # Allow all "Outbound Traffic"
   egress {
     from_port   = 0
     to_port     = 0

@@ -17,6 +17,7 @@ rc:
 # Clean up temporal and cache files:
 cache:
 	find / -type d  -name ".terraform" -exec rm -rf {} \;
+	[ -d "$HOME/.terraform.d/plugin-cache" ] && rm -rf $HOME/.terraform.d/plugin-cache/*
 
 # Update repository, dependenties and validate:
 init:

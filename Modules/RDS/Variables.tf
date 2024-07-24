@@ -14,6 +14,12 @@ variable "bucket" {
 
 # ==================================================== #
 
+# CIDR Block for "VPC":
+variable "vpc_cidr" {
+  description = "CIDR Block for VPC"
+  default     = "10.0.0.0/8"
+}
+
 # Variables for Subnets:
 variable "subnet_ids" {
   description = "List of subnet IDs to be used in RDS Subnet Group"

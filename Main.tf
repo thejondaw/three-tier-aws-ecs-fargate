@@ -21,6 +21,7 @@ module "vpc" {
   source          = "./Modules/VPC"
   region          = var.region
   bucket          = var.bucket
+  vpc_cidr        = var.vpc_cidr
   subnet_web_cidr = var.subnet_web_cidr
   subnet_alb_cidr = var.subnet_alb_cidr
   subnet_api_cidr = var.subnet_api_cidr
@@ -32,6 +33,7 @@ module "rds" {
   source        = "./Modules/RDS"
   region        = var.region
   bucket        = var.bucket
+  vpc_cidr      = var.vpc_cidr
   subnet_api_id = module.vpc.subnet_api_id
   subnet_db_id  = module.vpc.subnet_db_id
   subnet_ids = [

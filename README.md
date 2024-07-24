@@ -101,6 +101,17 @@
 >
 > </details>
 
+<table>
+  <tr>
+    <td align="center" width="45%">
+      <img src="Images/girl1.gif" alt="Girl 1" width="50%">
+    </td>
+    <td align="center" width="50%">
+      <img src="Images/girl2.gif" alt="Girl 2" width="50%">
+    </td>
+  </tr>
+</table>
+
 ### Variables
 
 ``` HCL
@@ -113,3 +124,4 @@ Variable 3
 
 - GitHub Actions - Workflow
 - Makefile
+

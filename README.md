@@ -1,5 +1,11 @@
 ![Diagram of Project](Images/diagram.gif)
 
+<p align="center">
+  <img src="Images/diagram.gif" alt="Diagram of Project">
+  <br>
+  <em>Project Infrastructure Diagram</em>
+</p>
+
 # Toptal - Project
 
 - **Three-Tier Application** on `AWS`, using `Terraform`
@@ -8,7 +14,7 @@
     - WEB
 - Database based on `PostgreSQL`
 
-## Diagram
+### Diagram
 
 ``` MD
 ПРОДАМ ГАРАЖ !!! Азерот, Восточные Королевства, г. Штормград, Ул. Магов, д. 42.
@@ -16,18 +22,17 @@
 6.000 Голды, /wisper Вариан Ринн, ТОРГ НЕУМЕСТЕН !
 ```
 
-## Applications
+### Applications
 
 API works on 3000 PORT
 WEB works on 4000 PORT
 
-## Modules
+### Custom Modules
 
-> ### **VPC Module:**
 > <details>
-> <summary>Click to expand</summary>
+> <summary>VPC Module</summary>
 >
-> - VPC (aws_vpc)
+> - VPC
 >    - Main Virtual Private Cloud for the infrastructure
 > 
 > - Subnets
@@ -60,9 +65,8 @@ WEB works on 4000 PORT
 
 
 
-> ### **RDS Module:**
 > <details>
-> <summary>Click to expand</summary>
+> <summary>RDS Module</summary>
 >
 > - **AWS DB Subnet Group**
 >   - Created using private subnets for database isolation
@@ -90,9 +94,8 @@ WEB works on 4000 PORT
 
 
 
-> **ECS Module:**
 > <details>
-> <summary>Click to expand</summary>
+> <summary>ECS Module</summary>
 >
 >   - *1*
 >   - *2*

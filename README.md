@@ -1,9 +1,7 @@
-![Diagram of Project](Images/diagram.gif)
-
 <p align="center">
   <img src="Images/diagram.gif" alt="Diagram of Project">
   <br>
-  <em>Project Infrastructure Diagram</em>
+  <em>If HuXyЯ NeT</em>
 </p>
 
 # Toptal - Project
@@ -24,8 +22,8 @@
 
 ### Applications
 
-API works on 3000 PORT
-WEB works on 4000 PORT
+- API works on 3000 PORT
+- WEB works on 4000 PORT
 
 ### Custom Modules
 

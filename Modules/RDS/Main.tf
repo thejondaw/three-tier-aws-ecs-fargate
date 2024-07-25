@@ -31,15 +31,18 @@ resource "aws_rds_cluster_instance" "rds_instance" {
 
 # ==================================================== #
 
+# Fetch "VPC" info:
 data "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
 }
 
+# Fetch "Private Subnet #3 (API)" info:
 data "aws_subnet" "api" {
   vpc_id     = data.aws_vpc.main.id
   cidr_block = var.subnet_api_cidr
 }
 
+# Fetch "Private Subnet #4 (DB)" info:
 data "aws_subnet" "db" {
   vpc_id     = data.aws_vpc.main.id
   cidr_block = var.subnet_db_cidr

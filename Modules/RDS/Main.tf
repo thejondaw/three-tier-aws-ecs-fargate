@@ -31,10 +31,20 @@ resource "aws_rds_cluster_instance" "rds_instance" {
 
 # ==================================================== #
 
+data "aws_subnet" "api" {
+  vpc_id     = var.vpc_cidr
+  cidr_block = var.subnet_api_cidr
+}
+
+data "aws_subnet" "db" {
+  vpc_id     = var.vpc_cidr
+  cidr_block = var.subnet_db_cidr
+}
+
 # "Subnet Group" for Database:
 resource "aws_db_subnet_group" "aurora_subnet_group" {
   name       = "aurora-subnet-group"
-  subnet_ids = [aws_subnet.subnet_api.id, aws_subnet.subnet_db.id]
+  subnet_ids = [data.aws_subnet.api.id, data.aws_subnet.db.id]
 }
 
 # ==================================================== #

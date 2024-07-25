@@ -22,9 +22,11 @@ module "vpc" {
 
 # "RDS" Module:
 module "rds" {
-  source   = "./Modules/RDS"
-  region   = var.region_rv
-  vpc_cidr = module.vpc.vpc_arn
+  source          = "./Modules/RDS"
+  region          = var.region_rv
+  vpc_cidr        = module.vpc.vpc_arn
+  subnet_api_cidr = var.subnet_api_cidr_rv
+  subnet_db_cidr  = var.subnet_db_cidr_rv
 }
 
 # "ECS" Module:

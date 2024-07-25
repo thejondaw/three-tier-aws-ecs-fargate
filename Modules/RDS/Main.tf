@@ -7,7 +7,7 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   cluster_identifier     = "example"
   engine                 = "aurora-postgresql"
   engine_mode            = "provisioned"
-  engine_version         = "13.6"
+  engine_version         = "15.3"
   database_name          = "toptal"   # VARS
   master_username        = "username" # VARS
   master_password        = random_password.aurora_password.result

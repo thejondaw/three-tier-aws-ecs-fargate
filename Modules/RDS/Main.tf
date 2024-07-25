@@ -36,12 +36,12 @@ data "aws_vpc" "main" {
 }
 
 data "aws_subnet" "api" {
-  vpc_id     = var.vpc_cidr
+  vpc_id     = data.aws_vpc.main.id
   cidr_block = var.subnet_api_cidr
 }
 
 data "aws_subnet" "db" {
-  vpc_id     = var.vpc_cidr
+  vpc_id     = data.aws_vpc.main.id
   cidr_block = var.subnet_db_cidr
 }
 

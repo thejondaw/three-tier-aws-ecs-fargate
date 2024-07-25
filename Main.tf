@@ -11,7 +11,7 @@ provider "aws" {
 terraform {
   backend "s3" {
     region = ""
-    bucket = ""
+    bucket = "mrjondaw"
     key    = "toptal/terraform.tfstate"
 
   }

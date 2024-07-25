@@ -7,11 +7,6 @@ variable "region_rv" {
   description = "Please provide a region information"
   type        = string
 }
-# Variable of "S3 Bucket" - Backend:
-variable "bucket_rv" {
-  description = "Name of S3 bucket to store Terraform state"
-  type        = string
-}
 
 # ============= CIDR for VPC and Subnets ============= #
 

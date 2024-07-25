@@ -4,7 +4,7 @@
 
 # Set your "Region" and "S3 Bucket":
 region = "us-east-2" #
-bucket = "mrjondaw"  #
+#bucket = "mrjondaw"  #
 
 # Set your "IP Range" for "VPC" and "Subnets":
 vpc_cidr        = "10.0.0.0/16"

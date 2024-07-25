@@ -31,6 +31,10 @@ resource "aws_rds_cluster_instance" "rds_instance" {
 
 # ==================================================== #
 
+data "aws_vpc" "main" {
+  cidr_block = var.vpc_cidr
+}
+
 data "aws_subnet" "api" {
   vpc_id     = var.vpc_cidr
   cidr_block = var.subnet_api_cidr

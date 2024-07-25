@@ -60,6 +60,7 @@ resource "aws_db_subnet_group" "aurora_subnet_group" {
 resource "aws_security_group" "sg_aurora" {
   name        = "aurora-db"
   description = "Allow Aurora PostgreSQL access"
+  vpc_id      = data.aws_vpc.main.id
 
   ingress {
     from_port   = 5432

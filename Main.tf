@@ -10,10 +10,10 @@ provider "aws" {
 # "S3 Bucket" - Backend:
 terraform {
   backend "s3" {
-    region = var.region_rv
+    region = ""
     bucket = ""
     key    = "toptal/terraform.tfstate"
-    
+
   }
 }
 

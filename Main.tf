@@ -37,8 +37,8 @@ module "rds" {
   region          = var.region_rv
   bucket          = var.bucket_rv
   vpc_cidr        = module.vpc.vpc_arn
-  subnet_api_cidr = module.vpc.subnet_api_arn
-  subnet_db_cidr  = module.vpc.subnet_db_arn
+  subnet_api_id   = module.vpc.subnet_api_id
+  subnet_db_id    = module.vpc.subnet_db_id
 }
 
 # "ECS" Module:

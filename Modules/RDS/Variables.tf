@@ -14,21 +14,23 @@ variable "bucket" {
   type        = string
 }
 
-# ============= CIDR for VPC and Subnets ============= #
+# =================  VPC and Subnets ================= #
 
 # Variable for CIDR Block of "VPC":
 variable "vpc_cidr" {
   description = "CIDR Block for VPC"
 }
 
-# Variable for CIDR Block of "Private Subnet #3 (API)":
-variable "subnet_api_cidr" {
-  description = "CIDR Block for Private Subnet #3 (API)"
+# Variable for "ID" of "Private Subnet #3 (API)":
+variable "subnet_api_id" {
+  description = "ID of API subnet"
+  type        = string
 }
 
-# Variable for CIDR Block of "Private Subnet #4 (DB)":
-variable "subnet_db_cidr" {
-  description = "CIDR Block for Private Subnet #4 (DB)"
+# Variable for "ID" of "Private Subnet #4 (DB)":
+variable "subnet_db_id" {
+  description = "ID of DB subnet"
+  type        = string
 }
 
 # ==================================================== #

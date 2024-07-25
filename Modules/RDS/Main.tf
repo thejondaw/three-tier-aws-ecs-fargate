@@ -34,7 +34,7 @@ resource "aws_rds_cluster_instance" "rds_instance" {
 # "Subnet Group" for Database:
 resource "aws_db_subnet_group" "aurora_subnet_group" {
   name       = "aurora-subnet-group"
-  subnet_ids = [var.subnet_api.id, var.subnet_db.id]
+  subnet_ids = [aws_subnet.subnet_api.id, aws_subnet.subnet_db.id]
 }
 
 # ==================================================== #

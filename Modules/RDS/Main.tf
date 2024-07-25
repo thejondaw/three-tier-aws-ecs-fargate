@@ -1,4 +1,6 @@
 # ==================================================== #
+# ==================== RDS Module ==================== #
+# ==================================================== #
 
 # "Serverless v2 RDS cluster" - "Aurora PostgreSQL":
 resource "aws_rds_cluster" "aurora_postgresql" {
@@ -32,7 +34,7 @@ resource "aws_rds_cluster_instance" "rds_instance" {
 # "Subnet Group" for Database:
 resource "aws_db_subnet_group" "aurora_subnet_group" {
   name       = "aurora-subnet-group"
-  subnet_ids = [var.subnet_api_id, var.subnet_db_id]
+  subnet_ids = [var.subnet_api_cidr, var.subnet_db_cidr]
 }
 
 # ==================================================== #

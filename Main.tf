@@ -1,16 +1,18 @@
 # ==================================================== #
+# ==================== ROOT Main ===================== #
+# ==================================================== #
 
 # "AWS Provider" - Region:
 provider "aws" {
-  region = var.region
+  region = var.region_rv
 }
 
 # "S3 Bucket" - Backend:
 terraform {
   backend "s3" {
-    bucket = var.bucket
+    bucket = var.bucket_rv
     key    = "toptal/terraform.tfstate"
-    region = var.region
+    region = var.region_rv
   }
 }
 
@@ -19,39 +21,35 @@ terraform {
 # "VPC" Module:
 module "vpc" {
   source          = "./Modules/VPC"
-  region          = var.region
-  bucket          = var.bucket
-  vpc_cidr        = var.vpc_cidr
-  subnet_web_cidr = var.subnet_web_cidr
-  subnet_alb_cidr = var.subnet_alb_cidr
-  subnet_api_cidr = var.subnet_api_cidr
-  subnet_db_cidr  = var.subnet_db_cidr
+  region          = var.region_rv
+  bucket          = var.bucket_rv
+  vpc_cidr        = var.vpc_cidr_rv
+  subnet_web_cidr = var.subnet_web_cidr_rv
+  subnet_alb_cidr = var.subnet_alb_cidr_rv
+  subnet_api_cidr = var.subnet_api_cidr_rv
+  subnet_db_cidr  = var.subnet_db_cidr_rv
 }
 
 # "RDS" Module:
 module "rds" {
-  source        = "./Modules/RDS"
-  region        = var.region
-  bucket        = var.bucket
-  vpc_cidr      = var.vpc_cidr
-  subnet_api_id = module.vpc.subnet_api_id
-  subnet_db_id  = module.vpc.subnet_db_id
-  subnet_ids = [
-    module.vpc.subnet_api_id,
-    module.vpc.subnet_db_id
-  ]
+  source          = "./Modules/RDS"
+  region          = var.region_rv
+  bucket          = var.bucket_rv
+  vpc_cidr        = module.vpc.vpc_arn
+  subnet_api_cidr = module.vpc.subnet_api_arn
+  subnet_db_cidr  = module.vpc.subnet_db_arn
 }
 
 # "ECS" Module:
 module "ecs" {
-  source                = "./Modules/ECS"
-  region                = var.region
-  bucket                = var.bucket
-  secret_manager_db_arn = module.rds.secret_manager_db_arn
-  vpc_id                = module.vpc.vpc_id
-  subnet_web_id         = module.vpc.subnet_web_id
-  subnet_alb_id         = module.vpc.subnet_alb_id
-  subnet_api_id         = module.vpc.subnet_api_id
+  source            = "./Modules/ECS"
+  region            = var.region_rv
+  bucket            = var.bucket_rv
+  secret_manager_db = module.rds.secret_manager_db_arn
+  vpc_cidr          = module.vpc.vpc_arn
+  subnet_web_cidr   = module.vpc.subnet_web_arn
+  subnet_alb_cidr   = module.vpc.subnet_alb_arn
+  subnet_api_cidr   = module.vpc.subnet_api_arn
 }
 
 # ==================================================== #

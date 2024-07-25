@@ -1,3 +1,7 @@
+# ==================================================== #
+# ==================== ECS Module ==================== #
+# ==================================================== #
+
 # ============== IAM Roles and Policies ============== #
 
 # "IAM role" for "ECS Task Execution #1":
@@ -117,7 +121,7 @@ resource "aws_iam_role_policy_attachment" "policy_task_role" {
 
 # "Secrets Manager" with "Database" credentials:
 data "aws_secretsmanager_secret" "secret_manager_db" {
-  arn = var.secret_manager_db_arn
+  arn = var.secret_manager_db
 }
 
 # ================== Security Group ================== #
@@ -157,9 +161,7 @@ resource "aws_lb" "app_lb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.ecs_sg.id]
-  subnets = [
-    var.subnet_web_id,
-  var.subnet_alb_id]
+  subnets            = [var.subnet_web_cidr, var.subnet_alb_cidr]
 }
 
 # "Target Group" for "app-web":
@@ -167,7 +169,7 @@ resource "aws_lb_target_group" "app_web" {
   name        = "app-web-tg"
   port        = 3000
   protocol    = "HTTP"
-  vpc_id      = var.vpc_id
+  vpc_id      = var.vpc_cidr
   target_type = "ip"
   health_check {
     path = "/"
@@ -180,7 +182,7 @@ resource "aws_lb_target_group" "app_api" {
   name        = "app-api-tg"
   port        = 4000
   protocol    = "HTTP"
-  vpc_id      = var.vpc_id
+  vpc_id      = var.vpc_cidr
   target_type = "ip"
   health_check {
     path = "/"
@@ -346,7 +348,7 @@ resource "aws_ecs_service" "app_web" {
   launch_type     = "FARGATE"
   network_configuration {
     assign_public_ip = true
-    subnets          = [var.subnet_web_id]
+    subnets          = [var.subnet_web_cidr]
     security_groups  = [aws_security_group.ecs_sg.id]
   }
   load_balancer {
@@ -370,8 +372,9 @@ resource "aws_ecs_service" "app_api" {
   launch_type     = "FARGATE"
   network_configuration {
     assign_public_ip = false
-    subnets          = [var.subnet_api_id]
+    subnets          = [var.subnet_api_cidr]
     security_groups  = [aws_security_group.ecs_sg.id]
+
   }
   load_balancer {
     target_group_arn = aws_lb_target_group.app_api.arn

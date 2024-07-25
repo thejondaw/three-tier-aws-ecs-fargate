@@ -21,16 +21,12 @@ variable "vpc_cidr" {
   description = "CIDR Block for VPC"
 }
 
-# Variable for "ID" of "Private Subnet #3 (API)":
-variable "subnet_api_id" {
-  description = "ID of API subnet"
-  type        = string
+variable "subnet_api" {
+  description = "API subnet resource"
 }
 
-# Variable for "ID" of "Private Subnet #4 (DB)":
-variable "subnet_db_id" {
-  description = "ID of DB subnet"
-  type        = string
+variable "subnet_db" {
+  description = "DB subnet resource"
 }
 
 # ==================================================== #

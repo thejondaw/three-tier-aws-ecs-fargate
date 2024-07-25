@@ -42,11 +42,3 @@ variable "subnet_db_cidr" {
 }
 
 # ==================================================== #
-
-# Variable for "ID" of "Private Subnet #3 (API)":
-variable "subnet_api_id" {
-}
-
-# Variable for "ID" of "Private Subnet #4 (DB)":
-variable "subnet_db_id" {
-}

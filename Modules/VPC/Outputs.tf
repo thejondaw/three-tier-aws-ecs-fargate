@@ -28,13 +28,13 @@ output "subnet_db_arn" {
 }
 
 # Output of "Private Subnet #3 (API)":
-output "subnet_api_id" {
-  value = aws_subnet.subnet_api.id
+output "subnet_api" {
+  value = aws_subnet.subnet_api
 }
 
 # Output of "Private Subnet #4 (DB)":
-output "subnet_db_id" {
-  value = aws_subnet.subnet_db.id
+output "subnet_db" {
+  value = aws_subnet.subnet_db
 }
 
 # ==================================================== #

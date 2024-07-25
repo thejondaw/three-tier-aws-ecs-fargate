@@ -29,18 +29,16 @@ module "vpc" {
   subnet_alb_cidr = var.subnet_alb_cidr_rv
   subnet_api_cidr = var.subnet_api_cidr_rv
   subnet_db_cidr  = var.subnet_db_cidr_rv
-  subnet_api_id   = module.vpc.subnet_api_id
-  subnet_db_id    = module.vpc.subnet_db_id
 }
 
 # "RDS" Module:
 module "rds" {
-  source        = "./Modules/RDS"
-  region        = var.region_rv
-  bucket        = var.bucket_rv
-  vpc_cidr      = module.vpc.vpc_arn
-  subnet_api_id = module.vpc.subnet_api_id
-  subnet_db_id  = module.vpc.subnet_db_id
+  source     = "./Modules/RDS"
+  region     = var.region_rv
+  bucket     = var.bucket_rv
+  vpc_cidr   = module.vpc.vpc_arn
+  subnet_api = module.vpc.subnet_api
+  subnet_db  = module.vpc.subnet_db
 }
 
 # "ECS" Module:

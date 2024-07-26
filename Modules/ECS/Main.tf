@@ -371,7 +371,7 @@ resource "aws_ecs_task_definition" "app_web" {
       },
       {
         "name": "API_HOST",
-        "value": "10.0.3.41:3000"
+        "value": "app-api.toptal.local:3000"
       }
     ],
     "healthCheck": {

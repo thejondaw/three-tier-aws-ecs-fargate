@@ -391,7 +391,7 @@ resource "aws_ecs_service" "app_api" {
   launch_type     = "FARGATE"
   network_configuration {
     assign_public_ip = false
-    subnets          = data.aws_subnet.api.id
+    subnets          = [data.aws_subnet.api.id]
     security_groups  = [aws_security_group.ecs_sg.id]
 
   }
@@ -415,7 +415,7 @@ resource "aws_ecs_service" "app_web" {
   launch_type     = "FARGATE"
   network_configuration {
     assign_public_ip = true
-    subnets          = data.aws_subnet.web.id
+    subnets          = [data.aws_subnet.web.id]
     security_groups  = [aws_security_group.ecs_sg.id]
   }
   load_balancer {

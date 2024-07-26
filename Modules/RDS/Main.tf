@@ -9,7 +9,7 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   engine_mode            = "provisioned"
   engine_version         = "15.3"
   database_name          = "toptal"   # VARS
-  master_username        = "username" # VARS
+  master_username        = "jondaw"     # VARS
   master_password        = random_password.aurora_password.result
   storage_encrypted      = true
   db_subnet_group_name   = aws_db_subnet_group.aurora_subnet_group.name
@@ -99,12 +99,13 @@ resource "aws_secretsmanager_secret" "aurora_secret" {
 resource "aws_secretsmanager_secret_version" "aurora_credentials" {
   secret_id = aws_secretsmanager_secret.aurora_secret.id
   secret_string = jsonencode({
-    username = "user" # VARS
+    username = aws_rds_cluster.aurora_postgresql.master_username
     password = random_password.aurora_password.result
     host     = aws_rds_cluster.aurora_postgresql.endpoint
     port     = aws_rds_cluster.aurora_postgresql.port
     dbname   = aws_rds_cluster.aurora_postgresql.database_name
   })
 }
+
 
 # ==================================================== #

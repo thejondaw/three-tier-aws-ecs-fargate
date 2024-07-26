@@ -216,34 +216,22 @@ resource "aws_lb_target_group" "app_web" {
   }
 }
 
-# "Listener" for "Load Balancer":
+# "Listener" for "Load Balancer" and redirect "HTTP" to "HTTPS":
 resource "aws_lb_listener" "lb_listener" {
   load_balancer_arn = aws_lb.app_lb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.app_web.arn
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 }
-
-# # "Listener" for "Load Balancer" and redirect "HTTP" to "HTTPS":
-# resource "aws_lb_listener" "lb_listener" {
-#   load_balancer_arn = aws_lb.app_lb.arn
-#   port              = "80"
-#   protocol          = "HTTP"
-
-#   default_action {
-#     type = "redirect"
-
-#     redirect {
-#       port        = "443"
-#       protocol    = "HTTPS"
-#       status_code = "HTTP_301"
-#     }
-#   }
-# }
 
 # "Listener Rule" for "app-api":
 resource "aws_lb_listener_rule" "app_api" {
@@ -312,11 +300,11 @@ resource "aws_ecs_task_definition" "app_api" {
       },
       {
         "name": "DBUSER",
-        "value": "${data.aws_secretsmanager_secret.aurora_secret.arn}:username"
+        "value": "jondaw"
       },
       {
         "name": "DB",
-        "value": "${data.aws_secretsmanager_secret.aurora_secret.arn}:dbname"
+        "value": "toptal"
       },
       {
         "name": "DBPASS",

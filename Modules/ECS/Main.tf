@@ -281,7 +281,7 @@ resource "aws_ecs_task_definition" "app_api" {
 [
   {
     "name": "app-api",
-    "image": "docker.io/jondaw/app-api:latest",
+    "image": "docker.io/jondaw/app-api",
     "cpu": 512,
     "memory": 1024,
     "portMappings": [
@@ -345,7 +345,7 @@ resource "aws_ecs_task_definition" "app_web" {
 [
   {
     "name": "app-web",
-    "image": "docker.io/jondaw/app-web:latest",
+    "image": "docker.io/jondaw/app-web",
     "cpu": 512,
     "memory": 1024,
     "portMappings": [

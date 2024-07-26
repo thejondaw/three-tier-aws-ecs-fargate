@@ -463,14 +463,18 @@ resource "aws_ecs_service" "app_web" {
   ]
 }
 
-# ==================================================== #
+# ============== CloudWatch Log Groups =============== #
 
+# CloudWatch Log Group - "app-api":
 resource "aws_cloudwatch_log_group" "app_api_logs" {
   name = "/ecs/app-api"
   retention_in_days = 30
 }
 
+# CloudWatch Log Group - "app-web":
 resource "aws_cloudwatch_log_group" "app_web_logs" {
   name              = "/ecs/app-web"
   retention_in_days = 30
 }
+
+# ==================================================== #

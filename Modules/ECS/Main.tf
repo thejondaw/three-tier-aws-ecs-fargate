@@ -144,7 +144,7 @@ resource "aws_iam_role_policy_attachment" "policy_task_role" {
 
 # "Secrets Manager" with "Database" credentials:
 data "aws_secretsmanager_secret" "secret_manager_db" {
-  arn = var.secret_manager_db.arn
+  arn = var.secret_manager_db
 }
 
 # ================== Security Group ================== #

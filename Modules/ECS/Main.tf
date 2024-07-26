@@ -142,11 +142,11 @@ resource "aws_iam_role_policy_attachment" "policy_task_role" {
 
 # ================= Secrets Manager ================== #
 
-# "Secrets Manager" with "Database" credentials:
-data "aws_secretsmanager_secret" "aurora_secret" {
-  name = "aurora-secret-project"
-  # arn = var.aurora_secret.arn
-}
+# # "Secrets Manager" with "Database" credentials:
+# data "aws_secretsmanager_secret" "aurora_secret" {
+#   name = "aurora-secret-project"
+#   # arn = var.aurora_secret.arn
+# }
 
 # ================== Security Group ================== #
 
@@ -269,6 +269,10 @@ resource "aws_lb_listener_rule" "app_web" {
 
 # =============== ECS Task Definitions =============== #
 
+data "aws_rds_cluster" "aurora_postgresql" {
+  cluster_identifier = "example"
+}
+
 # "Task Definition" for "app-api":
 resource "aws_ecs_task_definition" "app_api" {
   family                   = "app-api"
@@ -308,15 +312,15 @@ resource "aws_ecs_task_definition" "app_api" {
       },
       {
         "name": "DBPASS",
-        "value": "${data.aws_secretsmanager_secret.aurora_secret.arn}:password"
+        "value": "password"
       },
       {
         "name": "DBHOST",
-        "value": "${data.aws_secretsmanager_secret.aurora_secret.arn}:host"
+        "value": "${aws_rds_cluster.aurora_postgresql.endpoint}"
       },
       {
         "name": "DBPORT",
-        "value": "${data.aws_secretsmanager_secret.aurora_secret.arn}:port"
+        "value": "5432"
       }
     ],
     "healthCheck": {

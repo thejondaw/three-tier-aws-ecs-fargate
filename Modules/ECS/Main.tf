@@ -383,7 +383,7 @@ resource "aws_ecs_task_definition" "app_web" {
       },
       {
         "name": "API_HOST",
-        "value": "http://app-api:3000"  # Это позволит web-контейнеру обращаться к API-контейнеру
+        "value": "http://app-api:3000"
       }
     ],
     "healthCheck": {
@@ -429,8 +429,7 @@ resource "aws_ecs_service" "app_api" {
   service_registries {
     registry_arn = aws_service_discovery_service.app_api.arn
   }
-  # Удалите load_balancer блок отсюда, так как API не будет напрямую доступен через ALB
-  depends_on = [
+    depends_on = [
     aws_cloudwatch_log_group.app_api_logs
   ]
 }
@@ -499,3 +498,5 @@ resource "aws_service_discovery_service" "app_api" {
     failure_threshold = 1
   }
 }
+
+# ==================================================== #

@@ -274,132 +274,75 @@ data "aws_rds_cluster" "aurora_postgresql" {
 }
 
 # "Task Definition" for "app-api":
-# resource "aws_ecs_task_definition" "app_api" {
-#   family                   = "app-api"
-#   execution_role_arn       = aws_iam_role.task_role_1.arn
-#   requires_compatibilities = ["FARGATE"]
-#   network_mode             = "awsvpc"
-#   task_role_arn            = aws_iam_role.task_role_2.arn
-#   cpu                      = "512"
-#   memory                   = "1024"
-#   container_definitions    = <<TASK_DEFINITION
-# [
-#   {
-#     "name": "app-api",
-#     "image": "docker.io/jondaw/app-api:latest",
-#     "cpu": 512,
-#     "memory": 1024,
-#     "portMappings": [
-#       {
-#         "containerPort": 3000,
-#         "hostPort": 3000,
-#         "protocol": "tcp"
-#       }
-#     ],
-#     "essential": true,
-#     "environment": [
-#       {
-#         "name": "PORT",
-#         "value": "3000"
-#       },
-#       {
-#         "name": "DBUSER",
-#         "value": "jondaw"
-#       },
-#       {
-#         "name": "DB",
-#         "value": "toptal"
-#       },
-#       {
-#         "name": "DBPASS",
-#         "value": "password"
-#       },
-#       {
-#         "name": "DBHOST",
-#         "value": "${data.aws_rds_cluster.aurora_postgresql.endpoint}"
-#       },
-#       {
-#         "name": "DBPORT",
-#         "value": "5432"
-#       }
-#     ],
-#     "healthCheck": {
-#       "command": ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"],
-#       "interval": 30,
-#       "timeout": 5,
-#       "retries": 3,
-#       "startPeriod": 60
-#     },
-#     "logConfiguration": {
-#       "logDriver": "awslogs",
-#       "options": {
-#         "awslogs-group": "/ecs/app-api",
-#         "awslogs-create-group": "true",
-#         "awslogs-region": "${var.region}",
-#         "awslogs-stream-prefix": "ecs"
-#       }
-#     }
-#   }
-# ]
-# TASK_DEFINITION
-# }
-
-
-
-
-
-
-
-resource "aws_ecs_task_definition" "app-api" {
+resource "aws_ecs_task_definition" "app_api" {
   family                   = "app-api"
+  execution_role_arn       = aws_iam_role.task_role_1.arn
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "256"
-  memory                   = "512"
   task_role_arn            = aws_iam_role.task_role_2.arn
-
-  container_definitions = jsonencode([
-    {
-      name  = "app-api"
-      image = "docker.io/jondaw/app-api:latest"
-      portMappings = [
-        {
-          containerPort = 3000
-          hostPort      = 3000
-        }
-      ]
-      environment = [
-        {
-          name  = "DBHOST"
-          value = data.aws_rds_cluster.aurora_postgresql.endpoint
-        },
-        {
-          name  = "DB"
-          value = "toptal"
-        },
-        {
-          name  = "DBUSER"
-          value = jondaw
-        },
-        {
-          name  = "DBPASS"
-          value = password
-        },
-        {
-          name  = "DBPORT"
-          value = 5432
-        }
-      ]
+  cpu                      = "512"
+  memory                   = "1024"
+  container_definitions    = <<TASK_DEFINITION
+[
+  {
+    "name": "app-api",
+    "image": "docker.io/jondaw/app-api:latest",
+    "cpu": 512,
+    "memory": 1024,
+    "portMappings": [
+      {
+        "containerPort": 3000,
+        "hostPort": 3000,
+        "protocol": "tcp"
+      }
+    ],
+    "essential": true,
+    "environment": [
+      {
+        "name": "PORT",
+        "value": "3000"
+      },
+      {
+        "name": "DBUSER",
+        "value": "jondaw"
+      },
+      {
+        "name": "DB",
+        "value": "toptal"
+      },
+      {
+        "name": "DBPASS",
+        "value": "password"
+      },
+      {
+        "name": "DBHOST",
+        "value": "${data.aws_rds_cluster.aurora_postgresql.endpoint}"
+      },
+      {
+        "name": "DBPORT",
+        "value": "5432"
+      }
+    ],
+    "healthCheck": {
+      "command": ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"],
+      "interval": 30,
+      "timeout": 5,
+      "retries": 3,
+      "startPeriod": 60
+    },
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/app-api",
+        "awslogs-create-group": "true",
+        "awslogs-region": "${var.region}",
+        "awslogs-stream-prefix": "ecs"
+      }
     }
-  ])
+  }
+]
+TASK_DEFINITION
 }
-
-
-
-
-
-
-
 
 # "Task Definition" for "app-web":
 resource "aws_ecs_task_definition" "app_web" {

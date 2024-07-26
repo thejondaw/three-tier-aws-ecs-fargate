@@ -215,22 +215,34 @@ resource "aws_lb_target_group" "app_web" {
   }
 }
 
-# "Listener" for "Load Balancer" and redirect "HTTP" to "HTTPS":
+# "Listener" for "Load Balancer":
 resource "aws_lb_listener" "lb_listener" {
   load_balancer_arn = aws_lb.app_lb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
-    type = "redirect"
-
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.app_web.arn
   }
 }
+
+# # "Listener" for "Load Balancer" and redirect "HTTP" to "HTTPS":
+# resource "aws_lb_listener" "lb_listener" {
+#   load_balancer_arn = aws_lb.app_lb.arn
+#   port              = "80"
+#   protocol          = "HTTP"
+
+#   default_action {
+#     type = "redirect"
+
+#     redirect {
+#       port        = "443"
+#       protocol    = "HTTPS"
+#       status_code = "HTTP_301"
+#     }
+#   }
+# }
 
 # "Listener Rule" for "app-api":
 resource "aws_lb_listener_rule" "app_api" {

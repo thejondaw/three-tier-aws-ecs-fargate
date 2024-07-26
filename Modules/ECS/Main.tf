@@ -371,7 +371,7 @@ resource "aws_ecs_task_definition" "app_web" {
       },
       {
         "name": "API_HOST",
-        "value": "http://app-api:3000"
+        "value": "10.0.3.41:3000"
       }
     ],
     "healthCheck": {

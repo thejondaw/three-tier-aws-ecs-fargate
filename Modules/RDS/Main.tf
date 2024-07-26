@@ -14,6 +14,7 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   storage_encrypted      = true
   db_subnet_group_name   = aws_db_subnet_group.aurora_subnet_group.name
   vpc_security_group_ids = [aws_security_group.sg_aurora.id]
+  skip_final_snapshot    = false
 
   serverlessv2_scaling_configuration {
     max_capacity = 1.0

@@ -316,7 +316,7 @@ resource "aws_ecs_task_definition" "app_api" {
       },
       {
         "name": "DBHOST",
-        "value": "${aws_rds_cluster.aurora_postgresql.endpoint}"
+        "value": "${data.aws_rds_cluster.aurora_postgresql.endpoint}"
       },
       {
         "name": "DBPORT",

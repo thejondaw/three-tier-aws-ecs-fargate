@@ -380,6 +380,13 @@ resource "aws_ecs_task_definition" "app_web" {
 TASK_DEFINITION
 }
 
+# =================== ECS Cluster ==================== #
+
+# ECS Cluster:
+resource "aws_ecs_cluster" "toptal" {
+  name = "toptal"
+}
+
 # =================== ECS Services =================== #
 
 # "ECS Service" for "app-api":

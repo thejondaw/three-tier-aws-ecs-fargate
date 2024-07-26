@@ -92,7 +92,7 @@ resource "random_password" "aurora_password" {
 
 # "Secret Manager":
 resource "aws_secretsmanager_secret" "aurora_secret" {
-  name = "aurora-secret-manager"
+  name = "aurora-secret-project"
 }
 
 # Attach "Credentials" for "Secret Manager":

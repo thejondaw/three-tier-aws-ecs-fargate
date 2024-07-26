@@ -22,8 +22,12 @@ cache:
 # Update repository, dependenties and validate:
 init:
 	git pull
-	terraform init -var-file=Terraform.tfvars
-	terraform validate
+	cd $(VPC_MODULE_PATH) && terraform init -var-file=../../Terraform.tfvars
+	cd $(VPC_MODULE_PATH) && terraform validate
+	cd $(RDS_MODULE_PATH) && terraform init -var-file=../../Terraform.tfvars
+	cd $(RDS_MODULE_PATH) && terraform validate
+	cd $(ECS_MODULE_PATH) && terraform init -var-file=../../Terraform.tfvars
+	cd $(ECS_MODULE_PATH) && terraform validate
 
 # Target for planning changes:
 plan:

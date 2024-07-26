@@ -407,7 +407,8 @@ resource "aws_ecs_service" "app_api" {
   }
   depends_on = [
     aws_lb_listener.lb_listener,
-    aws_lb_listener_rule.app_api
+    aws_lb_listener_rule.app_api,
+    aws_cloudwatch_log_group.app_api_logs #
   ]
 }
 
@@ -431,8 +432,19 @@ resource "aws_ecs_service" "app_web" {
   depends_on = [
     aws_lb_listener.lb_listener,
     aws_lb_listener_rule.app_api,
-    aws_lb_listener_rule.app_web
+    aws_lb_listener_rule.app_web,
+    aws_cloudwatch_log_group.app_web_logs #
   ]
 }
 
 # ==================================================== #
+
+resource "aws_cloudwatch_log_group" "app_api_logs" {
+  name = "/ecs/app-api"
+  retention_in_days = 30
+}
+
+resource "aws_cloudwatch_log_group" "app_web_logs" {
+  name              = "/ecs/app-web"
+  retention_in_days = 30
+}

@@ -40,10 +40,4 @@ variable "subnet_db_cidr_rv" {
   type        = string
 }
 
-# Variable for "Secret Manafer" of "DB":
-variable "secret_manager_db" {
-  description = "ARN of Secret Manager DB secret"
-  type        = string
-}
-
 # ==================================================== #

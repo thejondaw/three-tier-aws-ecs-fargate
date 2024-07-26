@@ -33,7 +33,7 @@ module "rds" {
 module "ecs" {
   source            = "./Modules/ECS"
   region            = var.region_rv
-  aurora_secret     = module.rds.aurora_secret_arn
+  # aurora_secret     = module.rds.aurora_secret_arn
   vpc_cidr          = module.vpc.vpc_arn
   subnet_web_cidr   = module.vpc.subnet_web_arn
   subnet_alb_cidr   = module.vpc.subnet_alb_arn

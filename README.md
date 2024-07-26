@@ -32,13 +32,13 @@ sudo rm -rf ~/.docker/config.json
 sudo systemctl restart docker
 sudo docker login -u USER -p PASSWORD
 
-sudo docker build --platform linux/amd64 -t jondaw/app-api:latest . 
+sudo docker buildx build --platform linux/amd64 -t jondaw/app-api:latest .
 sudo docker tag jondaw/app-api:latest app-api:latest
-sudo docker push jondaw/app-api
+sudo docker push jondaw/app-api:latest
 
-sudo docker build --platform linux/amd64 -t jondaw/app-web:latest .    
-sudo docker tag jondaw/app-web:latest app-web:latest  
-sudo docker push jondaw/app-web
+sudo docker buildx build --platform linux/amd64 -t jondaw/app-web:latest .
+sudo docker tag jondaw/app-web:latest app-web:latest
+sudo docker push jondaw/app-web:latest
 ```
 
 ### Custom Modules

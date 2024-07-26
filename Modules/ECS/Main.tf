@@ -330,6 +330,13 @@ resource "aws_ecs_task_definition" "app_api" {
         "value": "${data.aws_secretsmanager_secret.aurora_secret.arn}:port"
       }
     ],
+    "healthCheck": {
+      "command": ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"],
+      "interval": 30,
+      "timeout": 5,
+      "retries": 3,
+      "startPeriod": 60
+    },
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
@@ -378,6 +385,13 @@ resource "aws_ecs_task_definition" "app_web" {
         "value": "${data.aws_secretsmanager_secret.aurora_secret.arn}:host"
       }
     ],
+    "healthCheck": {
+      "command": ["CMD-SHELL", "curl -f http://localhost:4000/health || exit 1"],
+      "interval": 30,
+      "timeout": 5,
+      "retries": 3,
+      "startPeriod": 60
+    },
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {

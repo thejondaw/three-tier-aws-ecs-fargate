@@ -48,6 +48,8 @@ data "aws_subnet" "db" {
   cidr_block = var.subnet_db_cidr
 }
 
+# ==================================================== #
+
 # "Subnet Group" for Database:
 resource "aws_db_subnet_group" "aurora_subnet_group" {
   name       = "aurora-subnet-group"

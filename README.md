@@ -25,6 +25,22 @@
 - API works on 3000 PORT
 - WEB works on 4000 PORT
 
+### Docker Hub
+
+``` Shell
+sudo rm -rf ~/.docker/config.json
+sudo systemctl restart docker
+sudo docker login -u USER -p PASSWORD
+
+sudo docker build --platform linux/amd64 -t jondaw/app-api:latest . 
+sudo docker tag jondaw/app-api:latest app-api:latest
+sudo docker push jondaw/app-api
+
+sudo docker build --platform linux/amd64 -t jondaw/app-web:latest .    
+sudo docker tag jondaw/app-web:latest app-web:latest  
+sudo docker push jondaw/app-web
+```
+
 ### Custom Modules
 
 > <details>

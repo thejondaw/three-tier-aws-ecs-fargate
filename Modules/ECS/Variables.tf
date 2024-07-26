@@ -13,7 +13,6 @@ variable "region" {
 # Variable for "Secret Manafer" of "DB":
 variable "secret_manager_db" {
   description = "ARN of Secret Manager DB secret"
-  type        = string
 }
 
 # ============= CIDR for VPC and Subnets ============= #

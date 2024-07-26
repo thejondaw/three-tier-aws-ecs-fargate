@@ -38,4 +38,8 @@ variable "subnet_api_cidr" {
   description = "CIDR Block for Private Subnet #3 (API)"
 }
 
+variable "secret_manager_db_arn" {
+  description = "ARN of Secret Manager DB secret"  
+}
+
 # ==================================================== #

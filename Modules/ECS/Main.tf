@@ -144,7 +144,7 @@ resource "aws_iam_role_policy_attachment" "policy_task_role" {
 
 # "Secrets Manager" with "Database" credentials:
 data "aws_secretsmanager_secret" "secret_manager_db" {
-  arn = var.secret_manager_db
+  arn = var.secret_manager_db_arn
 }
 
 # ================== Security Group ================== #
@@ -298,23 +298,23 @@ resource "aws_ecs_task_definition" "app_api" {
       },
       {
         "name": "DBUSER",
-        "value": "${data.aws_secretsmanager_secret.secret_manager_db_arn.arn}:username"
+        "value": "${data.aws_secretsmanager_secret.secret_manager_db.arn}:username"
       },
       {
         "name": "DB",
-        "value": "${data.aws_secretsmanager_secret.secret_manager_db_arn.arn}:dbname"
+        "value": "${data.aws_secretsmanager_secret.secret_manager_db.arn}:dbname"
       },
       {
         "name": "DBPASS",
-        "value": "${data.aws_secretsmanager_secret.secret_manager_db_arn.arn}:password"
+        "value": "${data.aws_secretsmanager_secret.secret_manager_db.arn}:password"
       },
       {
         "name": "DBHOST",
-        "value": "${data.aws_secretsmanager_secret.secret_manager_db_arn.arn}:host"
+        "value": "${data.aws_secretsmanager_secret.secret_manager_db.arn}:host"
       },
       {
         "name": "DBPORT",
-        "value": "${data.aws_secretsmanager_secret.secret_manager_db_arn.arn}:port"
+        "value": "${data.aws_secretsmanager_secret.secret_manager_db.arn}:port"
       }
     ],
     "logConfiguration": {
@@ -362,7 +362,7 @@ resource "aws_ecs_task_definition" "app_web" {
       },
       {
         "name": "API_HOST",
-        "value": "${data.aws_secretsmanager_secret.aurora_secret.arn}:host"
+        "value": "${data.aws_secretsmanager_secret.secret_manager_db.arn}:host"
       }
     ],
     "logConfiguration": {

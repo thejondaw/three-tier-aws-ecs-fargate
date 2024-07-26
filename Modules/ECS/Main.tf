@@ -160,6 +160,7 @@ resource "aws_security_group" "ecs_sg" {
     from_port   = 3000
     to_port     = 3000
     protocol    = "tcp"
+    self        = true
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -382,7 +383,7 @@ resource "aws_ecs_task_definition" "app_web" {
       },
       {
         "name": "API_HOST",
-        "value": "${data.aws_secretsmanager_secret.aurora_secret.arn}:host"
+        "value": "http://app-api:3000"  # Это позволит web-контейнеру обращаться к API-контейнеру
       }
     ],
     "healthCheck": {
@@ -416,7 +417,7 @@ resource "aws_ecs_cluster" "toptal" {
 # "ECS Service" for "app-api":
 resource "aws_ecs_service" "app_api" {
   name            = "app-api"
-  cluster         = "toptal"
+  cluster         = aws_ecs_cluster.toptal.name
   task_definition = aws_ecs_task_definition.app_api.arn
   desired_count   = 1
   launch_type     = "FARGATE"
@@ -424,24 +425,20 @@ resource "aws_ecs_service" "app_api" {
     assign_public_ip = false
     subnets          = [data.aws_subnet.api.id]
     security_groups  = [aws_security_group.ecs_sg.id]
-
   }
-  load_balancer {
-    target_group_arn = aws_lb_target_group.app_api.arn
-    container_name   = "app-api"
-    container_port   = 3000
+  service_registries {
+    registry_arn = aws_service_discovery_service.app_api.arn
   }
+  # Удалите load_balancer блок отсюда, так как API не будет напрямую доступен через ALB
   depends_on = [
-    aws_lb_listener.lb_listener,
-    aws_lb_listener_rule.app_api,
-    aws_cloudwatch_log_group.app_api_logs #
+    aws_cloudwatch_log_group.app_api_logs
   ]
 }
 
 # "ECS Service" for "app-web":
 resource "aws_ecs_service" "app_web" {
   name            = "app-web"
-  cluster         = "toptal"
+  cluster         = aws_ecs_cluster.toptal.name
   task_definition = aws_ecs_task_definition.app_web.arn
   desired_count   = 1
   launch_type     = "FARGATE"
@@ -457,9 +454,8 @@ resource "aws_ecs_service" "app_web" {
   }
   depends_on = [
     aws_lb_listener.lb_listener,
-    aws_lb_listener_rule.app_api,
     aws_lb_listener_rule.app_web,
-    aws_cloudwatch_log_group.app_web_logs #
+    aws_cloudwatch_log_group.app_web_logs
   ]
 }
 
@@ -478,3 +474,28 @@ resource "aws_cloudwatch_log_group" "app_web_logs" {
 }
 
 # ==================================================== #
+
+resource "aws_service_discovery_private_dns_namespace" "toptal" {
+  name        = "toptal.local"
+  description = "Private DNS namespace for Toptal ECS services"
+  vpc         = data.aws_vpc.main.id
+}
+
+resource "aws_service_discovery_service" "app_api" {
+  name = "app-api"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.toptal.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}

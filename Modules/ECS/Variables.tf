@@ -10,10 +10,10 @@ variable "region" {
 
 # ==================================================== #
 
-# # Variable for "Secret Manafer" of "DB":
-# variable "secret_manager_db" {
-#   description = "ARN of Secret Manager DB secret"
-# }
+# Variable for "Secret Manafer" of "DB":
+variable "aurora_secret" {
+  description = "ARN of Secret Manager DB secret"
+}
 
 # ============= CIDR for VPC and Subnets ============= #
 

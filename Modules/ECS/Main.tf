@@ -100,7 +100,7 @@ resource "aws_ecs_service" "api_service" {
   desired_count   = 2
 
   network_configuration {
-    subnets          = [data.aws_subnet.api.id]
+    subnets         = [data.aws_subnet.api.id]
     assign_public_ip = false
     security_groups  = [aws_security_group.ecs_tasks.id]
   }
@@ -110,6 +110,8 @@ resource "aws_ecs_service" "api_service" {
     container_name   = "app-api"
     container_port   = 3000
   }
+
+  depends_on = [aws_lb_listener.front_end]  # Добавляем зависимость
 }
 
 # API Server Task Role
@@ -309,7 +311,9 @@ resource "aws_lb" "main_lb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.lb_sg.id]
-  subnets            = [data.aws_subnet.alb.id]
+  subnets            = [data.aws_subnet.alb.id, data.aws_subnet.web.id]  # Используем две подсети
+
+  enable_deletion_protection = false
 }
 
 # Web Target Group

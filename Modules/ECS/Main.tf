@@ -2,6 +2,8 @@
 # ==================== ECS Module ==================== #
 # ==================================================== #
 
+# ======================= DATA ======================= #
+
 # Fetch "VPC" info:
 data "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
@@ -25,148 +27,268 @@ data "aws_subnet" "api" {
   cidr_block = var.subnet_api_cidr
 }
 
-# ============== IAM Roles and Policies ============== #
+# DATABAZA
+data "aws_rds_cluster" "aurora_postgresql" {
+  cluster_identifier = "example"
+}
 
-# "IAM role" for "ECS Task Execution #1":
-resource "aws_iam_role" "task_role_1" {
-  name = "ecs-execution-role-1"
+# =======================  ======================== #
+
+# ECS Cluster
+resource "aws_ecs_cluster" "main_cluster" {
+  name = "main-cluster"
+}
+
+# CloudWatch Log Group
+resource "aws_cloudwatch_log_group" "ecs_logs" {
+  name              = "/ecs/app-logs"
+  retention_in_days = 30
+}
+
+# ======================= API Server Resources ======================== №
+
+# API Server Task Definition
+resource "aws_ecs_task_definition" "api_server" {
+  family                   = "api-server"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = 1024
+  memory                   = 2048
+  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
+  task_role_arn            = aws_iam_role.api_task_role.arn
+
+  container_definitions = jsonencode([
+    {
+      name      = "app-api"
+      image     = "docker.io/jondaw/app-api:latest"
+      cpu       = 1024
+      memory    = 2048
+      essential = true
+      portMappings = [
+        {
+          containerPort = 3000
+          hostPort      = 3000
+          protocol      = "tcp"
+        }
+      ]
+      environment = [
+        { name = "PORT", value = "3000" },
+        { name = "DBUSER", value = data.aws_rds_cluster.aurora_postgresql.master_username },
+        { name = "DB", value = data.aws_rds_cluster.aurora_postgresql.database_name },
+        { name = "DBPASS", value = data.aws_rds_cluster.aurora_postgresql.master_password },
+        { name = "DBHOST", value = data.aws_rds_cluster.aurora_postgresql.endpoint },
+        { name = "DBPORT", value = tostring(data.aws_rds_cluster.aurora_postgresql.port) }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.ecs_logs.name
+          awslogs-region        = var.region
+          awslogs-stream-prefix = "ecs-api"
+        }
+      }
+    }
+  ])
+}
+
+# API Server Service
+resource "aws_ecs_service" "api_service" {
+  name            = "api-service"
+  cluster         = aws_ecs_cluster.main_cluster.id
+  task_definition = aws_ecs_task_definition.api_server.arn
+  launch_type     = "FARGATE"
+  desired_count   = 2
+
+  network_configuration {
+    subnets         = [data.aws_subnet.api.id]
+    assign_public_ip = false
+    security_groups  = [aws_security_group.ecs_tasks.id]
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.api_tg.arn
+    container_name   = "app-api"
+    container_port   = 3000
+  }
+}
+
+# API Server Task Role
+resource "aws_iam_role" "api_task_role" {
+  name = "api_task_role"
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
         Action = "sts:AssumeRole"
         Effect = "Allow"
-        Sid    = ""
         Principal = {
           Service = "ecs-tasks.amazonaws.com"
         }
-      },
+      }
     ]
   })
 }
 
-# "IAM role" for "ECS Task Execution #2":
-resource "aws_iam_role" "task_role_2" {
-  name = "ecs-execution-role-2"
+# IAM Policy Attachments for API Server
+resource "aws_iam_role_policy_attachment" "api_task_role_policy" {
+  role       = aws_iam_role.api_task_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+# ---------- Web Server Resources ----------
+
+# Web Server Task Definition
+resource "aws_ecs_task_definition" "web_server" {
+  family                   = "web-server"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = 1024
+  memory                   = 2048
+  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
+  task_role_arn            = aws_iam_role.web_task_role.arn
+
+  container_definitions = jsonencode([
+    {
+      name      = "app-web"
+      image     = "docker.io/jondaw/app-web:latest"
+      cpu       = 1024
+      memory    = 2048
+      essential = true
+      portMappings = [
+        {
+          containerPort = 4000
+          hostPort      = 4000
+          protocol      = "tcp"
+        }
+      ]
+      environment = [
+        { name = "PORT", value = "4000" },
+        { name = "API_HOST", value = "http://${aws_lb.main_lb.dns_name}/api" },
+        { name = "NODE_ENV", value = "production" }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.ecs_logs.name
+          awslogs-region        = var.region
+          awslogs-stream-prefix = "ecs-web"
+        }
+      }
+    }
+  ])
+}
+
+# Web Server Service
+resource "aws_ecs_service" "web_service" {
+  name            = "web-service"
+  cluster         = aws_ecs_cluster.main_cluster.id
+  task_definition = aws_ecs_task_definition.web_server.arn
+  launch_type     = "FARGATE"
+  desired_count   = 2
+
+  network_configuration {
+    subnets         = [data.aws_subnet.web.id]
+    assign_public_ip = false
+    security_groups  = [aws_security_group.ecs_tasks.id]
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.web_tg.arn
+    container_name   = "app-web"
+    container_port   = 4000
+  }
+}
+
+# Web Server Task Role
+resource "aws_iam_role" "web_task_role" {
+  name = "web_task_role"
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
         Action = "sts:AssumeRole"
         Effect = "Allow"
-        Sid    = ""
         Principal = {
           Service = "ecs-tasks.amazonaws.com"
         }
-      },
-    ]
-  })
-}
-
-# "IAM Policy" for "ECS Task Execution":
-resource "aws_iam_policy" "task_policy" {
-  name = "ecs-execution-policy"
-
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Action" : [
-          "logs:PutLogEvents",
-          "logs:CreateLogStream",
-          "logs:CreateLogGroup",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:GetAuthorizationToken",
-          "ecr:BatchGetImage",
-          "ecr:BatchCheckLayerAvailability"
-        ],
-        "Effect" : "Allow",
-        "Resource" : "*",
-        "Sid" : ""
       }
     ]
   })
 }
 
-# Attach "Execution Policy" to "Execution Role":
-resource "aws_iam_role_policy_attachment" "policy_exec_role" {
-  role       = aws_iam_role.task_role_1.name
-  policy_arn = aws_iam_policy.task_policy.arn
+# IAM Policy Attachments for Web Server
+resource "aws_iam_role_policy_attachment" "web_task_role_policy" {
+  role       = aws_iam_role.web_task_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# "IAM Role" for "ECS Tasks" with additional permissions:
-resource "aws_iam_role" "task_role_3" {
-  name = "ecs-task-role"
+# ---------- Shared Resources ----------
+
+# ECS Execution Role
+resource "aws_iam_role" "ecs_execution_role" {
+  name = "ecs_execution_role"
+
   assume_role_policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
+    Version = "2012-10-17"
+    Statement = [
       {
-        "Sid" : "",
-        "Effect" : "Allow",
-        "Principal" : {
-          "Service" : "ecs-tasks.amazonaws.com"
-        },
-        "Action" : "sts:AssumeRole"
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
       }
     ]
   })
 }
 
-# "IAM Policy" for "ECS Tasks":
-resource "aws_iam_policy" "task_role_4" {
-  name = "ecs-task-policy"
-
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Action" : [
-          "ssmmessages:OpenDataChannel",
-          "ssmmessages:OpenControlChannel",
-          "ssmmessages:CreateDataChannel",
-          "ssmmessages:CreateControlChannel"
-        ],
-        "Effect" : "Allow",
-        "Resource" : "*",
-        "Sid" : ""
-      }
-    ]
-  })
+# IAM Policy Attachment for Execution Role
+resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
+  role       = aws_iam_role.ecs_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# Attach "Task Policy" to "Task Role":
-resource "aws_iam_role_policy_attachment" "policy_task_role" {
-  role       = aws_iam_role.task_role_3.name
-  policy_arn = aws_iam_policy.task_role_4.arn
-}
+# ---------- Security Groups ----------
 
-# ================= Secrets Manager ================== #
-
-# # "Secrets Manager" with "Database" credentials:
-# data "aws_secretsmanager_secret" "aurora_secret" {
-#   name = "aurora-secret-project"
-#   # arn = var.aurora_secret.arn
-# }
-
-# ================== Security Group ================== #
-
-# "Security Group" for "ECS Tasks" allowing Inbound Traffic:
-resource "aws_security_group" "ecs_sg" {
-  name        = "ecs-sg"
-  description = "Allow Inbound Traffic for ECS Tasks"
+# ECS Tasks Security Group
+resource "aws_security_group" "ecs_tasks" {
+  name        = "ecs-tasks-sg"
+  description = "Security group for ECS tasks"
   vpc_id      = data.aws_vpc.main.id
 
   ingress {
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    self        = true
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lb_sg.id]
   }
 
   ingress {
-    from_port   = 4000
-    to_port     = 4000
+    from_port       = 4000
+    to_port         = 4000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lb_sg.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Load Balancer Security Group
+resource "aws_security_group" "lb_sg" {
+  name        = "lb-sg"
+  description = "Security group for load balancer"
+  vpc_id      = data.aws_vpc.main.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -179,68 +301,75 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
-# ========= Load Balancer and Target Groups ========== #
+# ---------- Load Balancer Resources ----------
 
-# "Application Load Balancer" (ALB) configuration:
-resource "aws_lb" "app_lb" {
-  name               = "app-lb"
+# Application Load Balancer
+resource "aws_lb" "main_lb" {
+  name               = "main-lb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.ecs_sg.id]
-  subnets            = [data.aws_subnet.web.id, data.aws_subnet.alb.id]
+  security_groups    = [aws_security_group.lb_sg.id]
+  subnets            = [data.aws_subnet.alb.id]
 }
 
-# "Target Group" for "app-api":
-resource "aws_lb_target_group" "app_api" {
-  name        = "app-api-tg"
-  port        = 3000
-  protocol    = "HTTP"
-  vpc_id      = data.aws_vpc.main.id
-  target_type = "ip"
-  health_check {
-    path = "/"
-    port = "traffic-port"
-  }
-}
-
-# "Target Group" for "app-web":
-resource "aws_lb_target_group" "app_web" {
-  name        = "app-web-tg"
+# Web Target Group
+resource "aws_lb_target_group" "web_tg" {
+  name        = "web-tg"
   port        = 4000
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.main.id
   target_type = "ip"
+
   health_check {
-    path = "/"
-    port = "traffic-port"
+    healthy_threshold   = "3"
+    interval            = "30"
+    protocol            = "HTTP"
+    matcher             = "200"
+    timeout             = "3"
+    path                = "/"
+    unhealthy_threshold = "2"
   }
 }
 
-# "Listener" for "Load Balancer" and redirect "HTTP" to "HTTPS":
-resource "aws_lb_listener" "lb_listener" {
-  load_balancer_arn = aws_lb.app_lb.arn
+# API Target Group
+resource "aws_lb_target_group" "api_tg" {
+  name        = "api-tg"
+  port        = 3000
+  protocol    = "HTTP"
+  vpc_id      = data.aws_vpc.main.id
+  target_type = "ip"
+
+  health_check {
+    healthy_threshold   = "3"
+    interval            = "30"
+    protocol            = "HTTP"
+    matcher             = "200"
+    timeout             = "3"
+    path                = "/api/status"
+    unhealthy_threshold = "2"
+  }
+}
+
+# Load Balancer Listener
+resource "aws_lb_listener" "front_end" {
+  load_balancer_arn = aws_lb.main_lb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
-    type = "redirect"
-
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.web_tg.arn
   }
 }
 
-# "Listener Rule" for "app-api":
-resource "aws_lb_listener_rule" "app_api" {
-  listener_arn = aws_lb_listener.lb_listener.arn
+# Load Balancer Listener Rule for API
+resource "aws_lb_listener_rule" "api" {
+  listener_arn = aws_lb_listener.front_end.arn
   priority     = 100
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.app_api.arn
+    target_group_arn = aws_lb_target_group.api_tg.arn
   }
 
   condition {
@@ -249,246 +378,3 @@ resource "aws_lb_listener_rule" "app_api" {
     }
   }
 }
-
-# "Listener Rule" for "app-web":
-resource "aws_lb_listener_rule" "app_web" {
-  listener_arn = aws_lb_listener.lb_listener.arn
-  priority     = 90
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.app_web.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["/web/*"]
-    }
-  }
-}
-
-# =============== ECS Task Definitions =============== #
-
-data "aws_rds_cluster" "aurora_postgresql" {
-  cluster_identifier = "example"
-}
-
-# "Task Definition" for "app-api":
-resource "aws_ecs_task_definition" "app_api" {
-  family                   = "app-api"
-  execution_role_arn       = aws_iam_role.task_role_1.arn
-  requires_compatibilities = ["FARGATE"]
-  network_mode             = "awsvpc"
-  task_role_arn            = aws_iam_role.task_role_2.arn
-  cpu                      = "512"
-  memory                   = "1024"
-  container_definitions    = <<TASK_DEFINITION
-[
-  {
-    "name": "app-api",
-    "image": "docker.io/jondaw/app-api:latest",
-    "cpu": 512,
-    "memory": 1024,
-    "portMappings": [
-      {
-        "containerPort": 3000,
-        "hostPort": 3000,
-        "protocol": "tcp"
-      }
-    ],
-    "essential": true,
-    "environment": [
-      {
-        "name": "PORT",
-        "value": "3000"
-      },
-      {
-        "name": "DBUSER",
-        "value": "jondaw"
-      },
-      {
-        "name": "DB",
-        "value": "toptal"
-      },
-      {
-        "name": "DBPASS",
-        "value": "password"
-      },
-      {
-        "name": "DBHOST",
-        "value": "${data.aws_rds_cluster.aurora_postgresql.endpoint}"
-      },
-      {
-        "name": "DBPORT",
-        "value": "5432"
-      }
-    ],
-    "healthCheck": {
-      "command": ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"],
-      "interval": 30,
-      "timeout": 5,
-      "retries": 3,
-      "startPeriod": 60
-    },
-    "logConfiguration": {
-      "logDriver": "awslogs",
-      "options": {
-        "awslogs-group": "/ecs/app-api",
-        "awslogs-create-group": "true",
-        "awslogs-region": "${var.region}",
-        "awslogs-stream-prefix": "ecs"
-      }
-    }
-  }
-]
-TASK_DEFINITION
-}
-
-# "Task Definition" for "app-web":
-resource "aws_ecs_task_definition" "app_web" {
-  family                   = "app-web"
-  execution_role_arn       = aws_iam_role.task_role_1.arn
-  requires_compatibilities = ["FARGATE"]
-  network_mode             = "awsvpc"
-  task_role_arn            = aws_iam_role.task_role_2.arn
-  cpu                      = "512"
-  memory                   = "1024"
-  container_definitions    = <<TASK_DEFINITION
-[
-  {
-    "name": "app-web",
-    "image": "docker.io/jondaw/app-web:latest",
-    "cpu": 512,
-    "memory": 1024,
-    "portMappings": [
-      {
-        "containerPort": 4000,
-        "hostPort": 4000,
-        "protocol": "tcp"
-      }
-    ],
-    "essential": true,
-    "environment": [
-      {
-        "name": "PORT",
-        "value": "4000"
-      },
-      {
-        "name": "API_HOST",
-        "value": "app-api.toptal.local:3000"
-      }
-    ],
-    "healthCheck": {
-      "command": ["CMD-SHELL", "curl -f http://localhost:4000/health || exit 1"],
-      "interval": 30,
-      "timeout": 5,
-      "retries": 3,
-      "startPeriod": 60
-    },
-    "logConfiguration": {
-      "logDriver": "awslogs",
-      "options": {
-        "awslogs-group": "/ecs/app-web",
-        "awslogs-create-group": "true",
-        "awslogs-region": "${var.region}",
-        "awslogs-stream-prefix": "ecs"
-      }
-    }
-  }
-]
-TASK_DEFINITION
-}
-
-# ============= ECS Cluster and Services ============= #
-
-# ECS Cluster:
-resource "aws_ecs_cluster" "toptal" {
-  name = "toptal"
-}
-
-# "ECS Service" for "app-api":
-resource "aws_ecs_service" "app_api" {
-  name            = "app-api"
-  cluster         = aws_ecs_cluster.toptal.name
-  task_definition = aws_ecs_task_definition.app_api.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
-  network_configuration {
-    assign_public_ip = false
-    subnets          = [data.aws_subnet.api.id]
-    security_groups  = [aws_security_group.ecs_sg.id]
-  }
-  service_registries {
-    registry_arn = aws_service_discovery_service.app_api.arn
-  }
-  depends_on = [
-    aws_cloudwatch_log_group.app_api_logs
-  ]
-}
-
-# "ECS Service" for "app-web":
-resource "aws_ecs_service" "app_web" {
-  name            = "app-web"
-  cluster         = aws_ecs_cluster.toptal.name
-  task_definition = aws_ecs_task_definition.app_web.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
-  network_configuration {
-    assign_public_ip = true
-    subnets          = [data.aws_subnet.web.id]
-    security_groups  = [aws_security_group.ecs_sg.id]
-  }
-  load_balancer {
-    target_group_arn = aws_lb_target_group.app_web.arn
-    container_name   = "app-web"
-    container_port   = 4000
-  }
-  depends_on = [
-    aws_lb_listener.lb_listener,
-    aws_lb_listener_rule.app_web,
-    aws_cloudwatch_log_group.app_web_logs
-  ]
-}
-
-# ============== CloudWatch Log Groups =============== #
-
-# CloudWatch Log Group - "app-api":
-resource "aws_cloudwatch_log_group" "app_api_logs" {
-  name              = "/ecs/app-api"
-  retention_in_days = 30
-}
-
-# CloudWatch Log Group - "app-web":
-resource "aws_cloudwatch_log_group" "app_web_logs" {
-  name              = "/ecs/app-web"
-  retention_in_days = 30
-}
-
-# ==================================================== #
-
-resource "aws_service_discovery_private_dns_namespace" "toptal" {
-  name        = "toptal.local"
-  description = "Private DNS namespace for Toptal ECS services"
-  vpc         = data.aws_vpc.main.id
-}
-
-resource "aws_service_discovery_service" "app_api" {
-  name = "app-api"
-
-  dns_config {
-    namespace_id = aws_service_discovery_private_dns_namespace.toptal.id
-
-    dns_records {
-      ttl  = 10
-      type = "A"
-    }
-
-    routing_policy = "MULTIVALUE"
-  }
-
-  health_check_custom_config {
-    failure_threshold = 1
-  }
-}
-
-# ==================================================== #

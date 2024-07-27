@@ -1,8 +1,6 @@
-# ==================================================== #
 # ================ Variables of ROOT ================= #
-# ==================================================== #
 
-# Variable of "AWS Provider" - Region:
+# Variable for AWS RegionVariable for AWS Region
 variable "region_rv" {
   description = "Please provide a region information"
   type        = string
@@ -10,33 +8,45 @@ variable "region_rv" {
 
 # ============= CIDR for VPC and Subnets ============= #
 
-# Variable of CIDR Block for "VPC":
-variable "vpc_cidr_rv" {
+# Variable for CIDR Block of VPC
+variable "vpc_cidr_id" {
   description = "CIDR Block for VPC"
   type        = string
 }
 
-# Variable of CIDR Block for "Public Subnet #1 (WEB)":
-variable "subnet_web_cidr_rv" {
-  description = "CIDR Block for Public Subnet #1 (WEB)"
+# Variable for CIDR Block of WEB Subnet #1 - Public
+variable "subnet_web_1_cidr_id" {
+  description = "CIDR Block for WEB Subnet #1 - Public"
   type        = string
 }
 
-# Variable of CIDR Block for "Public Subnet #2 (ALB)":
-variable "subnet_alb_cidr_rv" {
-  description = "CIDR Block for Public Subnet #2 (ALB)"
+# Variable for CIDR Block of WEB Subnet #2 - Public
+variable "subnet_web_2_cidr_id" {
+  description = "CIDR Block for WEB Subnet #2 - Public"
   type        = string
 }
 
-# Variable of CIDR Block for "Private Subnet #3 (API)":
-variable "subnet_api_cidr_rv" {
-  description = "CIDR Block for Private Subnet #3 (API)"
+# Variable for CIDR Block of API Subnet #1 - Private
+variable "subnet_api_1_cidr_id" {
+  description = "CIDR Block for API Subnet #1 - Private"
   type        = string
 }
 
-# Variable of CIDR Block for "Private Subnet #4 (DB)":
-variable "subnet_db_cidr_rv" {
-  description = "CIDR Block for Private Subnet #4 (DB)"
+# Variable for CIDR Block of API Subnet #2 - Private
+variable "subnet_api_2_cidr_id" {
+  description = "CIDR Block for API Subnet #2 - Private"
+  type        = string
+}
+
+# Variable for CIDR Block of DB Subnet #1 - Private
+variable "subnet_db_1_cidr_id" {
+  description = "CIDR Block for DB Subnet #1 - Private"
+  type        = string
+}
+
+# Variable for CIDR Block of DB Subnet #2 - Private
+variable "subnet_db_2_cidr_id" {
+  description = "CIDR Block for DB Subnet #2 - Private"
   type        = string
 }
 

@@ -1,42 +1,47 @@
-# ==================================================== #
 # ==================== ROOT Main ===================== #
-# ==================================================== #
 
-# "AWS Provider" - Region:
+# AWS Region
 provider "aws" {
   region = var.region_rv
 }
 
 # ================== Custom Modules ================== #
 
-# "VPC" Module:
+# VPC Module
 module "vpc" {
-  source          = "./Modules/VPC"
-  region          = var.region_rv
-  vpc_cidr        = var.vpc_cidr_rv
-  subnet_web_cidr = var.subnet_web_cidr_rv
-  subnet_alb_cidr = var.subnet_alb_cidr_rv
-  subnet_api_cidr = var.subnet_api_cidr_rv
-  subnet_db_cidr  = var.subnet_db_cidr_rv
+  source            = "./Modules/VPC"
+  region            = var.region_rv
+  vpc_cidr          = var.vpc_cidr_id
+  subnet_web_1_cidr = var.subnet_web_1_cidr_id
+  subnet_web_2_cidr = var.subnet_web_2_cidr_id
+  subnet_api_1_cidr = var.subnet_api_1_cidr_id
+  subnet_api_2_cidr = var.subnet_api_2_cidr_id
+  subnet_db_1_cidr  = var.subnet_db_1_cidr_id
+  subnet_db_2_cidr  = var.subnet_db_2_cidr_id
 }
 
-# "RDS" Module:
+# RDS Module
 module "rds" {
-  source          = "./Modules/RDS"
-  region          = var.region_rv
-  vpc_cidr        = module.vpc.vpc_arn
-  subnet_api_cidr = var.subnet_api_cidr_rv
-  subnet_db_cidr  = var.subnet_db_cidr_rv
+  source            = "./Modules/RDS"
+  region            = var.region_rv
+  vpc_cidr          = module.vpc.vpc_id
+  subnet_api_1_cidr = module.vpc.subnet_api_1_cidr_id
+  subnet_api_2_cidr = module.vpc.subnet_api_2_cidr_id
+  subnet_db_1_cidr  = module.vpc.subnet_db_1_cidr_id
+  subnet_db_2_cidr  = module.vpc.subnet_db_2_cidr_id
 }
 
-# "ECS" Module:
+# ECS Module
 module "ecs" {
-  source          = "./Modules/ECS"
-  region          = var.region_rv
-  vpc_cidr        = module.vpc.vpc_arn
-  subnet_web_cidr = module.vpc.subnet_web_cidr_rv
-  subnet_alb_cidr = module.vpc.subnet_alb_cidr_rv
-  subnet_api_cidr = module.vpc.subnet_api_cidr_rv
+  source            = "./Modules/ECS"
+  region            = var.region_rv
+  vpc_cidr          = module.vpc.vpc_id
+  subnet_web_1_cidr = module.vpc.subnet_web_1_cidr_id
+  subnet_web_2_cidr = module.vpc.subnet_web_2_cidr_id
+  subnet_api_1_cidr = module.vpc.subnet_api_1_cidr_id
+  subnet_api_2_cidr = module.vpc.subnet_api_2_cidr_id
+  subnet_db_1_cidr  = module.vpc.subnet_db_1_cidr_id
+  subnet_db_2_cidr  = module.vpc.subnet_db_2_cidr_id
 }
 
 # ==================================================== #

@@ -100,7 +100,7 @@ resource "aws_ecs_service" "api_service" {
   desired_count   = 2
 
   network_configuration {
-    subnets         = [data.aws_subnet.api.id]
+    subnets          = [data.aws_subnet.api.id]
     assign_public_ip = false
     security_groups  = [aws_security_group.ecs_tasks.id]
   }
@@ -111,7 +111,7 @@ resource "aws_ecs_service" "api_service" {
     container_port   = 3000
   }
 
-  depends_on = [aws_lb_listener.front_end]  # Добавляем зависимость
+  depends_on = [aws_lb_listener.front_end] # Добавляем зависимость
 }
 
 # API Server Task Role
@@ -166,8 +166,8 @@ resource "aws_ecs_task_definition" "web_server" {
       ]
       environment = [
         { name = "PORT", value = "4000" },
-        { name = "API_HOST", value = "http://${aws_lb.main_lb.dns_name}/api" },
         { name = "NODE_ENV", value = "production" }
+        # API_HOST будет добавлен позже
       ]
       logConfiguration = {
         logDriver = "awslogs"
@@ -200,7 +200,29 @@ resource "aws_ecs_service" "web_service" {
     container_name   = "app-web"
     container_port   = 4000
   }
+
+  depends_on = [aws_lb_listener.front_end]
 }
+
+
+resource "null_resource" "update_api_host" {
+  triggers = {
+    lb_dns_name = aws_lb.main_lb.dns_name
+  }
+
+  provisioner "local-exec" {
+    command = <<EOT
+      API_HOST="http://${aws_lb.main_lb.dns_name}/api"
+      TASK_DEF=$(aws ecs describe-task-definition --task-definition ${aws_ecs_task_definition.web_server.family} --region ${var.region})
+      NEW_TASK_DEF=$(echo $TASK_DEF | jq '.taskDefinition | .containerDefinitions[0].environment += [{"name": "API_HOST", "value": "'$API_HOST'"}] | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities)')
+      aws ecs register-task-definition --region ${var.region} --cli-input-json "$NEW_TASK_DEF"
+      aws ecs update-service --cluster ${aws_ecs_cluster.main_cluster.name} --service ${aws_ecs_service.web_service.name} --task-definition ${aws_ecs_task_definition.web_server.family} --region ${var.region}
+    EOT
+  }
+
+  depends_on = [aws_lb.main_lb, aws_ecs_service.web_service]
+}
+
 
 # Web Server Task Role
 resource "aws_iam_role" "web_task_role" {
@@ -311,7 +333,7 @@ resource "aws_lb" "main_lb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.lb_sg.id]
-  subnets            = [data.aws_subnet.alb.id, data.aws_subnet.web.id]  # Используем две подсети
+  subnets            = [data.aws_subnet.alb.id, data.aws_subnet.web.id] # Используем две подсети
 
   enable_deletion_protection = false
 }

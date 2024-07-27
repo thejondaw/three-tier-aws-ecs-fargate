@@ -1,15 +1,13 @@
-# ==================================================== #
 # ==================== RDS Module ==================== #
-# ==================================================== #
 
-# "Serverless v2 RDS cluster" - "Aurora PostgreSQL":
+# Serverless (v2) RDS Cluster - Aurora PostgreSQL
 resource "aws_rds_cluster" "aurora_postgresql" {
   cluster_identifier     = "example"
   engine                 = "aurora-postgresql"
   engine_mode            = "provisioned"
   engine_version         = "15.3"
   database_name          = "toptal"   # VARS
-  master_username        = "jondaw"     # VARS
+  master_username        = "jondaw"   # VARS
   master_password        = "password"
   storage_encrypted      = true
   db_subnet_group_name   = aws_db_subnet_group.aurora_subnet_group.name
@@ -22,7 +20,7 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   }
 }
 
-# Instance for "Serverless v2 RDS Cluster":
+# Instance for Serverless (v2) RDS Cluster
 resource "aws_rds_cluster_instance" "rds_instance" {
   cluster_identifier = aws_rds_cluster.aurora_postgresql.id
   instance_class     = "db.serverless"
@@ -32,34 +30,15 @@ resource "aws_rds_cluster_instance" "rds_instance" {
 
 # ==================================================== #
 
-# Fetch "VPC" info:
-data "aws_vpc" "main" {
-  cidr_block = var.vpc_cidr
-}
-
-# Fetch "Private Subnet #3 (API)" info:
-data "aws_subnet" "api" {
-  vpc_id     = data.aws_vpc.main.id
-  cidr_block = var.subnet_api_cidr
-}
-
-# Fetch "Private Subnet #4 (DB)" info:
-data "aws_subnet" "db" {
-  vpc_id     = data.aws_vpc.main.id
-  cidr_block = var.subnet_db_cidr
-}
-
-# ==================================================== #
-
-# "Subnet Group" for Database:
+# Subnet Group for Database
 resource "aws_db_subnet_group" "aurora_subnet_group" {
   name       = "aurora-subnet-group"
-  subnet_ids = [data.aws_subnet.api.id, data.aws_subnet.db.id]
+  subnet_ids = [data.aws_subnet.db_1.id, data.aws_subnet.db_2.id]
 }
 
 # ==================================================== #
 
-# "Security Group" to "Aurora PostgreSQL" Database access:
+# Security Group to Aurora PostgreSQL Database access
 resource "aws_security_group" "sg_aurora" {
   name        = "aurora-db"
   description = "Allow Aurora PostgreSQL access"

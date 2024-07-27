@@ -1,8 +1,6 @@
-# ==================================================== #
 # ============== Variables of RDS Module ============= #
-# ==================================================== #
 
-# Variable for "AWS Region":
+# Variable for AWS Region
 variable "region" {
   description = "AWS Region"
   type        = string
@@ -10,19 +8,29 @@ variable "region" {
 
 # =================  VPC and Subnets ================= #
 
-# Variable for CIDR Block of "VPC":
+# Variable for CIDR Block of VPC
 variable "vpc_cidr" {
   description = "CIDR Block for VPC"
 }
 
-# Variable for CIDR Block of "Private Subnet #3 (API)":
-variable "subnet_api_cidr" {
-  description = "CIDR Block for Private Subnet #3 (API)"
+# Variable for CIDR Block of API Subnet #1 - Private
+variable "subnet_api_1_cidr" {
+  description = "CIDR Block for API Subnet #1 - Private"
 }
 
-# Variable for CIDR Block of "Private Subnet #4 (DB)":
-variable "subnet_db_cidr" {
-  description = "CIDR Block for Private Subnet #4 (DB)"
+# Variable for CIDR Block of API Subnet #2 - Private
+variable "subnet_api_2_cidr" {
+  description = "CIDR Block for API Subnet #2 - Private"
+}
+
+# Variable for CIDR Block of DB Subnet #1 - Private
+variable "subnet_db_1_cidr" {
+  description = "CIDR Block for DB Subnet #1 - Private"
+}
+
+# Variable for CIDR Block of DB Subnet #2 - Private
+variable "subnet_db_2_cidr" {
+  description = "CIDR Block for DB Subnet #2 - Private"
 }
 
 # ==================================================== #

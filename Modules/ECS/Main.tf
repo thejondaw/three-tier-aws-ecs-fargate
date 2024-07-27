@@ -1,6 +1,4 @@
-# ==================================================== #
 # ==================== ECS MODULE ==================== #
-# ==================================================== #
 
 # ECS Cluster
 resource "aws_ecs_cluster" "main" {
@@ -42,7 +40,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
 # Security Groups
 resource "aws_security_group" "ecs_tasks" {
   name        = "ecs-tasks-sg"
-  description = "Allow inbound traffic to ECS tasks"
+  description = "Allow Inbound Traffic to ECS tasks"
   vpc_id      = data.aws_vpc.main.id
 
   ingress {
@@ -62,7 +60,7 @@ resource "aws_security_group" "ecs_tasks" {
 
 resource "aws_security_group" "alb" {
   name        = "alb-sg"
-  description = "Allow inbound traffic to ALB"
+  description = "Allow Inbound Traffic to ALB"
   vpc_id      = data.aws_vpc.main.id
 
   ingress {
@@ -186,13 +184,12 @@ resource "aws_ecs_task_definition" "web" {
 
 # Application Load Balancers
 
-# ADD NEW PRIVATE SUBNET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 resource "aws_lb" "api" {
   name               = "api-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
-  subnets            = [data.aws_subnet.api.id, data.aws_subnet.alb.id]
+  subnets            = [data.aws_subnet.api_1.id, data.aws_subnet.api_2.id]
 }
 
 
@@ -201,7 +198,7 @@ resource "aws_lb" "web" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
-  subnets            = [data.aws_subnet.web.id, data.aws_subnet.alb.id]
+  subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.web_1.id]
 }
 
 # ALB Listeners
@@ -274,10 +271,8 @@ resource "aws_ecs_service" "api" {
   desired_count   = 2
   launch_type     = "FARGATE"
 
-# ADD ANOTHER 1 PRIVATE SUBNET!!!!!!!!!!!!!!!!!!!!!!!
-
   network_configuration {
-    subnets         = [data.aws_subnet.api, data.aws_subnet.db.id]
+    subnets         = [data.aws_subnet.api_1, data.aws_subnet.api_2.id]
     security_groups = [aws_security_group.ecs_tasks.id, data.aws_security_group.allow_db_access.id]
   }
 
@@ -298,7 +293,7 @@ resource "aws_ecs_service" "web" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = [data.aws_subnet.web.id, data.aws_subnet.alb.id]
+    subnets         = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
     security_groups = [aws_security_group.ecs_tasks.id]
   }
 

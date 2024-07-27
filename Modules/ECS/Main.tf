@@ -75,7 +75,7 @@ resource "aws_ecs_task_definition" "api_server" {
         { name = "PORT", value = "3000" },
         { name = "DBUSER", value = data.aws_rds_cluster.aurora_postgresql.master_username },
         { name = "DB", value = data.aws_rds_cluster.aurora_postgresql.database_name },
-        { name = "DBPASS", value = data.aws_rds_cluster.aurora_postgresql.master_password },
+        { name = "DBPASS", value = "password" },
         { name = "DBHOST", value = data.aws_rds_cluster.aurora_postgresql.endpoint },
         { name = "DBPORT", value = tostring(data.aws_rds_cluster.aurora_postgresql.port) }
       ]
@@ -100,7 +100,7 @@ resource "aws_ecs_service" "api_service" {
   desired_count   = 2
 
   network_configuration {
-    subnets         = [data.aws_subnet.api.id]
+    subnets          = [data.aws_subnet.api.id]
     assign_public_ip = false
     security_groups  = [aws_security_group.ecs_tasks.id]
   }
@@ -188,7 +188,7 @@ resource "aws_ecs_service" "web_service" {
   desired_count   = 2
 
   network_configuration {
-    subnets         = [data.aws_subnet.web.id]
+    subnets          = [data.aws_subnet.web.id]
     assign_public_ip = false
     security_groups  = [aws_security_group.ecs_tasks.id]
   }

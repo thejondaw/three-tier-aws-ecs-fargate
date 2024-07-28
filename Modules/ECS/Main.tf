@@ -282,7 +282,7 @@ resource "aws_ecs_service" "api" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = [data.aws_subnet.api_1, data.aws_subnet.api_2.id]
+    subnets         = [data.aws_subnet.api_1.id, data.aws_subnet.api_2.id]
     security_groups = [aws_security_group.ecs_tasks.id, data.aws_security_group.sg_aurora.id]
   }
 

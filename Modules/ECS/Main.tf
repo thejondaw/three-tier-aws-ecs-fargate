@@ -283,7 +283,7 @@ resource "aws_ecs_service" "api" {
 
   network_configuration {
     subnets         = [data.aws_subnet.api_1, data.aws_subnet.api_2.id]
-    security_groups = [aws_security_group.ecs_tasks.id, data.aws_security_group.allow_db_access.id]
+    security_groups = [aws_security_group.ecs_tasks.id, data.aws_security_group.sg_aurora.id]
   }
 
   load_balancer {

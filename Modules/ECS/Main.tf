@@ -136,9 +136,9 @@ resource "aws_lb_target_group" "web" {
   health_check {
     path                = "/"
     healthy_threshold   = 2
-    unhealthy_threshold = 10
-    timeout             = 60
-    interval            = 300
+    unhealthy_threshold = 3
+    timeout             = 30
+    interval            = 60
     matcher             = "200"
   }
 }
@@ -293,7 +293,7 @@ resource "aws_ecs_service" "web" {
   name            = "web-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.web.arn
-  desired_count   = 2
+  desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {

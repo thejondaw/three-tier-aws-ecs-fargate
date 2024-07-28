@@ -311,7 +311,7 @@ resource "aws_ecs_service" "web" {
   load_balancer {
     target_group_arn = aws_lb_target_group.web.arn
     container_name   = "app-web"
-    container_port   = 3000
+    container_port   = 4000
   }
 
   depends_on = [aws_lb_listener.web]

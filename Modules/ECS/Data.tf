@@ -60,6 +60,4 @@ data "aws_secretsmanager_secret" "aurora_secret" {
 
 data "aws_rds_cluster" "aurora_postgresql" {
   cluster_identifier = "project-db"
-  database_name      = "toptal" # VARS
-  master_username    = "jondaw" # VARS
 }

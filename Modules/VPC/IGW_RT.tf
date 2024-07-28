@@ -16,13 +16,13 @@ resource "aws_route_table" "public_rt" {
 }
 
 # Association of "WEB Subnet #1" "Public", with "Route Table"
-resource "aws_route_table_association" "public_web" {
+resource "aws_route_table_association" "public_web_1" {
   subnet_id      = aws_subnet.subnet_web_1.id
   route_table_id = aws_route_table.public_rt.id
 }
 
 # Association of "WEB Subnet #2" "Public", with "Route Table"
-resource "aws_route_table_association" "public_alb" {
+resource "aws_route_table_association" "public_web_2" {
   subnet_id      = aws_subnet.subnet_web_1.id
   route_table_id = aws_route_table.public_rt.id
 }

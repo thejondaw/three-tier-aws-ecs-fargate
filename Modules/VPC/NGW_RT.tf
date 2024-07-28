@@ -26,25 +26,25 @@ resource "aws_route" "private_route" {
 # ==================================================== #
 
 # Association of "API Subnet #1" "Private", with "Route Table"
-resource "aws_route_table_association" "Private_1" {
+resource "aws_route_table_association" "private_api_1" {
   subnet_id      = aws_subnet.subnet_api_1.id
   route_table_id = aws_route_table.private_rt.id
 }
 
 # Association of "API Subnet #2" "Private", with "Route Table"
-resource "aws_route_table_association" "Private_2" {
+resource "aws_route_table_association" "private_api_2" {
   subnet_id      = aws_subnet.subnet_api_2.id
   route_table_id = aws_route_table.private_rt.id
 }
 
 # Association of "DB Subnet #2" "Private", with "Route Table"
-resource "aws_route_table_association" "Private_2" {
+resource "aws_route_table_association" "private_db_1" {
   subnet_id      = aws_subnet.subnet_db_1.id
   route_table_id = aws_route_table.private_rt.id
 }
 
 # Association of "DB Subnet #2" "Private", with "Route Table"
-resource "aws_route_table_association" "Private_2" {
+resource "aws_route_table_association" "private_db_2" {
   subnet_id      = aws_subnet.subnet_db_2.id
   route_table_id = aws_route_table.private_rt.id
 }

@@ -12,6 +12,42 @@ resource "aws_ecs_cluster" "main" {
 
 # =============== IAM ROLE & POLICIES ================ #
 
+
+
+
+
+data "aws_caller_identity" "current" {}
+
+resource "aws_iam_policy" "ssm_parameter_access" {
+  name        = "ssm-parameter-access"
+  path        = "/"
+  description = "Allow access to SSM Parameter Store"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ssm:GetParameters",
+          "ssm:GetParameter"
+        ]
+        Resource = "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/password"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_ssm_policy" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = aws_iam_policy.ssm_parameter_access.arn
+}
+
+
+
+
+
+
 # "IAM Role" for "ECS Task Execution"
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "ecs-task-execution-role"
@@ -141,7 +177,7 @@ resource "aws_ecs_task_definition" "api" {
       secrets = [
         {
           name      = "DBPASS"
-          valueFrom = "password"
+          valueFrom = "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/password"
         }
       ]
       logConfiguration = {

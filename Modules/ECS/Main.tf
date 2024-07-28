@@ -255,7 +255,7 @@ resource "aws_lb_target_group" "api" {
 # "ALB Target Group" for "WEB" Application
 resource "aws_lb_target_group" "web" {
   name        = "web-tg"
-  port        = 3000
+  port        = 4000
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.main.id
   target_type = "ip"
@@ -328,9 +328,14 @@ resource "aws_appautoscaling_target" "api" {
   service_namespace  = "ecs"
 }
 
-# Configure "Auto-Scaling Policy" for "API Service" based on "CPU" usage
-resource "aws_appautoscaling_policy" "api_cpu" {
-  name               = "api-cpu-autoscaling"
+# Configure "Auto-Scaling Policy" for "API Service" based on "CPU" & "Memory" usage
+resource "aws_appautoscaling_policy" "api_autoscaling" {
+  for_each = {
+    cpu    = { metric = "ECSServiceAverageCPUUtilization", target = 60.0 }
+    memory = { metric = "ECSServiceAverageMemoryUtilization", target = 80.0 }
+  }
+
+  name               = "api-${each.key}-autoscaling"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.api.resource_id
   scalable_dimension = aws_appautoscaling_target.api.scalable_dimension
@@ -338,9 +343,9 @@ resource "aws_appautoscaling_policy" "api_cpu" {
 
   target_tracking_scaling_policy_configuration {
     predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+      predefined_metric_type = each.value.metric
     }
-    target_value = 60.0
+    target_value = each.value.target
   }
 }
 
@@ -353,9 +358,14 @@ resource "aws_appautoscaling_target" "web" {
   service_namespace  = "ecs"
 }
 
-# Configure "Auto-Scaling Policy" for "WEB Service" based on "CPU" usage
-resource "aws_appautoscaling_policy" "web_cpu" {
-  name               = "web-cpu-autoscaling"
+# Configure "Auto-Scaling Policy" for "WEB Service" based on "CPU" & "Memory" usage
+resource "aws_appautoscaling_policy" "web_autoscaling" {
+  for_each = {
+    cpu    = { metric = "ECSServiceAverageCPUUtilization", target = 60.0 }
+    memory = { metric = "ECSServiceAverageMemoryUtilization", target = 80.0 }
+  }
+
+  name               = "web-${each.key}-autoscaling"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.web.resource_id
   scalable_dimension = aws_appautoscaling_target.web.scalable_dimension
@@ -363,9 +373,88 @@ resource "aws_appautoscaling_policy" "web_cpu" {
 
   target_tracking_scaling_policy_configuration {
     predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+      predefined_metric_type = each.value.metric
     }
-    target_value = 60.0
+    target_value = each.value.target
+  }
+}
+
+# ==================================================== #
+
+# "CloudWach" Alarm "API" for "CPU"
+resource "aws_cloudwatch_metric_alarm" "api_cpu_high" {
+  alarm_name          = "api-cpu-utilization-high"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = "85"
+  alarm_description   = "This metric monitors api cpu utilization"
+  alarm_actions       = [aws_appautoscaling_policy.api_cpu.arn]
+
+  dimensions = {
+    ClusterName = aws_ecs_cluster.main.name
+    ServiceName = aws_ecs_service.api.name
+  }
+}
+
+# "CloudWach" Alarm "API" for "Memory"
+resource "aws_cloudwatch_metric_alarm" "api_memory_high" {
+  alarm_name          = "api-memory-utilization-high"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "MemoryUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = "85"
+  alarm_description   = "This metric monitors api memory utilization"
+  alarm_actions       = [aws_appautoscaling_policy.api_memory.arn]
+
+  dimensions = {
+    ClusterName = aws_ecs_cluster.main.name
+    ServiceName = aws_ecs_service.api.name
+  }
+}
+
+
+# "CloudWatch" Alarm "WEB" for "CPU"
+resource "aws_cloudwatch_metric_alarm" "web_cpu_high" {
+  alarm_name          = "web-cpu-utilization-high"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = "85"
+  alarm_description   = "This metric monitors web cpu utilization"
+  alarm_actions       = [aws_appautoscaling_policy.web_cpu.arn]
+
+  dimensions = {
+    ClusterName = aws_ecs_cluster.main.name
+    ServiceName = aws_ecs_service.web.name
+  }
+}
+
+# "CloudWatch" Alarm "WEB" for "Memory"
+resource "aws_cloudwatch_metric_alarm" "web_memory_high" {
+  alarm_name          = "web-memory-utilization-high"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "MemoryUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = "85"
+  alarm_description   = "This metric monitors web memory utilization"
+  alarm_actions       = [aws_appautoscaling_policy.web_memory.arn]
+
+  dimensions = {
+    ClusterName = aws_ecs_cluster.main.name
+    ServiceName = aws_ecs_service.web.name
   }
 }
 

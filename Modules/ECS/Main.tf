@@ -189,7 +189,7 @@ resource "aws_ecs_service" "api" {
   name            = "api-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.api.arn
-  desired_count   = 2
+  desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
@@ -300,7 +300,7 @@ resource "aws_ecs_task_definition" "web" {
       hostPort      = 4000
     }]
     environment = [
-      { name = "API_HOST", value = "http://${aws_lb.main.dns_name}" }
+      { name = "API_HOST", value = "http://${aws_lb.main.dns_name}/api" }
     ]
     logConfiguration = {
       logDriver = "awslogs"

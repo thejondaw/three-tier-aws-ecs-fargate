@@ -174,7 +174,7 @@ resource "aws_ecs_task_definition" "web" {
       portMappings = [
         {
           containerPort = 4000
-          hostPort      = 3000
+          hostPort      = 4000
         }
       ]
       logConfiguration = {
@@ -206,7 +206,7 @@ resource "aws_lb" "web" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
-  subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.web_1.id]
+  subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
 }
 
 # "ALB Listener" for "API" "Target Group"
@@ -288,7 +288,7 @@ resource "aws_ecs_service" "api" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.api.arn
-    container_name   = "api-app"
+    container_name   = "app-api"
     container_port   = 3000
   }
 
@@ -310,7 +310,7 @@ resource "aws_ecs_service" "web" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.web.arn
-    container_name   = "web-app"
+    container_name   = "app-web"
     container_port   = 3000
   }
 

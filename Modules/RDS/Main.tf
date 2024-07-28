@@ -2,7 +2,7 @@
 
 # Serverless (v2) "RDS Cluster" "Aurora PostgreSQL"
 resource "aws_rds_cluster" "aurora_postgresql" {
-  cluster_identifier     = "example"
+  cluster_identifier     = "project-db"
   engine                 = "aurora-postgresql"
   engine_mode            = "provisioned"
   engine_version         = "15.3"
@@ -12,7 +12,7 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   storage_encrypted      = true
   db_subnet_group_name   = aws_db_subnet_group.aurora_subnet_group.name
   vpc_security_group_ids = [aws_security_group.sg_aurora.id]
-  skip_final_snapshot    = false
+  skip_final_snapshot    = true
 
   serverlessv2_scaling_configuration {
     max_capacity = 1.0

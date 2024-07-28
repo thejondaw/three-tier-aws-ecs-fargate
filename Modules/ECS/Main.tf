@@ -177,6 +177,16 @@ resource "aws_ecs_task_definition" "web" {
           hostPort      = 4000
         }
       ]
+      environment = [
+        {
+          name  = "PORT"
+          value = "4000"
+        },
+        {
+          name  = "API_HOST"
+          value = "http://${aws_lb.api.dns_name}"
+        }
+      ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {

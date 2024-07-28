@@ -1,6 +1,6 @@
 # ==================== RDS Module ==================== #
 
-# Serverless (v2) RDS Cluster - Aurora PostgreSQL
+# Serverless (v2) "RDS Cluster" "Aurora PostgreSQL"
 resource "aws_rds_cluster" "aurora_postgresql" {
   cluster_identifier     = "example"
   engine                 = "aurora-postgresql"
@@ -20,7 +20,7 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   }
 }
 
-# Instance for Serverless (v2) RDS Cluster
+# "Instance" for Serverless (v2) "RDS Cluster"
 resource "aws_rds_cluster_instance" "rds_instance" {
   cluster_identifier = aws_rds_cluster.aurora_postgresql.id
   instance_class     = "db.serverless"
@@ -30,7 +30,7 @@ resource "aws_rds_cluster_instance" "rds_instance" {
 
 # ==================================================== #
 
-# Subnet Group for Database
+# "Subnet Group" for "Database"
 resource "aws_db_subnet_group" "aurora_subnet_group" {
   name       = "aurora-subnet-group"
   subnet_ids = [data.aws_subnet.db_1.id, data.aws_subnet.db_2.id]
@@ -38,7 +38,7 @@ resource "aws_db_subnet_group" "aurora_subnet_group" {
 
 # ==================================================== #
 
-# Security Group to Aurora PostgreSQL Database access
+# "Security Group" to "Aurora PostgreSQL" Database access
 resource "aws_security_group" "sg_aurora" {
   name        = "aurora-db"
   description = "Allow Aurora PostgreSQL access"
@@ -61,7 +61,7 @@ resource "aws_security_group" "sg_aurora" {
 
 # ==================================================== #
 
-# Random "Password" for "Secret Manager":
+# Random "Password" for "Secret Manager"
 resource "random_password" "aurora_password" {
   length  = 16
   special = true
@@ -69,12 +69,12 @@ resource "random_password" "aurora_password" {
   upper   = true
 }
 
-# "Secret Manager":
+# "Secret Manager"
 resource "aws_secretsmanager_secret" "aurora_secret" {
   name = "aurora-secret-project"
 }
 
-# Attach "Credentials" for "Secret Manager":
+# Attach "Credentials" for "Secret Manager"
 resource "aws_secretsmanager_secret_version" "aurora_credentials" {
   secret_id = aws_secretsmanager_secret.aurora_secret.id
   secret_string = jsonencode({
@@ -85,6 +85,5 @@ resource "aws_secretsmanager_secret_version" "aurora_credentials" {
     dbname   = aws_rds_cluster.aurora_postgresql.database_name
   })
 }
-
 
 # ==================================================== #

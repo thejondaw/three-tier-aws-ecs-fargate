@@ -1,11 +1,11 @@
-# ========= Internet Gateway and Route Table ========= #
+# ========== INTERNET GATEWAY & ROUTE TABLE ========== #
 
-# Internet Gateway - IGW
+# "Internet Gateway" (IGW)
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 }
 
-# Route Table - Attach IGW to Public Subnets
+# "Route Table" Attach "IGW" to "Public Subnets"
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.main.id
 
@@ -15,13 +15,13 @@ resource "aws_route_table" "public_rt" {
   }
 }
 
-# Association of WEB Subnet #1 - Public, with Route Table
+# Association of "WEB Subnet #1" "Public", with "Route Table"
 resource "aws_route_table_association" "public_web" {
   subnet_id      = aws_subnet.subnet_web_1.id
   route_table_id = aws_route_table.public_rt.id
 }
 
-# Association of WEB Subnet #2 - Public, with "Route Table
+# Association of "WEB Subnet #2" "Public", with "Route Table"
 resource "aws_route_table_association" "public_alb" {
   subnet_id      = aws_subnet.subnet_web_1.id
   route_table_id = aws_route_table.public_rt.id

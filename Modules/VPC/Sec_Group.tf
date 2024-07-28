@@ -1,12 +1,12 @@
 # ==================================================== #
 
-# Security Group - Allow connect to HTTP and SSH
+# "Security Group" - Allow connect to "HTTP" and "SSH"
 resource "aws_security_group" "sec_group_vpc" {
   name        = "sec-group-vpc"
   description = "Allow incoming HTTP Connections"
   vpc_id      = aws_vpc.main.id
 
-  # HTTP
+  # "HTTP"
   ingress {
     description = "Allow incoming HTTP for redirect to HTTPS"
     from_port   = 80
@@ -15,7 +15,7 @@ resource "aws_security_group" "sec_group_vpc" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # HTTPS
+  # "HTTPS"
   ingress {
     description = "Allow incoming HTTPS"
     from_port   = 443
@@ -24,7 +24,7 @@ resource "aws_security_group" "sec_group_vpc" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # SSH
+  # "SSH"
   ingress {
     description = "Allow SSH from only our VPC"
     from_port   = 22
@@ -33,7 +33,7 @@ resource "aws_security_group" "sec_group_vpc" {
     cidr_blocks = [var.vpc_cidr]
   }
 
-  # Allow all Outbound Traffic
+  # Allow all "Outbound Traffic"
   egress {
     from_port   = 0
     to_port     = 0

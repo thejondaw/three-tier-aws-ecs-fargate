@@ -141,7 +141,7 @@ resource "aws_ecs_task_definition" "api" {
       secrets = [
         {
           name      = "DBPASS"
-          valueFrom = data.aws_secretsmanager_secret.db_password.arn
+          valueFrom = "password"
         }
       ]
       logConfiguration = {

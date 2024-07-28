@@ -381,7 +381,7 @@ resource "aws_appautoscaling_policy" "web_autoscaling" {
 
 # ==================================================== #
 
-# "CloudWach" Alarm "API" for "CPU"
+# "CloudWatch" Alarm "API" for "CPU"
 resource "aws_cloudwatch_metric_alarm" "api_cpu_high" {
   alarm_name          = "api-cpu-utilization-high"
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -392,7 +392,7 @@ resource "aws_cloudwatch_metric_alarm" "api_cpu_high" {
   statistic           = "Average"
   threshold           = "85"
   alarm_description   = "This metric monitors api cpu utilization"
-  alarm_actions       = [aws_appautoscaling_policy.api_cpu.arn]
+  alarm_actions       = [aws_appautoscaling_policy.api_autoscaling["cpu"].arn]
 
   dimensions = {
     ClusterName = aws_ecs_cluster.main.name
@@ -400,7 +400,7 @@ resource "aws_cloudwatch_metric_alarm" "api_cpu_high" {
   }
 }
 
-# "CloudWach" Alarm "API" for "Memory"
+# "CloudWatch" Alarm "API" for "Memory"
 resource "aws_cloudwatch_metric_alarm" "api_memory_high" {
   alarm_name          = "api-memory-utilization-high"
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -411,14 +411,13 @@ resource "aws_cloudwatch_metric_alarm" "api_memory_high" {
   statistic           = "Average"
   threshold           = "85"
   alarm_description   = "This metric monitors api memory utilization"
-  alarm_actions       = [aws_appautoscaling_policy.api_memory.arn]
+  alarm_actions       = [aws_appautoscaling_policy.api_autoscaling["memory"].arn]
 
   dimensions = {
     ClusterName = aws_ecs_cluster.main.name
     ServiceName = aws_ecs_service.api.name
   }
 }
-
 
 # "CloudWatch" Alarm "WEB" for "CPU"
 resource "aws_cloudwatch_metric_alarm" "web_cpu_high" {
@@ -431,7 +430,7 @@ resource "aws_cloudwatch_metric_alarm" "web_cpu_high" {
   statistic           = "Average"
   threshold           = "85"
   alarm_description   = "This metric monitors web cpu utilization"
-  alarm_actions       = [aws_appautoscaling_policy.web_cpu.arn]
+  alarm_actions       = [aws_appautoscaling_policy.web_autoscaling["cpu"].arn]
 
   dimensions = {
     ClusterName = aws_ecs_cluster.main.name
@@ -450,7 +449,7 @@ resource "aws_cloudwatch_metric_alarm" "web_memory_high" {
   statistic           = "Average"
   threshold           = "85"
   alarm_description   = "This metric monitors web memory utilization"
-  alarm_actions       = [aws_appautoscaling_policy.web_memory.arn]
+  alarm_actions       = [aws_appautoscaling_policy.web_autoscaling["memory"].arn]
 
   dimensions = {
     ClusterName = aws_ecs_cluster.main.name

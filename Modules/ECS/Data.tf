@@ -53,7 +53,7 @@ data "aws_security_group" "sg_aurora" {
 
 # Secret Manager
 data "aws_secretsmanager_secret" "aurora_secret" {
-  name = "aurora-secret-project"
+  name = "aurora-secret-project-q"
 }
 
 # ==================================================== #

@@ -223,7 +223,7 @@ resource "aws_ecs_task_definition" "api" {
       { name = "DBPORT", value = tostring(data.aws_rds_cluster.aurora_postgresql.port) },
       { name = "DB", value = data.aws_rds_cluster.aurora_postgresql.database_name },
       { name = "DBUSER", value = data.aws_rds_cluster.aurora_postgresql.master_username },
-      { name = "DBPASS", value = "your-db-password" } # Замените на реальный пароль или используйте секреты позже
+      { name = "DBPASS", value = "password" } # Замените на реальный пароль или используйте секреты позже
     ]
     logConfiguration = {
       logDriver = "awslogs"
@@ -297,8 +297,9 @@ resource "aws_ecs_service" "web" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
-    security_groups = [aws_security_group.ecs_tasks.id]
+    subnets          = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
+    security_groups  = [aws_security_group.ecs_tasks.id]
+    assign_public_ip = true
   }
 
   load_balancer {

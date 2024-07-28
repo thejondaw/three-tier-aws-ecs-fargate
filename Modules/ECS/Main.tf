@@ -1,8 +1,8 @@
 # ==================== ECS MODULE ==================== #
 
-# ECS Cluster
+# "ECS Cluster" with "Container Insights" "Enabled"
 resource "aws_ecs_cluster" "main" {
-  name = "app-cluster"
+  name = "nyan-cat"
 
   setting {
     name  = "containerInsights"
@@ -10,9 +10,9 @@ resource "aws_ecs_cluster" "main" {
   }
 }
 
-# ============== IAM Roles and Policies ============== #
+# =============== IAM ROLE & POLICIES ================ #
 
-# IAM Roles and Policies
+# "IAM Role" for "ECS Task Execution"
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "ecs-task-execution-role"
 
@@ -30,23 +30,31 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   })
 }
 
+# Attach "AmazonECSTaskExecutionRolePolicy" to created "Role"
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# ================= Security Groups ================== #
+# ================= SECURITY GROUPS ================== #
 
-# Security Groups
+# "Security Group" for "ECS Tasks"
 resource "aws_security_group" "ecs_tasks" {
   name        = "ecs-tasks-sg"
-  description = "Allow Inbound Traffic to ECS tasks"
+  description = "Allow Inbound Traffic to ECS Tasks"
   vpc_id      = data.aws_vpc.main.id
 
   ingress {
     protocol        = "tcp"
     from_port       = 3000
     to_port         = 3000
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    protocol        = "tcp"
+    from_port       = 4000
+    to_port         = 4000
     cidr_blocks     = ["0.0.0.0/0"]
   }
 
@@ -58,6 +66,7 @@ resource "aws_security_group" "ecs_tasks" {
   }
 }
 
+# "Security Group" for "Application Load Balancer" (ALB)
 resource "aws_security_group" "alb" {
   name        = "alb-sg"
   description = "Allow Inbound Traffic to ALB"
@@ -78,21 +87,21 @@ resource "aws_security_group" "alb" {
   }
 }
 
-# ==================== CloudWatch ==================== #
-
-# CloudWatch Log Groups
+# "CloudWatch" "Log Group" for "API" Application
 resource "aws_cloudwatch_log_group" "api" {
   name              = "/ecs/api-app"
   retention_in_days = 30
 }
 
+# "CloudWatch" "Log Group" for "WEB" Application
 resource "aws_cloudwatch_log_group" "web" {
   name              = "/ecs/web-app"
   retention_in_days = 30
 }
 
-# ============== Task Definition - API =============== #
+# ============== TASK DEFINITION - API =============== #
 
+# Define an "ECS Task" for "API" Application
 resource "aws_ecs_task_definition" "api" {
   family                   = "app-api"
   network_mode             = "awsvpc"
@@ -147,9 +156,9 @@ resource "aws_ecs_task_definition" "api" {
   ])
 }
 
-# ============== Task Definition - WEB =============== #
+# ============== TASK DEFINITION - WEB =============== #
 
-# Task Definitions
+# Define an "ECS Task" for "WEB" Application
 resource "aws_ecs_task_definition" "web" {
   family                   = "app-web"
   network_mode             = "awsvpc"
@@ -180,10 +189,9 @@ resource "aws_ecs_task_definition" "web" {
   ])
 }
 
-# ================== Load Balancers ================== #
+# ================== LOAD BALANCERS ================== #
 
-# Application Load Balancers
-
+# "Application Load Balancer" for "API" Application
 resource "aws_lb" "api" {
   name               = "api-alb"
   internal           = false
@@ -192,7 +200,7 @@ resource "aws_lb" "api" {
   subnets            = [data.aws_subnet.api_1.id, data.aws_subnet.api_2.id]
 }
 
-
+# "Application Load Balancer" for "WEB" Application
 resource "aws_lb" "web" {
   name               = "web-alb"
   internal           = false
@@ -201,7 +209,7 @@ resource "aws_lb" "web" {
   subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.web_1.id]
 }
 
-# ALB Listeners
+# "ALB Listener" for "API" "Target Group"
 resource "aws_lb_listener" "api" {
   load_balancer_arn = aws_lb.api.arn
   port              = "80"
@@ -213,6 +221,7 @@ resource "aws_lb_listener" "api" {
   }
 }
 
+# "ALB Listener" for "WEB" "Target Group"
 resource "aws_lb_listener" "web" {
   load_balancer_arn = aws_lb.web.arn
   port              = "80"
@@ -224,7 +233,7 @@ resource "aws_lb_listener" "web" {
   }
 }
 
-# ALB Target Groups
+# "ALB Target Group" for "API" Application
 resource "aws_lb_target_group" "api" {
   name        = "api-tg"
   port        = 3000
@@ -243,6 +252,7 @@ resource "aws_lb_target_group" "api" {
   }
 }
 
+# "ALB Target Group" for "WEB" Application
 resource "aws_lb_target_group" "web" {
   name        = "web-tg"
   port        = 3000
@@ -263,7 +273,7 @@ resource "aws_lb_target_group" "web" {
 
 # =================== ECS SERVICES =================== #
 
-# ECS Services
+# "ECS Service" for "API" Application
 resource "aws_ecs_service" "api" {
   name            = "api-service"
   cluster         = aws_ecs_cluster.main.id
@@ -285,6 +295,7 @@ resource "aws_ecs_service" "api" {
   depends_on = [aws_lb_listener.api]
 }
 
+# "ECS Service" for "WEB" Application
 resource "aws_ecs_service" "web" {
   name            = "web-service"
   cluster         = aws_ecs_cluster.main.id
@@ -306,9 +317,9 @@ resource "aws_ecs_service" "web" {
   depends_on = [aws_lb_listener.web]
 }
 
-# =================== Auto Scaling =================== #
+# =================== AUTO SCALING =================== #
 
-# Auto Scaling
+# Set up "Target" "Auto-Scaling" for "API Service"
 resource "aws_appautoscaling_target" "api" {
   max_capacity       = 4
   min_capacity       = 2
@@ -317,6 +328,7 @@ resource "aws_appautoscaling_target" "api" {
   service_namespace  = "ecs"
 }
 
+# Configure "Auto-Scaling Policy" for "API Service" based on "CPU" usage
 resource "aws_appautoscaling_policy" "api_cpu" {
   name               = "api-cpu-autoscaling"
   policy_type        = "TargetTrackingScaling"
@@ -332,6 +344,7 @@ resource "aws_appautoscaling_policy" "api_cpu" {
   }
 }
 
+# Set up "Target" "Auto-Scaling" for "WEB Service"
 resource "aws_appautoscaling_target" "web" {
   max_capacity       = 4
   min_capacity       = 2
@@ -340,6 +353,7 @@ resource "aws_appautoscaling_target" "web" {
   service_namespace  = "ecs"
 }
 
+# Configure "Auto-Scaling Policy" for "WEB Service" based on "CPU" usage
 resource "aws_appautoscaling_policy" "web_cpu" {
   name               = "web-cpu-autoscaling"
   policy_type        = "TargetTrackingScaling"

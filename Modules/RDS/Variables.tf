@@ -1,4 +1,4 @@
-# ============== Variables of RDS Module ============= #
+# ============== VARIABLES OF RDS Module ============= #
 
 # Variable for AWS Region
 variable "region" {
@@ -6,7 +6,7 @@ variable "region" {
   type        = string
 }
 
-# =================  VPC and Subnets ================= #
+# ==================  VPC & Subnets ================== #
 
 # Variable for CIDR Block of VPC
 variable "vpc_cidr" {

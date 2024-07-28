@@ -1,13 +1,13 @@
-# ==================== ROOT Main ===================== #
+# ==================== ROOT MAIN ===================== #
 
 # AWS Region
 provider "aws" {
   region = var.region_rv
 }
 
-# ================== Custom Modules ================== #
+# ================== CUSTOM MODULES ================== #
 
-# VPC Module
+# "VPC" Module
 module "vpc" {
   source            = "./Modules/VPC"
   region            = var.region_rv
@@ -20,7 +20,7 @@ module "vpc" {
   subnet_db_2_cidr  = var.subnet_db_2_cidr_id
 }
 
-# RDS Module
+# "RDS" Module
 module "rds" {
   source            = "./Modules/RDS"
   region            = var.region_rv
@@ -31,7 +31,7 @@ module "rds" {
   subnet_db_2_cidr  = module.vpc.subnet_db_2_cidr_id
 }
 
-# ECS Module
+# "ECS" Module
 module "ecs" {
   source            = "./Modules/ECS"
   region            = var.region_rv

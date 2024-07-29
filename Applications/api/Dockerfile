@@ -1,14 +1,27 @@
-FROM node:14
+FROM node:18
+
 WORKDIR /usr/src/app
+
+# Копируем package.json и package-lock.json (если есть)
 COPY package*.json ./
-RUN npm install --verbose
+
+# Устанавливаем зависимости, игнорируя предупреждения и ошибки
+RUN npm install
+#--legacy-peer-deps --force --no-audit
+
+# Копируем исходный код приложения
 COPY . .
 
-ENV PORT=3000
-ENV DBUSER='user'
-ENV DB='toptal'
-ENV DBPASS='password'
-ENV DBHOST='IP'
-ENV DBPORT=5432
+# Открываем порт 3000
+EXPOSE 3000
 
+# Объявляем переменные окружения
+ENV PORT=3000
+ENV DBUSER=
+ENV DB=
+ENV DBPASS=
+ENV DBHOST=
+ENV DBPORT=
+
+# Запускаем приложение
 CMD [ "npm", "start" ]

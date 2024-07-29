@@ -1,3 +1,5 @@
+# ===== #
+
 # Create IAM role for ECS task execution
 resource "aws_iam_role" "ecs_execution_role" {
   name = "ecs_execution_role"
@@ -82,6 +84,27 @@ resource "aws_security_group" "alb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 4000
+    to_port     = 4000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -112,6 +135,16 @@ resource "aws_lb_listener" "main" {
       message_body = "No matching route"
       status_code  = "404"
     }
+  }
+}
+
+# Create ECS cluster
+resource "aws_ecs_cluster" "main" {
+  name = "nyan-cat"
+
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
   }
 }
 
@@ -270,16 +303,6 @@ resource "aws_lb_listener_rule" "web" {
     path_pattern {
       values = ["/*"]
     }
-  }
-}
-
-# Create ECS cluster
-resource "aws_ecs_cluster" "main" {
-  name = "nyan-cat"
-
-  setting {
-    name  = "containerInsights"
-    value = "enabled"
   }
 }
 

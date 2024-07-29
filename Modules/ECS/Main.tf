@@ -56,7 +56,12 @@ resource "aws_lb" "main" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
-  subnets            = [data.aws_subnet.api_1.id, data.aws_subnet.api_2.id]
+  subnets            = [
+    data.aws_subnet.web_1.id, 
+    data.aws_subnet.web_2.id,
+    data.aws_subnet.api_1.id,
+    data.aws_subnet.api_2.id
+  ]
 }
 
 # "Listener" for "ALB"

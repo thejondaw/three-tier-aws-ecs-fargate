@@ -6,7 +6,8 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Устанавливаем зависимости, игнорируя предупреждения и ошибки
-RUN npm install --legacy-peer-deps --force --no-audit
+RUN npm install
+#--legacy-peer-deps --force --no-audit
 
 # Копируем исходный код приложения
 COPY . .

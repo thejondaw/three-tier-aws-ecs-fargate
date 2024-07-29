@@ -8,7 +8,8 @@ COPY package*.json ./
 
 # Устанавливаем зависимости
 # Используем флаги для обхода проблем с устаревшими зависимостями
-RUN npm install --legacy-peer-deps --force --no-audit
+RUN npm install
+#--legacy-peer-deps --force --no-audit
 
 # Копируем исходный код приложения
 COPY . .

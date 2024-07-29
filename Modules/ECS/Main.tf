@@ -48,25 +48,20 @@ resource "aws_iam_role" "ecs_task_role" {
   })
 }
 
-# ================== LOAD BALANCER =================== #
+# ================== LOAD BALANCERS ================== #
 
-# "Application Load Balancer" (ALB)
-resource "aws_lb" "main" {
-  name               = "ecs-alb"
+# "Application Load Balancer" (ALB) for API
+resource "aws_lb" "api" {
+  name               = "api-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = [
-    data.aws_subnet.web_1.id, 
-    data.aws_subnet.web_2.id,
-    data.aws_subnet.api_1.id,
-    data.aws_subnet.api_2.id
-  ]
+  security_groups    = [aws_security_group.api_alb.id]
+  subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
 }
 
-# "Listener" for "ALB"
-resource "aws_lb_listener" "main" {
-  load_balancer_arn = aws_lb.main.arn
+# "Listener" for API ALB
+resource "aws_lb_listener" "api" {
+  load_balancer_arn = aws_lb.api.arn
   port              = 80
   protocol          = "HTTP"
 
@@ -80,6 +75,27 @@ resource "aws_lb_listener" "main" {
   }
 }
 
+# "Application Load Balancer" (ALB) for WEB
+resource "aws_lb" "web" {
+  name               = "web-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.web_alb.id]
+  subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
+}
+
+# "Listener" for WEB ALB
+resource "aws_lb_listener" "web" {
+  load_balancer_arn = aws_lb.web.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.web.arn
+  }
+}
+
 # ================= SECURITY GROUPS ================== #
 
 # "Security Group" for "ECS Tasks"
@@ -89,24 +105,17 @@ resource "aws_security_group" "ecs_tasks" {
   vpc_id      = data.aws_vpc.main.id
 
   ingress {
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.api_alb.id]
   }
 
   ingress {
-    from_port   = 4000
-    to_port     = 4000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
+    from_port       = 4000
+    to_port         = 4000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.web_alb.id]
   }
 
   egress {
@@ -117,10 +126,10 @@ resource "aws_security_group" "ecs_tasks" {
   }
 }
 
-# "Security Group" for "ALB"
-resource "aws_security_group" "alb" {
-  name        = "alb-sg"
-  description = "Allow inbound traffic for ALB"
+# "Security Group" for API ALB
+resource "aws_security_group" "api_alb" {
+  name        = "api-alb-sg"
+  description = "Allow inbound traffic for API ALB"
   vpc_id      = data.aws_vpc.main.id
 
   ingress {
@@ -130,25 +139,25 @@ resource "aws_security_group" "alb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress {
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 4000
-    to_port     = 4000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   egress {
-    from_port   = 5432
-    to_port     = 5432
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# "Security Group" for WEB ALB
+resource "aws_security_group" "web_alb" {
+  name        = "web-alb-sg"
+  description = "Allow inbound traffic for WEB ALB"
+  vpc_id      = data.aws_vpc.main.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -181,7 +190,7 @@ resource "aws_lb_target_group" "api" {
 
 # "Listener Rule" for "API" Application
 resource "aws_lb_listener_rule" "api" {
-  listener_arn = aws_lb_listener.main.arn
+  listener_arn = aws_lb_listener.api.arn
   priority     = 100
 
   action {
@@ -211,23 +220,6 @@ resource "aws_lb_target_group" "web" {
     timeout             = 30
     interval            = 60
     matcher             = "200"
-  }
-}
-
-# "Listener Rule" for "WEB" Application
-resource "aws_lb_listener_rule" "web" {
-  listener_arn = aws_lb_listener.main.arn
-  priority     = 90
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.web.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["/*"]
-    }
   }
 }
 
@@ -286,7 +278,7 @@ resource "aws_ecs_task_definition" "web" {
       hostPort      = 4000
     }]
     environment = [
-      { name = "API_HOST", value = "http://${aws_lb.main.dns_name}" }
+      { name = "API_HOST", value = "http://${aws_lb.api.dns_name}" }
     ]
     logConfiguration = {
       logDriver = "awslogs"
@@ -320,7 +312,7 @@ resource "aws_ecs_service" "api" {
     container_port   = 3000
   }
 
-  depends_on = [aws_lb_listener.main]
+  depends_on = [aws_lb_listener.api]
 }
 
 # "ECS Service" for "WEB" Application
@@ -343,7 +335,7 @@ resource "aws_ecs_service" "web" {
     container_port   = 4000
   }
 
-  depends_on = [aws_lb_listener.main]
+  depends_on = [aws_lb_listener.web]
 }
 
 # =================== AUTO-SCALING =================== #

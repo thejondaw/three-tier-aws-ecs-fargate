@@ -6,7 +6,7 @@ variable "region_rv" {
   type        = string
 }
 
-# ========== CIDR BLOCK FOR VPC & Subnets ============ #
+# ========== CIDR BLOCK FOR VPC & SUBNETS ============ #
 
 # Variable for "CIDR Block" of "VPC"
 variable "vpc_cidr_id" {

@@ -1,4 +1,4 @@
-# ======================= DATA ======================= #
+# ===================== VPC DATA ===================== #
 
 # Fetch "VPC" info
 data "aws_vpc" "main" {
@@ -35,29 +35,28 @@ data "aws_subnet" "db_1" {
   cidr_block = var.subnet_db_1_cidr
 }
 
-# Fetch DB Subnet #2 - Private info
+# Fetch "DB Subnet #2" "Private" info
 data "aws_subnet" "db_2" {
   vpc_id     = data.aws_vpc.main.id
   cidr_block = var.subnet_db_2_cidr
 }
 
-# ==================================================== #
+# ===================== RDS DATA ===================== #
 
-# Security Group to Aurora PostgreSQL Database access
+# Fetch "Security Group" of "Aurora PostgreSQL" Database
 data "aws_security_group" "sg_aurora" {
   name   = "aurora-db"
   vpc_id = data.aws_vpc.main.id
 }
 
-# ==================================================== #
-
-# Secret Manager
+# Fetch "Secret Manager" of "RDS Module"
 data "aws_secretsmanager_secret" "aurora_secret" {
   name = "aurora-secret-t"
 }
 
-# ==================================================== #
-
+# Fetch RDS Cluster of "Aurora PostgreSQL" Database
 data "aws_rds_cluster" "aurora_postgresql" {
   cluster_identifier = "project-db"
 }
+
+# ==================================================== #

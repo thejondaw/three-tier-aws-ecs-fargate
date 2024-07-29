@@ -132,7 +132,7 @@ resource "aws_route_table_association" "public_web_2" {
   route_table_id = aws_route_table.public_rt.id
 }
 
-# ==================================================== #
+# ============== SECURITY GROUP OF VPC =============== #
 
 # "Security Group" - Allow connect to "HTTP" and "SSH"
 resource "aws_security_group" "sec_group_vpc" {

@@ -30,14 +30,6 @@ resource "aws_rds_cluster_instance" "rds_instance" {
 
 # ==================================================== #
 
-# "Subnet Group" for "Database"
-resource "aws_db_subnet_group" "aurora_subnet_group" {
-  name       = "aurora-subnet-group"
-  subnet_ids = [data.aws_subnet.db_1.id, data.aws_subnet.db_2.id]
-}
-
-# ==================================================== #
-
 # "Security Group" to "Aurora PostgreSQL" Database access
 resource "aws_security_group" "sg_aurora" {
   name        = "aurora-db"
@@ -59,7 +51,7 @@ resource "aws_security_group" "sg_aurora" {
   }
 }
 
-# ==================================================== #
+# ================== SECRET MANAGER ================== #
 
 # Random "Password" for "Secret Manager"
 resource "random_password" "aurora_password" {
@@ -84,6 +76,14 @@ resource "aws_secretsmanager_secret_version" "aurora_credentials" {
     port     = aws_rds_cluster.aurora_postgresql.port
     dbname   = aws_rds_cluster.aurora_postgresql.database_name
   })
+}
+
+# ==================================================== #
+
+# "Subnet Group" for "Database"
+resource "aws_db_subnet_group" "aurora_subnet_group" {
+  name       = "aurora-subnet-group"
+  subnet_ids = [data.aws_subnet.db_1.id, data.aws_subnet.db_2.id]
 }
 
 # ==================================================== #

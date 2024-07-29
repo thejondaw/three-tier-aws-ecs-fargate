@@ -204,9 +204,9 @@ resource "aws_ecs_service" "api" {
     security_groups = [aws_security_group.ecs_tasks.id]
   }
 
-  service_registries {                                   # TEST
-    registry_arn = aws_service_discovery_service.api.arn #  TEST
-  }                                                      # TEST
+  # service_registries {                                   # TEST
+  #   registry_arn = aws_service_discovery_service.api.arn #  TEST
+  # }                                                      # TEST
 
   load_balancer {
     target_group_arn = aws_lb_target_group.api.arn

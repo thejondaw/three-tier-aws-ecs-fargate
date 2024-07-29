@@ -311,8 +311,7 @@ resource "aws_ecs_task_definition" "web" {
       hostPort      = 4000
     }]
     environment = [
-      { name = "API_HOST", value = "http://api.myapp.local:3000" } # TEST
-      #{ name = "API_HOST", value = "http://${aws_lb.main.dns_name}/api" }
+      { name = "API_HOST", value = "http://${aws_lb.api.dns_name}" }
     ]
     logConfiguration = {
       logDriver = "awslogs"

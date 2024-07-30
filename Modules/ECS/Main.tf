@@ -56,7 +56,7 @@ resource "aws_lb" "api" {
   internal           = true
   load_balancer_type = "application"
   security_groups    = [aws_security_group.api_alb.id]
-  subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
+  subnets            = [data.aws_subnet.api_1.id, data.aws_subnet.api_2.id]
 }
 
 # "Listener" for "API" "ALB"
@@ -87,7 +87,7 @@ resource "aws_lb" "web" {
 # "Listener" for "WEB" "ALB"
 resource "aws_lb_listener" "web" {
   load_balancer_arn = aws_lb.web.arn
-  port              = 80
+  port              = 4000
   protocol          = "HTTP"
 
   default_action {
@@ -154,8 +154,8 @@ resource "aws_security_group" "web_alb" {
   vpc_id      = data.aws_vpc.main.id
 
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = 4000
+    to_port     = 4000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -208,7 +208,7 @@ resource "aws_lb_listener_rule" "api" {
 # "Target Group" for "WEB" Application
 resource "aws_lb_target_group" "web" {
   name        = "web-tg"
-  port        = 80
+  port        = 4000
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.main.id
   target_type = "ip"

@@ -53,7 +53,7 @@ resource "aws_iam_role" "ecs_task_role" {
 # "Application Load Balancer" (ALB) for "API" Application
 resource "aws_lb" "api" {
   name               = "api-alb"
-  internal           = false
+  internal           = true
   load_balancer_type = "application"
   security_groups    = [aws_security_group.api_alb.id]
   subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
@@ -98,10 +98,10 @@ resource "aws_lb_listener" "web" {
 
 # ================= SECURITY GROUPS ================== #
 
-# "Security Group" for "ECS Tasks"
+# Allow "Inbound Traffic" on "3000" & "4000" from ALBs & all "Outbound Traffic"
 resource "aws_security_group" "ecs_tasks" {
   name        = "ecs-tasks-sg"
-  description = "Allow inbound traffic for ECS tasks"
+  description = "Allow Inbound Traffic for ECS Tasks"
   vpc_id      = data.aws_vpc.main.id
 
   ingress {
@@ -126,10 +126,10 @@ resource "aws_security_group" "ecs_tasks" {
   }
 }
 
-# "Security Group" for API ALB
+# Allow "Inbound (HTTP) Traffic" & all "Outbound Traffic" for "API ALB"
 resource "aws_security_group" "api_alb" {
   name        = "api-alb-sg"
-  description = "Allow inbound traffic for API ALB"
+  description = "Allow Inbound Traffic for API ALB"
   vpc_id      = data.aws_vpc.main.id
 
   ingress {
@@ -147,10 +147,10 @@ resource "aws_security_group" "api_alb" {
   }
 }
 
-# "Security Group" for WEB ALB
+# Allows Inbound (HTTP) Traffic & all Outbound Traffic for "WEB ALB"
 resource "aws_security_group" "web_alb" {
   name        = "web-alb-sg"
-  description = "Allow inbound traffic for WEB ALB"
+  description = "Allow Inbound Traffic for WEB ALB"
   vpc_id      = data.aws_vpc.main.id
 
   ingress {

@@ -51,7 +51,7 @@ data "aws_security_group" "sg_aurora" {
 
 # Fetch "Secret Manager" of "RDS Module"
 data "aws_secretsmanager_secret" "aurora_secret" {
-  name = "aurora-secret-a"
+  name = "aurora-secret-m"
 }
 
 # Fetch RDS Cluster of "Aurora PostgreSQL" Database

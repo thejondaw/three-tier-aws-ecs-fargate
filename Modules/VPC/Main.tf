@@ -42,65 +42,89 @@ resource "aws_subnet" "subnet_api_2" {
 resource "aws_subnet" "subnet_db_1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.subnet_db_1_cidr
-  availability_zone = "us-east-2b"
+  availability_zone = "us-east-2a"
 }
 
 # "DB Subnet #2" "Private"
 resource "aws_subnet" "subnet_db_2" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.subnet_db_2_cidr
-  availability_zone = "us-east-2c"
+  availability_zone = "us-east-2b"
 }
 
 # ============ NAT GATEWAY & ROUTE TABLE ============= #
 
-# "Elastic IP" for "NAT Gateway"
-resource "aws_eip" "project_eip" {
+# "Elastic IP #1" for "NAT Gateway #1"
+resource "aws_eip" "project_eip_1" {
   domain = "vpc"
 }
 
-# "NAT Gateway"
-resource "aws_nat_gateway" "ngw" {
-  allocation_id = aws_eip.project_eip.id
+# "Elastic IP #2" for "NAT Gateway #2"
+resource "aws_eip" "project_eip_2" {
+  domain = "vpc"
+}
+
+# "NAT Gateway #1"
+resource "aws_nat_gateway" "ngw_1" {
+  allocation_id = aws_eip.project_eip_1.id
   subnet_id     = aws_subnet.subnet_web_1.id
 }
 
-# "Route Table" for "Private Subnets"
-resource "aws_route_table" "private_rt" {
+# "NAT Gateway #2"
+resource "aws_nat_gateway" "ngw_2" {
+  allocation_id = aws_eip.project_eip_2.id
+  subnet_id     = aws_subnet.subnet_web_2.id
+}
+
+# "Route Table" for "Private Subnets" #1
+resource "aws_route_table" "private_rt_1" {
   vpc_id = aws_vpc.main.id
 }
 
-# "Route" for "NAT Gateway" to "Private Subnets"
-resource "aws_route" "private_route" {
-  route_table_id         = aws_route_table.private_rt.id
+# "Route Table" for "Private Subnets" #2
+resource "aws_route_table" "private_rt_2" {
+  vpc_id = aws_vpc.main.id
+}
+
+
+# "Route" for "NAT Gateway #1" to "Private Subnets" #1
+resource "aws_route" "private_route_1" {
+  route_table_id         = aws_route_table.private_rt_1.id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.ngw.id
+  nat_gateway_id         = aws_nat_gateway.ngw_1.id
+}
+
+# "Route" for "NAT Gateway #2" to "Private Subnets" #2
+resource "aws_route" "private_route_2" {
+  route_table_id         = aws_route_table.private_rt_2.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.ngw_2.id
 }
 
 # ==================================================== #
 
-# Association of "API Subnet #1" "Private", with "Route Table"
+# Association of "API Subnet #1" "Private", with "Route Table #1"
 resource "aws_route_table_association" "private_api_1" {
   subnet_id      = aws_subnet.subnet_api_1.id
-  route_table_id = aws_route_table.private_rt.id
+  route_table_id = aws_route_table.private_rt_1.id
 }
 
-# Association of "API Subnet #2" "Private", with "Route Table"
+# Association of "API Subnet #2" "Private", with "Route Table #2"
 resource "aws_route_table_association" "private_api_2" {
   subnet_id      = aws_subnet.subnet_api_2.id
-  route_table_id = aws_route_table.private_rt.id
+  route_table_id = aws_route_table.private_rt_2.id
 }
 
-# Association of "DB Subnet #2" "Private", with "Route Table"
+# Association of "DB Subnet #1" "Private", with "Route Table #1"
 resource "aws_route_table_association" "private_db_1" {
   subnet_id      = aws_subnet.subnet_db_1.id
-  route_table_id = aws_route_table.private_rt.id
+  route_table_id = aws_route_table.private_rt_1.id
 }
 
-# Association of "DB Subnet #2" "Private", with "Route Table"
+# Association of "DB Subnet #2" "Private", with "Route Table #2"
 resource "aws_route_table_association" "private_db_2" {
   subnet_id      = aws_subnet.subnet_db_2.id
-  route_table_id = aws_route_table.private_rt.id
+  route_table_id = aws_route_table.private_rt_2.id
 }
 
 # ========== INTERNET GATEWAY & ROUTE TABLE ========== #

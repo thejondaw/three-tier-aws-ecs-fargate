@@ -62,7 +62,7 @@ resource "aws_lb" "api" {
 # "Listener" for "API" "ALB"
 resource "aws_lb_listener" "api" {
   load_balancer_arn = aws_lb.api.arn
-  port              = 80
+  port              = 3000
   protocol          = "HTTP"
 
   default_action {
@@ -133,8 +133,8 @@ resource "aws_security_group" "api_alb" {
   vpc_id      = data.aws_vpc.main.id
 
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = 3000
+    to_port     = 3000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }

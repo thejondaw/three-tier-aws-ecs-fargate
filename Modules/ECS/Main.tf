@@ -50,7 +50,7 @@ resource "aws_iam_role" "ecs_task_role" {
 
 # ================== LOAD BALANCERS ================== #
 
-# "Application Load Balancer" (ALB) for API
+# "Application Load Balancer" (ALB) for "API" Application
 resource "aws_lb" "api" {
   name               = "api-alb"
   internal           = false
@@ -59,7 +59,7 @@ resource "aws_lb" "api" {
   subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
 }
 
-# "Listener" for API ALB
+# "Listener" for "API" "ALB"
 resource "aws_lb_listener" "api" {
   load_balancer_arn = aws_lb.api.arn
   port              = 80
@@ -75,7 +75,7 @@ resource "aws_lb_listener" "api" {
   }
 }
 
-# "Application Load Balancer" (ALB) for WEB
+# "Application Load Balancer" (ALB) for "WEB" Application
 resource "aws_lb" "web" {
   name               = "web-alb"
   internal           = false
@@ -84,7 +84,7 @@ resource "aws_lb" "web" {
   subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
 }
 
-# "Listener" for WEB ALB
+# "Listener" for "WEB" "ALB"
 resource "aws_lb_listener" "web" {
   load_balancer_arn = aws_lb.web.arn
   port              = 80

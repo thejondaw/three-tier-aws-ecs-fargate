@@ -1,7 +1,6 @@
 <p align="center">
   <img src="Images/diagram.gif" alt="Diagram of Project">
   <br>
-  <em>If HuXyЯ NeT</em>
 </p>
 
 # Toptal - Project
@@ -10,45 +9,46 @@
 - Application based on `Node.js`
     - API
     - WEB
-- Database based on `PostgreSQL`
+- Database based on `Aurora PostgreSQL 15.3 (Serverless v2)`
 
 ### Diagram
 
 ```
-+----------------------------------------------------+
-|                         VPC                        |
-| +------------------------------------------------+ |
-| |                 Tier 1: Database               | |
-| |               (2 Private Subnets)              | |
-| |                 |            |                 | |
-| |    +------------+------------+------------+    | |
-| |    |            |            |            |    | |
-| |  DB NAME     DB PORT      DB USER    DB PASSWD | |
-| |    |            |            |            |    | |
-| |    |            |            |            |    | |
-| |    |            |            |            |    | |
-| +----+------------+------------+------------+----+ |
-|      |            |            |            |      |
-| +----V------------V------------V------------V----+ |
-| |                  Tier 2: API                   | |
-| |               (2 Private Subnets)              | |
-| |                       |                        | |
-| |              +--------+--------+               | |
-| |              |                 |               | |
-| |          API HOST          API PORT            | |
-| |              |                 |               | |
-| +--------------+-----------------+---------------+ |
-|                |                 |                 |
-| +--------------V-----------------V---------------+ |
-| |                  Tier 3: WEB                   | |
-| |               (2 Public Subnets)               | |
-| |                                                | |
-| +------------------------------------------------+ |
-+----------------------------------------------------+
+              +----------------------------------------------------+
+              |                         VPC                        |
+              | +------------------------------------------------+ |
+              | |                 Tier 1: Database               | |
+              | |               (2 Private Subnets)              | |
+              | |                 |            |                 | |
+              | |    +------------+------------+------------+    | |
+              | |    |            |            |            |    | |
+              | |  DB NAME     DB PORT      DB USER    DB PASSWD | |
+              | |    |            |            |            |    | |
+              | |    |            |            |            |    | |
+              | |    |            |            |            |    | |
+              | +----+------------+------------+------------+----+ |
+              |      |            |            |            |      |
+              | +----V------------V------------V------------V----+ |
+              | |                  Tier 2: API                   | |
+              | |               (2 Private Subnets)              | |
+              | |                       |                        | |
+              | |              +--------+--------+               | |
+              | |              |                 |               | |
+              | |          API HOST          API PORT            | |
+              | |              |                 |               | |
+              | +--------------+-----------------+---------------+ |
+              |                |                 |                 |
+              | +--------------V-----------------V---------------+ |
+              | |                  Tier 3: WEB                   | |
+              | |               (2 Public Subnets)               | |
+              | |                                                | |
+              | +------------------------------------------------+ |
+              +----------------------------------------------------+
 ```
 
 ### Applications
 
+- Database works on 5432 PORT
 - API works on 3000 PORT
 - WEB works on 4000 PORT
 
@@ -73,34 +73,7 @@ sudo docker push jondaw/app-web:latest
 > <details>
 > <summary>VPC Module</summary>
 >
-> - VPC
->    - Main Virtual Private Cloud for the infrastructure
-> 
-> - Subnets
->    - Public Subnet #1: For Web servers
->    - Public Subnet #2: For Application Load Balancer
->    - Private Subnet #3: For API servers
->    - Private Subnet #4: For Database servers
-> 
-> - Internet Gateway
->    - Allows communication between VPC and the internet
-> 
-> - NAT Gateway
->    - Enables private subnets to access internet while remaining private
-> 
-> - Route Tables
->    - Public: Routes traffic for public subnets
->    - Private: Routes traffic for private subnets
-> 
-> - Security Group
->    - Controls inbound and outbound traffic for VPC resources
->    - Allows HTTP (80), HTTPS (443), and SSH (22) inbound traffic
-> 
-> - Elastic IP
->    - Static public IP address for NAT Gateway
-> 
-> - Route Table Associations
->    - Links subnets with appropriate route tables
+> - TEST
 >
 > </details>
 
@@ -109,27 +82,7 @@ sudo docker push jondaw/app-web:latest
 > <details>
 > <summary>RDS Module</summary>
 >
-> - **AWS DB Subnet Group**
->   - Created using private subnets for database isolation
-> 
-> - **AWS Security Group for Database**
->   - Allows PostgreSQL database access
->   - Ingress rule for port 3000
->   - Egress rule for all outbound traffic
-> 
-> - **AWS Secrets Manager**
->   - Stores database credentials securely
->   - Includes randomly generated username and password
-> 
-> - **AWS RDS (Relational Database Service)**
->   - PostgreSQL database instance
->   - Configured with:
->     - Subnet group for network placement
->     - Allocated storage
->     - Engine version
->     - Instance class
->     - Security group
->     - Parameter group
+> - TEST
 >
 > </details>
 
@@ -138,9 +91,7 @@ sudo docker push jondaw/app-web:latest
 > <details>
 > <summary>ECS Module</summary>
 >
->   - *1*
->   - *2*
->   - *3*
+>  - TEST
 >
 > </details>
 

@@ -256,29 +256,48 @@ resource "aws_ecs_task_definition" "api" {
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
-  container_definitions = jsonencode([{
-    name  = "api-app"
-    image = "docker.io/jondaw/app-api:latest"
-    portMappings = [{
-      containerPort = 3000
-      hostPort      = 3000
-    }]
-    environment = [
-      { name = "DBHOST", value = data.aws_rds_cluster.aurora_postgresql.endpoint },
-      { name = "DBPORT", value = tostring(data.aws_rds_cluster.aurora_postgresql.port) },
-      { name = "DB",     value = data.aws_rds_cluster.aurora_postgresql.database_name },
-      { name = "DBUSER", value = data.aws_rds_cluster.aurora_postgresql.master_username },
-      { name = "DBPASS", value = "password" }
-    ]
-    logConfiguration = {
-      logDriver = "awslogs"
-      options = {
-        awslogs-group         = aws_cloudwatch_log_group.api.name
-        awslogs-region        = var.region
-        awslogs-stream-prefix = "api"
+  container_definitions = jsonencode([
+    {
+      name  = "api-app"
+      image = "docker.io/jondaw/app-api:latest"
+      portMappings = [
+        {
+          containerPort = 3000
+          hostPort      = 3000
+        }
+      ]
+      environment = [
+        {
+          name  = "DBHOST"
+          value = data.aws_rds_cluster.aurora_postgresql.endpoint
+        },
+        {
+          name  = "DBPORT"
+          value = tostring(data.aws_rds_cluster.aurora_postgresql.port)
+        },
+        {
+          name  = "DB"
+          value = data.aws_rds_cluster.aurora_postgresql.database_name
+        },
+        {
+          name  = "DBUSER"
+          value = data.aws_rds_cluster.aurora_postgresql.master_username
+        },
+        {
+          name  = "DBPASS"
+          value = "password"
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.api.name
+          awslogs-region        = var.region
+          awslogs-stream-prefix = "api"
+        }
       }
     }
-  }])
+  ])
 }
 
 # Define "ECS Task" for "WEB" Application
@@ -291,25 +310,32 @@ resource "aws_ecs_task_definition" "web" {
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
-  container_definitions = jsonencode([{
-    name  = "web-app"
-    image = "docker.io/jondaw/app-web:latest"
-    portMappings = [{
-      containerPort = 4000
-      hostPort      = 4000
-    }]
-    environment = [
-      { name = "API_HOST", value = "http://${aws_lb.api.dns_name}" }
-    ]
-    logConfiguration = {
-      logDriver = "awslogs"
-      options = {
-        awslogs-group         = aws_cloudwatch_log_group.web.name
-        awslogs-region        = var.region
-        awslogs-stream-prefix = "web"
+  container_definitions = jsonencode([
+    {
+      name  = "web-app"
+      image = "docker.io/jondaw/app-web:latest"
+      portMappings = [
+        {
+          containerPort = 4000
+          hostPort      = 4000
+        }
+      ]
+      environment = [
+        {
+          name  = "API_HOST"
+          value = "http://${aws_lb.api.dns_name}"
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.web.name
+          awslogs-region        = var.region
+          awslogs-stream-prefix = "web"
+        }
       }
     }
-  }])
+  ])
 }
 
 # =================== ECS SERVICES =================== #

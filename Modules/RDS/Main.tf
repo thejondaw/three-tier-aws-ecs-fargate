@@ -6,8 +6,8 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   engine                 = "aurora-postgresql"
   engine_mode            = "provisioned"
   engine_version         = "15.3"
-  database_name          = "toptal"   # VARS
-  master_username        = "jondaw"   # VARS
+  database_name          = "toptal"   #! VARS
+  master_username        = "jondaw"   #! VARS
   master_password        = "password"
   storage_encrypted      = true
   db_subnet_group_name   = aws_db_subnet_group.aurora_subnet_group.name

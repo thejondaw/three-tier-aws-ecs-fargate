@@ -75,6 +75,23 @@ resource "aws_lb_listener" "api" {
   }
 }
 
+# "Listener Rule" for "API" Application
+resource "aws_lb_listener_rule" "api" {
+  listener_arn = aws_lb_listener.api.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/api/*"]
+    }
+  }
+}
+
 # "Application Load Balancer" (ALB) for "WEB" Application
 resource "aws_lb" "web" {
   name               = "web-alb"
@@ -93,6 +110,23 @@ resource "aws_lb_listener" "web" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.web.arn
+  }
+}
+
+# "Listener Rule" for "WEB" Application
+resource "aws_lb_listener_rule" "web" {
+  listener_arn = aws_lb_listener.web.arn
+  priority     = 90
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.web.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/web/*"]
+    }
   }
 }
 
@@ -188,22 +222,7 @@ resource "aws_lb_target_group" "api" {
   }
 }
 
-# "Listener Rule" for "API" Application
-resource "aws_lb_listener_rule" "api" {
-  listener_arn = aws_lb_listener.api.arn
-  priority     = 100
 
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.api.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["/api/*"]
-    }
-  }
-}
 
 # "Target Group" for "WEB" Application
 resource "aws_lb_target_group" "web" {

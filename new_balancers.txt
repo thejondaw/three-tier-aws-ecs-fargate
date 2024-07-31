@@ -1,0 +1,174 @@
+# ================== LOAD BALANCERS ================== #
+
+# "Application Load Balancer" (ALB) for "API" Application
+resource "aws_lb" "api" {
+  name               = "api-alb"
+  internal           = true
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.api_alb.id]
+  subnets            = [data.aws_subnet.api_1.id, data.aws_subnet.api_2.id]
+}
+
+# "Listener" for "API" "ALB"
+resource "aws_lb_listener" "api" {
+  load_balancer_arn = aws_lb.api.arn
+  port              = 3000
+  protocol          = "HTTP"
+
+  default_action {
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "No matching route"
+      status_code  = "404"
+    }
+  }
+}
+
+# "Application Load Balancer" (ALB) for "WEB" Application
+resource "aws_lb" "web" {
+  name               = "web-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.web_alb.id]
+  subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
+}
+
+# "Listener" for "WEB" "ALB"
+resource "aws_lb_listener" "web" {
+  load_balancer_arn = aws_lb.web.arn
+  port              = 4000
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.web.arn
+  }
+}
+
+# ================= SECURITY GROUPS ================== #
+
+# Allow "Inbound Traffic" on "3000" & "4000" from ALBs & all "Outbound Traffic"
+resource "aws_security_group" "ecs_tasks" {
+  name        = "ecs-tasks-sg"
+  description = "Allow Inbound Traffic for ECS Tasks"
+  vpc_id      = data.aws_vpc.main.id
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.api_alb.id]
+  }
+
+  ingress {
+    from_port       = 4000
+    to_port         = 4000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.web_alb.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Allow "Inbound (HTTP) Traffic" & all "Outbound Traffic" for "API ALB"
+resource "aws_security_group" "api_alb" {
+  name        = "api-alb-sg"
+  description = "Allow Inbound Traffic for API ALB"
+  vpc_id      = data.aws_vpc.main.id
+
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Allows Inbound (HTTP) Traffic & all Outbound Traffic for "WEB ALB"
+resource "aws_security_group" "web_alb" {
+  name        = "web-alb-sg"
+  description = "Allow Inbound Traffic for WEB ALB"
+  vpc_id      = data.aws_vpc.main.id
+
+  ingress {
+    from_port   = 4000
+    to_port     = 4000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# ================== TARGET GROUPS =================== #
+
+# "Target Group" for "API" Application
+resource "aws_lb_target_group" "api" {
+  name        = "api-tg"
+  port        = 3000
+  protocol    = "HTTP"
+  vpc_id      = data.aws_vpc.main.id
+  target_type = "ip"
+
+  health_check {
+    path                = "/api/status"
+    healthy_threshold   = 2
+    unhealthy_threshold = 10
+    timeout             = 60
+    interval            = 300
+    matcher             = "200"
+  }
+}
+
+# "Listener Rule" for "API" Application
+resource "aws_lb_listener_rule" "api" {
+  listener_arn = aws_lb_listener.api.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/api/*"]
+    }
+  }
+}
+
+# "Target Group" for "WEB" Application
+resource "aws_lb_target_group" "web" {
+  name        = "web-tg"
+  port        = 4000
+  protocol    = "HTTP"
+  vpc_id      = data.aws_vpc.main.id
+  target_type = "ip"
+
+  health_check {
+    path                = "/"
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    timeout             = 30
+    interval            = 60
+    matcher             = "200"
+  }
+}

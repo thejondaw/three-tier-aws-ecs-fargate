@@ -48,7 +48,9 @@ resource "aws_iam_role" "ecs_task_role" {
   })
 }
 
-# ================== LOAD BALANCERS ================== #
+# ========== LOAD BALANCERS & TARGET GROUPS ========== #
+
+# ----------------- API APPLICATION ------------------ #
 
 # "Application Load Balancer" (ALB) for "API" Application
 resource "aws_lb" "api" {
@@ -57,6 +59,25 @@ resource "aws_lb" "api" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.api_alb.id]
   subnets            = [data.aws_subnet.api_1.id, data.aws_subnet.api_2.id]
+}
+
+# "LB" "Target Group" for "API" Application
+resource "aws_lb_target_group" "api" {
+  name        = "api-tg"
+  port        = 3000
+  protocol    = "HTTP"
+  vpc_id      = data.aws_vpc.main.id
+  target_type = "ip"
+
+  health_check {
+    path                = "/api/status"
+    port                = "traffic-port" # MAYBE DELETE
+    healthy_threshold   = 2
+    unhealthy_threshold = 10
+    timeout             = 60
+    interval            = 300
+    matcher             = "200"
+  }
 }
 
 # "Listener" for "API" "ALB"
@@ -92,6 +113,8 @@ resource "aws_lb_listener_rule" "api" {
   }
 }
 
+# ----------------- WEB APPLICATION ------------------ #
+
 # "Application Load Balancer" (ALB) for "WEB" Application
 resource "aws_lb" "web" {
   name               = "web-alb"
@@ -99,6 +122,25 @@ resource "aws_lb" "web" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.web_alb.id]
   subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
+}
+
+# "LB" "Target Group" for "WEB" Application
+resource "aws_lb_target_group" "web" {
+  name        = "web-tg"
+  port        = 4000
+  protocol    = "HTTP"
+  vpc_id      = data.aws_vpc.main.id
+  target_type = "ip"
+
+  health_check {
+    path                = "/"
+    port                = "traffic-port" # MAYBE DELETE
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    timeout             = 30
+    interval            = 60
+    matcher             = "200"
+  }
 }
 
 # "Listener" for "WEB" "ALB"
@@ -199,46 +241,6 @@ resource "aws_security_group" "web_alb" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# ================== TARGET GROUPS =================== #
-
-# "Target Group" for "API" Application
-resource "aws_lb_target_group" "api" {
-  name        = "api-tg"
-  port        = 3000
-  protocol    = "HTTP"
-  vpc_id      = data.aws_vpc.main.id
-  target_type = "ip"
-
-  health_check {
-    path                = "/api/status"
-    healthy_threshold   = 2
-    unhealthy_threshold = 10
-    timeout             = 60
-    interval            = 300
-    matcher             = "200"
-  }
-}
-
-
-
-# "Target Group" for "WEB" Application
-resource "aws_lb_target_group" "web" {
-  name        = "web-tg"
-  port        = 4000
-  protocol    = "HTTP"
-  vpc_id      = data.aws_vpc.main.id
-  target_type = "ip"
-
-  health_check {
-    path                = "/"
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-    timeout             = 30
-    interval            = 60
-    matcher             = "200"
   }
 }
 

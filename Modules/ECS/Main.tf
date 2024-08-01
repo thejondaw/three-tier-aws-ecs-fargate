@@ -127,7 +127,7 @@ resource "aws_lb" "web" {
 # "LB" "Target Group" for "WEB" Application
 resource "aws_lb_target_group" "web" {
   name        = "web-tg"
-  port        = 4000
+  port        = 80
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.main.id
   target_type = "ip"
@@ -146,7 +146,7 @@ resource "aws_lb_target_group" "web" {
 # "Listener" for "WEB" "ALB"
 resource "aws_lb_listener" "web" {
   load_balancer_arn = aws_lb.web.arn
-  port              = 4000
+  port              = 80
   protocol          = "HTTP"
 
   default_action {
@@ -174,7 +174,7 @@ resource "aws_lb_listener_rule" "web" {
 
 # ================= SECURITY GROUPS ================== #
 
-# Allow "Inbound Traffic" on "3000" & "4000" from ALBs & all "Outbound Traffic"
+# Allow "Inbound Traffic" on "3000" & "80" from ALBs & all "Outbound Traffic"
 resource "aws_security_group" "ecs_tasks" {
   name        = "ecs-tasks-sg"
   description = "Allow Inbound Traffic for ECS Tasks"
@@ -188,8 +188,8 @@ resource "aws_security_group" "ecs_tasks" {
   }
 
   ingress {
-    from_port       = 4000
-    to_port         = 4000
+    from_port       = 80
+    to_port         = 80
     protocol        = "tcp"
     security_groups = [aws_security_group.web_alb.id]
   }
@@ -230,8 +230,8 @@ resource "aws_security_group" "web_alb" {
   vpc_id      = data.aws_vpc.main.id
 
   ingress {
-    from_port   = 4000
-    to_port     = 4000
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -316,14 +316,14 @@ resource "aws_ecs_task_definition" "web" {
       image = "docker.io/jondaw/app-web:latest"
       portMappings = [
         {
-          containerPort = 4000
-          hostPort      = 4000
+          containerPort = 80
+          hostPort      = 80
         }
       ]
       environment = [
         {
           name  = "API_HOST"
-          value = "http://${aws_lb.api.dns_name}"
+          value = "http://${aws_lb.api.dns_name}:3000"
         }
       ]
       logConfiguration = {
@@ -379,7 +379,7 @@ resource "aws_ecs_service" "web" {
   load_balancer {
     target_group_arn = aws_lb_target_group.web.arn
     container_name   = "web-app"
-    container_port   = 4000
+    container_port   = 80
   }
 
   depends_on = [aws_lb_listener.web]

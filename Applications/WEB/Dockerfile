@@ -8,18 +8,18 @@ COPY package*.json ./
 
 # Устанавливаем зависимости
 # Используем флаги для обхода проблем с устаревшими зависимостями
-RUN npm install
+RUN npm install --legacy-peer-deps --force --no-audit
 #--legacy-peer-deps --force --no-audit
 
 # Копируем исходный код приложения
 COPY . .
 
-# Открываем порт 4000
-EXPOSE 4000
+# Открываем порт 80
+EXPOSE 80
 
 # Объявляем переменную окружения для API_HOST
 # Значение будет передано при запуске контейнера
-ENV PORT=4000
+ENV PORT=80
 ENV API_HOST=
 
 # Запускаем приложение

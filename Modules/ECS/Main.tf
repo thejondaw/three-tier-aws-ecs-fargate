@@ -271,7 +271,7 @@ resource "aws_ecs_task_definition" "web" {
       environment = [
         {
           name  = "API_HOST"
-          value = "http://${aws_lb.main.dns_name}:3000"
+          value = "http://${aws_lb.main.dns_name}"
         }
       ]
       logConfiguration = {

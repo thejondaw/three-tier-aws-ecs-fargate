@@ -312,8 +312,7 @@ resource "aws_ecs_task_definition" "web" {
       environment = [
         {
           name  = "API_HOST"
-          #value = "http://${aws_lb.main.dns_name}:3000"
-          value = "http://api.internal.local" #! TEST
+          value = "http://${aws_lb.main.dns_name}"
         }
       ]
       logConfiguration = {
@@ -337,10 +336,6 @@ resource "aws_ecs_service" "api" {
   task_definition = aws_ecs_task_definition.api.arn
   desired_count   = 1
   launch_type     = "FARGATE"
-
-  service_registries {                                    #! TEST
-    registry_arn = aws_service_discovery_service.api.arn  #! TEST
-  }                                                       #! TEST
 
   network_configuration {
     subnets          = [data.aws_subnet.api_1.id, data.aws_subnet.api_2.id]
@@ -444,34 +439,6 @@ resource "aws_cloudwatch_log_group" "api" {
 resource "aws_cloudwatch_log_group" "web" {
   name              = "/ecs/web-app"
   retention_in_days = 30
-}
-
-# ==================================================== #
-
-# "Service Discovery" for "API Service"
-resource "aws_service_discovery_private_dns_namespace" "namespace" {
-  name        = "internal.local"
-  description = "Private DNS namespace for internal services"
-  vpc         = data.aws_vpc.main.id
-}
-
-resource "aws_service_discovery_service" "api" {
-  name = "api"
-
-  dns_config {
-    namespace_id = aws_service_discovery_private_dns_namespace.namespace.id
-
-    dns_records {
-      ttl  = 10
-      type = "A"
-    }
-
-    routing_policy = "MULTIVALUE"
-  }
-
-  health_check_custom_config {
-    failure_threshold = 1
-  }
 }
 
 # ==================================================== #

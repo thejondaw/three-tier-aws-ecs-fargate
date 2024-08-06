@@ -66,15 +66,8 @@ resource "aws_lb_listener" "front_end" {
   protocol          = "HTTP"
 
   default_action {
-    type = "fixed-response"
-    fixed_response {
-      content_type = "text/plain"
-      message_body = "No matching route"
-      status_code  = "404"
-    }
-  # default_action {
-  #   type             = "forward"
-  #   target_group_arn = aws_lb_target_group.web.arn
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.web.arn
   }
 }
 
@@ -300,7 +293,7 @@ resource "aws_ecs_service" "api" {
   name            = "api-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.api.arn
-  desired_count   = 2
+  desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
@@ -323,7 +316,7 @@ resource "aws_ecs_service" "web" {
   name            = "web-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.web.arn
-  desired_count   = 2
+  desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {

@@ -100,7 +100,7 @@ resource "aws_lb_listener_rule" "web" {
 
   condition {
     path_pattern {
-      values = ["/*"]
+      values = ["/web/*"]
     }
   }
 }
@@ -115,6 +115,7 @@ resource "aws_lb_target_group" "api" {
 
   health_check {
     path                = "/api/status"
+    port                = "traffic-port" # MAYBE DELETE
     healthy_threshold   = 2
     unhealthy_threshold = 10
     timeout             = 60
@@ -133,6 +134,7 @@ resource "aws_lb_target_group" "web" {
 
   health_check {
     path                = "/"
+    port                = "traffic-port" # MAYBE DELETE
     healthy_threshold   = 2
     unhealthy_threshold = 3
     timeout             = 30

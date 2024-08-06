@@ -448,6 +448,7 @@ resource "aws_cloudwatch_log_group" "web" {
 
 # ==================================================== #
 
+# "Service Discovery" for "API Service"
 resource "aws_service_discovery_private_dns_namespace" "namespace" {
   name        = "internal.local"
   description = "Private DNS namespace for internal services"
@@ -472,3 +473,5 @@ resource "aws_service_discovery_service" "api" {
     failure_threshold = 1
   }
 }
+
+# ==================================================== #

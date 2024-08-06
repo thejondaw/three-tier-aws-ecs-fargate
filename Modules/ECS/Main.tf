@@ -66,8 +66,15 @@ resource "aws_lb_listener" "front_end" {
   protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.web.arn
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "No matching route"
+      status_code  = "404"
+    }
+  # default_action {
+  #   type             = "forward"
+  #   target_group_arn = aws_lb_target_group.web.arn
   }
 }
 

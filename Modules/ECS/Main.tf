@@ -345,8 +345,8 @@ resource "aws_ecs_service" "web" {
 
 # "Auto-Scaling Target" for "API" Application
 resource "aws_appautoscaling_target" "api" {
-  max_capacity       = 4
-  min_capacity       = 2
+  max_capacity       = 2
+  min_capacity       = 1
   resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.api.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
@@ -370,8 +370,8 @@ resource "aws_appautoscaling_policy" "api_cpu" {
 
 # "Auto-Scaling Target" for "WEB" Application
 resource "aws_appautoscaling_target" "web" {
-  max_capacity       = 4
-  min_capacity       = 2
+  max_capacity       = 2
+  min_capacity       = 1
   resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.web.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"

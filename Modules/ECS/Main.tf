@@ -90,7 +90,7 @@ resource "aws_lb_listener_rule" "api" {
 
 # "Listener Rule" for "WEB" Application
 resource "aws_lb_listener_rule" "web" {
-  listener_arn = aws_lb_listener.main.arn
+  listener_arn = aws_lb_listener.front_end.arn
   priority     = 90
 
   action {

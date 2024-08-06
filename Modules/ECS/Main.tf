@@ -313,7 +313,7 @@ resource "aws_ecs_task_definition" "web" {
         {
           name  = "API_HOST"
           #value = "http://${aws_lb.main.dns_name}:3000"
-          value = "http://api.internal.local:3000" #! TEST
+          value = "http://api.internal.local" #! TEST
         }
       ]
       logConfiguration = {

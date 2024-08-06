@@ -12,6 +12,21 @@ resource "aws_ecs_cluster" "main" {
 
 # ================ IAM ROLES & POLICY ================ #
 
+# "IAM Role" for "ECS Tasks"
+resource "aws_iam_role" "ecs_task_role" {
+  name = "ecs_task_role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "ecs-tasks.amazonaws.com"
+      }
+    }]
+  })
+}
+
 # "IAM Role" for "ECS Task Execution"
 resource "aws_iam_role" "ecs_execution_role" {
   name = "ecs_execution_role"
@@ -27,25 +42,30 @@ resource "aws_iam_role" "ecs_execution_role" {
   })
 }
 
+# "IAM Role Policy" for permission to read "Secret Manager"
+resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
+  name = "ecs_task_execution_role_policy"
+  role = aws_iam_role.ecs_execution_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "kms:Decrypt"
+        ]
+        Resource = [data.aws_secretsmanager_secret.aurora_secret.arn]
+      }
+    ]
+  })
+}
+
 # Attach "Policy" to "ECS Execution Role"
 resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
   role       = aws_iam_role.ecs_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
-
-# "IAM Role" for "ECS Tasks"
-resource "aws_iam_role" "ecs_task_role" {
-  name = "ecs_task_role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      }
-    }]
-  })
 }
 
 # ========== LOAD BALANCERS & TARGET GROUPS ========== #
@@ -221,26 +241,26 @@ resource "aws_ecs_task_definition" "api" {
           hostPort      = 3000
         }
       ]
-      environment = [
+      secrets = [
         {
-          name  = "DBHOST"
-          value = data.aws_rds_cluster.aurora_postgresql.endpoint
+          name      = "DBHOST"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:host::"
         },
         {
-          name  = "DBPORT"
-          value = tostring(data.aws_rds_cluster.aurora_postgresql.port)
+          name      = "DBPORT"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:port::"
         },
         {
-          name  = "DB"
-          value = data.aws_rds_cluster.aurora_postgresql.database_name
+          name      = "DB"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:dbname::"
         },
         {
-          name  = "DBUSER"
-          value = data.aws_rds_cluster.aurora_postgresql.master_username
+          name      = "DBUSER"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:username::"
         },
         {
-          name  = "DBPASS"
-          value = "password"
+          name      = "DBPASS"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:password::"
         }
       ]
       logConfiguration = {

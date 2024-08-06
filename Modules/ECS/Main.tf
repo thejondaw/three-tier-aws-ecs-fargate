@@ -143,7 +143,7 @@ resource "aws_lb_target_group" "web" {
 
 # ================= SECURITY GROUPS ================== #
 
-# Обновленная Security Group для ECS tasks
+# "Security Group" for "ECS Tasks"
 resource "aws_security_group" "ecs_tasks" {
   name        = "ecs-tasks-sg"
   description = "Allow inbound traffic for ECS Tasks"
@@ -171,7 +171,7 @@ resource "aws_security_group" "ecs_tasks" {
   }
 }
 
-# Единая Security Group для ALB
+# "Security Group" for "ALB"
 resource "aws_security_group" "alb" {
   name        = "alb-sg"
   description = "Allow inbound traffic for ALB"

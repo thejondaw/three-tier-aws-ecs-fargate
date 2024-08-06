@@ -214,26 +214,26 @@ resource "aws_ecs_task_definition" "api" {
           hostPort      = 3000
         }
       ]
-      environment = [
+      secrets = [
         {
-          name  = "DBHOST"
-          value = data.aws_rds_cluster.aurora_postgresql.endpoint
+          name      = "DBHOST"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:host::"
         },
         {
-          name  = "DBPORT"
-          value = tostring(data.aws_rds_cluster.aurora_postgresql.port)
+          name      = "DBPORT"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:port::"
         },
         {
-          name  = "DB"
-          value = data.aws_rds_cluster.aurora_postgresql.database_name
+          name      = "DB"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:dbname::"
         },
         {
-          name  = "DBUSER"
-          value = data.aws_rds_cluster.aurora_postgresql.master_username
+          name      = "DBUSER"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:username::"
         },
         {
-          name  = "DBPASS"
-          value = "password"
+          name      = "DBPASS"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:password::"
         }
       ]
       logConfiguration = {

@@ -54,6 +54,11 @@ data "aws_secretsmanager_secret" "aurora_secret" {
   name = "aurora-secret-o"
 }
 
+# Fetch "Secret Manager Version" of "RDS Module"
+data "aws_secretsmanager_secret_version" "aurora_credentials" {
+  secret_id = data.aws_secretsmanager_secret.aurora_secret.id
+}
+
 # Fetch RDS Cluster of "Aurora PostgreSQL" Database
 data "aws_rds_cluster" "aurora_postgresql" {
   cluster_identifier = "project-db"

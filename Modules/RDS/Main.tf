@@ -14,7 +14,7 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   vpc_security_group_ids = [aws_security_group.sg_aurora.id]
   skip_final_snapshot    = true
   enable_http_endpoint   = true
-  availability_zones     = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  availability_zones     = ["us-east-2a", "us-east-2b", "us-east-2c"]
 
   serverlessv2_scaling_configuration {
     max_capacity = 1.0

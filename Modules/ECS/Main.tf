@@ -50,7 +50,7 @@ resource "aws_iam_role" "ecs_task_role" {
 
 # ========== LOAD BALANCERS & TARGET GROUPS ========== #
 
-# Единый Application Load Balancer (ALB) для Web и API
+# "Application Load Balancer" (ALB) for "WEB" & "API" Applications
 resource "aws_lb" "main" {
   name               = "main-alb"
   internal           = false
@@ -59,25 +59,53 @@ resource "aws_lb" "main" {
   subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
 }
 
-# Target Group для Web приложения
-resource "aws_lb_target_group" "web" {
-  name        = "web-tg"
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = data.aws_vpc.main.id
-  target_type = "ip"
+# "Listener" for "ALB"
+resource "aws_lb_listener" "front_end" {
+  load_balancer_arn = aws_lb.main.arn
+  port              = 80
+  protocol          = "HTTP"
 
-  health_check {
-    path                = "/"
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-    timeout             = 30
-    interval            = 60
-    matcher             = "200"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.web.arn
   }
 }
 
-# Target Group для API приложения
+# "Listener Rule" for "API" Application
+resource "aws_lb_listener_rule" "api" {
+  listener_arn = aws_lb_listener.front_end.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/api/*"]
+    }
+  }
+}
+
+# "Listener Rule" for "WEB" Application
+resource "aws_lb_listener_rule" "web" {
+  listener_arn = aws_lb_listener.main.arn
+  priority     = 90
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.web.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/*"]
+    }
+  }
+}
+
+# "Target Group" for "API" Application
 resource "aws_lb_target_group" "api" {
   name        = "api-tg"
   port        = 3000
@@ -95,35 +123,23 @@ resource "aws_lb_target_group" "api" {
   }
 }
 
-# Listener для ALB
-resource "aws_lb_listener" "front_end" {
-  load_balancer_arn = aws_lb.main.arn
-  port              = 80
-  protocol          = "HTTP"
+# "Target Group" for "WEB" Application
+resource "aws_lb_target_group" "web" {
+  name        = "web-tg"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = data.aws_vpc.main.id
+  target_type = "ip"
 
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.web.arn
+  health_check {
+    path                = "/"
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    timeout             = 30
+    interval            = 60
+    matcher             = "200"
   }
 }
-
-# Listener Rule для API
-resource "aws_lb_listener_rule" "api" {
-  listener_arn = aws_lb_listener.front_end.arn
-  priority     = 100
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.api.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["/api/*"]
-    }
-  }
-}
-
 
 # ================= SECURITY GROUPS ================== #
 
@@ -255,7 +271,7 @@ resource "aws_ecs_task_definition" "web" {
       environment = [
         {
           name  = "API_HOST"
-          value = "http://${aws_lb.main.dns_name}/api"
+          value = "http://${aws_lb.main.dns_name}:3000"
         }
       ]
       logConfiguration = {

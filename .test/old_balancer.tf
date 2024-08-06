@@ -48,62 +48,113 @@ resource "aws_iam_role" "ecs_task_role" {
   })
 }
 
-# ========== LOAD BALANCERS & TARGET GROUPS ========== #
+# ================== LOAD BALANCER =================== #
 
-# "Application Load Balancer" (ALB) for "WEB" & "API" Applications
+# "Application Load Balancer" (ALB)
 resource "aws_lb" "main" {
-  name               = "main-alb"
+  name               = "ecs-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
-  subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.api_1.id]
+  subnets            = [data.aws_subnet.api_1.id, data.aws_subnet.api_2.id]
 }
 
 # "Listener" for "ALB"
-resource "aws_lb_listener" "front_end" {
+resource "aws_lb_listener" "main" {
   load_balancer_arn = aws_lb.main.arn
   port              = 80
   protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.web.arn
-  }
-}
-
-# "Listener Rule" for "API" Application
-resource "aws_lb_listener_rule" "api" {
-  listener_arn = aws_lb_listener.front_end.arn
-  priority     = 100
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.api.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["/api/*"]
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "No matching route"
+      status_code  = "404"
     }
   }
 }
 
-# "Listener Rule" for "WEB" Application
-resource "aws_lb_listener_rule" "web" {
-  listener_arn = aws_lb_listener.front_end.arn
-  priority     = 90
+# ================= SECURITY GROUPS ================== #
 
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.web.arn
+# "Security Group" for "ECS Tasks"
+resource "aws_security_group" "ecs_tasks" {
+  name        = "ecs-tasks-sg"
+  description = "Allow inbound traffic for ECS tasks"
+  vpc_id      = data.aws_vpc.main.id
+
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
-  condition {
-    path_pattern {
-      values = ["/web/*"]
-    }
+  ingress {
+    from_port   = 4000
+    to_port     = 4000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+# "Security Group" for "ALB"
+resource "aws_security_group" "alb" {
+  name        = "alb-sg"
+  description = "Allow inbound traffic for ALB"
+  vpc_id      = data.aws_vpc.main.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 4000
+    to_port     = 4000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# ================== TARGET GROUPS =================== #
 
 # "Target Group" for "API" Application
 resource "aws_lb_target_group" "api" {
@@ -123,10 +174,27 @@ resource "aws_lb_target_group" "api" {
   }
 }
 
+# "Listener Rule" for "API" Application
+resource "aws_lb_listener_rule" "api" {
+  listener_arn = aws_lb_listener.main.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/api/*"]
+    }
+  }
+}
+
 # "Target Group" for "WEB" Application
 resource "aws_lb_target_group" "web" {
   name        = "web-tg"
-  port        = 80
+  port        = 4000
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.main.id
   target_type = "ip"
@@ -141,54 +209,20 @@ resource "aws_lb_target_group" "web" {
   }
 }
 
-# ================= SECURITY GROUPS ================== #
+# "Listener Rule" for "WEB" Application
+resource "aws_lb_listener_rule" "web" {
+  listener_arn = aws_lb_listener.main.arn
+  priority     = 90
 
-# Обновленная Security Group для ECS tasks
-resource "aws_security_group" "ecs_tasks" {
-  name        = "ecs-tasks-sg"
-  description = "Allow inbound traffic for ECS Tasks"
-  vpc_id      = data.aws_vpc.main.id
-
-  ingress {
-    from_port       = 3000
-    to_port         = 3000
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.web.arn
   }
 
-  ingress {
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# Единая Security Group для ALB
-resource "aws_security_group" "alb" {
-  name        = "alb-sg"
-  description = "Allow inbound traffic for ALB"
-  vpc_id      = data.aws_vpc.main.id
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+  condition {
+    path_pattern {
+      values = ["/*"]
+    }
   }
 }
 
@@ -204,48 +238,29 @@ resource "aws_ecs_task_definition" "api" {
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
-  container_definitions = jsonencode([
-    {
-      name  = "api-app"
-      image = "docker.io/jondaw/app-api:latest"
-      portMappings = [
-        {
-          containerPort = 3000
-          hostPort      = 3000
-        }
-      ]
-      environment = [
-        {
-          name  = "DBHOST"
-          value = data.aws_rds_cluster.aurora_postgresql.endpoint
-        },
-        {
-          name  = "DBPORT"
-          value = tostring(data.aws_rds_cluster.aurora_postgresql.port)
-        },
-        {
-          name  = "DB"
-          value = data.aws_rds_cluster.aurora_postgresql.database_name
-        },
-        {
-          name  = "DBUSER"
-          value = data.aws_rds_cluster.aurora_postgresql.master_username
-        },
-        {
-          name  = "DBPASS"
-          value = "password"
-        }
-      ]
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group         = aws_cloudwatch_log_group.api.name
-          awslogs-region        = var.region
-          awslogs-stream-prefix = "api"
-        }
+  container_definitions = jsonencode([{
+    name  = "api-app"
+    image = "docker.io/jondaw/app-api:latest"
+    portMappings = [{
+      containerPort = 3000
+      hostPort      = 3000
+    }]
+    environment = [
+      { name = "DBHOST", value = data.aws_rds_cluster.aurora_postgresql.endpoint },
+      { name = "DBPORT", value = tostring(data.aws_rds_cluster.aurora_postgresql.port) },
+      { name = "DB",     value = data.aws_rds_cluster.aurora_postgresql.database_name },
+      { name = "DBUSER", value = data.aws_rds_cluster.aurora_postgresql.master_username },
+      { name = "DBPASS", value = "password" }
+    ]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        awslogs-group         = aws_cloudwatch_log_group.api.name
+        awslogs-region        = var.region
+        awslogs-stream-prefix = "api"
       }
     }
-  ])
+  }])
 }
 
 # Define "ECS Task" for "WEB" Application
@@ -258,32 +273,25 @@ resource "aws_ecs_task_definition" "web" {
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
-  container_definitions = jsonencode([
-    {
-      name  = "web-app"
-      image = "docker.io/jondaw/app-web:latest"
-      portMappings = [
-        {
-          containerPort = 80
-          hostPort      = 80
-        }
-      ]
-      environment = [
-        {
-          name  = "API_HOST"
-          value = "http://${aws_lb.main.dns_name}:3000"
-        }
-      ]
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group         = aws_cloudwatch_log_group.web.name
-          awslogs-region        = var.region
-          awslogs-stream-prefix = "web"
-        }
+  container_definitions = jsonencode([{
+    name  = "web-app"
+    image = "docker.io/jondaw/app-web:latest"
+    portMappings = [{
+      containerPort = 4000
+      hostPort      = 4000
+    }]
+    environment = [
+      { name = "API_HOST", value = "http://${aws_lb.main.dns_name}" }
+    ]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        awslogs-group         = aws_cloudwatch_log_group.web.name
+        awslogs-region        = var.region
+        awslogs-stream-prefix = "web"
       }
     }
-  ])
+  }])
 }
 
 # =================== ECS SERVICES =================== #
@@ -293,13 +301,12 @@ resource "aws_ecs_service" "api" {
   name            = "api-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.api.arn
-  desired_count   = 2
+  desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
     subnets          = [data.aws_subnet.api_1.id, data.aws_subnet.api_2.id]
     security_groups  = [aws_security_group.ecs_tasks.id]
-    assign_public_ip = false
   }
 
   load_balancer {
@@ -308,7 +315,7 @@ resource "aws_ecs_service" "api" {
     container_port   = 3000
   }
 
-  depends_on = [aws_lb_listener.front_end]
+  depends_on = [aws_lb_listener.main]
 }
 
 # "ECS Service" for "WEB" Application
@@ -316,7 +323,7 @@ resource "aws_ecs_service" "web" {
   name            = "web-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.web.arn
-  desired_count   = 2
+  desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
@@ -328,10 +335,10 @@ resource "aws_ecs_service" "web" {
   load_balancer {
     target_group_arn = aws_lb_target_group.web.arn
     container_name   = "web-app"
-    container_port   = 80
+    container_port   = 4000
   }
 
-  depends_on = [aws_lb_listener.front_end]
+  depends_on = [aws_lb_listener.main]
 }
 
 # =================== AUTO-SCALING =================== #

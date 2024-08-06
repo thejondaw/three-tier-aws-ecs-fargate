@@ -203,7 +203,7 @@ resource "aws_security_group" "alb" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-#! SOMEWHERE HERE IS PIZDETS
+#! ЗДЕСЬ ЧТО-ТО ЕСТЬ
   ingress {
     from_port   = 80
     to_port     = 80

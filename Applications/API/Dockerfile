@@ -1,15 +1,14 @@
 FROM node:18
 
-# Устанавливаем рабочую директорию
 WORKDIR /usr/src/app
 
 # Копируем package.json и package-lock.json (если есть)
 COPY package*.json ./
 
 # Устанавливаем зависимости
-# Используем --production для установки только production зависимостей
-# и --no-optional для пропуска необязательных зависимостей
-RUN npm ci --production --no-optional && npm cache clean --force
+# Используем --only=production для установки только production зависимостей
+# Добавляем --legacy-peer-deps для обхода проблем с совместимостью
+RUN npm install --only=production --legacy-peer-deps && npm cache clean --force
 
 # Копируем исходный код приложения
 COPY . .
@@ -17,7 +16,6 @@ COPY . .
 # Открываем порт 3000
 EXPOSE 3000
 
-# Объявляем переменные окружения
 ENV PORT=3000 \
     DBUSER= \
     DB= \
@@ -27,5 +25,4 @@ ENV PORT=3000 \
     NODE_ENV=production \
     NODE_OPTIONS=--no-deprecation
 
-# Запускаем приложение
 CMD ["node", "--no-deprecation", "./bin/www"]

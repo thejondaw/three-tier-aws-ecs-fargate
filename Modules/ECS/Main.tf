@@ -76,7 +76,7 @@ resource "aws_lb" "main" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
-  subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.api_2.id]
+  subnets            = [data.aws_subnet.api_1.id, data.aws_subnet.api_2.id]
 } #! WEB_1 WEB_2
 
 # "Listener" for "ALB"
@@ -203,7 +203,7 @@ resource "aws_security_group" "alb" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-#! ЗДЕСЬ ЧТО-ТО ЕСТЬ
+  #! ЗДЕСЬ ЧТО-ТО ЕСТЬ
   ingress {
     from_port   = 80
     to_port     = 80

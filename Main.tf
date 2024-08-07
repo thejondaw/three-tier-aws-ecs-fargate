@@ -11,13 +11,13 @@ provider "aws" {
 module "vpc" {
   source            = "./Modules/VPC"
   region            = var.region_rv
-  vpc_cidr          = var.vpc_cidr_id
-  subnet_web_1_cidr = var.subnet_web_1_cidr_id
-  subnet_web_2_cidr = var.subnet_web_2_cidr_id
-  subnet_api_1_cidr = var.subnet_api_1_cidr_id
-  subnet_api_2_cidr = var.subnet_api_2_cidr_id
-  subnet_db_1_cidr  = var.subnet_db_1_cidr_id
-  subnet_db_2_cidr  = var.subnet_db_2_cidr_id
+  vpc_cidr          = var.vpc_cidr
+  subnet_web_1_cidr = var.subnet_web_1_cidr
+  subnet_web_2_cidr = var.subnet_web_2_cidr
+  subnet_api_1_cidr = var.subnet_api_1_cidr
+  subnet_api_2_cidr = var.subnet_api_2_cidr
+  subnet_db_1_cidr  = var.subnet_db_1_cidr
+  subnet_db_2_cidr  = var.subnet_db_2_cidr
 }
 
 # "RDS" Module

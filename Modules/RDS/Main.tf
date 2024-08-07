@@ -4,8 +4,8 @@
 resource "aws_db_instance" "postgresql" {
   identifier        = "project-db"
   engine            = "postgres"
-  engine_version    = "15.2"
-  instance_class    = "db.t3.micro"
+  engine_version    = "16.3-R2"
+  instance_class    = "db.m5d.large"
   allocated_storage = 20 # Storage size in GB
 
   db_name  = "toptal"   #! VARS

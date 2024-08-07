@@ -56,7 +56,7 @@ resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
           "secretsmanager:GetSecretValue",
           "kms:Decrypt"
         ]
-        Resource = [data.aws_secretsmanager_secret.aurora_secret.arn]
+        Resource = [data.aws_secretsmanager_secret.postgresql_secret.arn]
       }
     ]
   })
@@ -258,23 +258,23 @@ resource "aws_ecs_task_definition" "api" {
       secrets = [
         {
           name      = "DBHOST"
-          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:host::"
+          valueFrom = "${data.aws_secretsmanager_secret.postgresql_secret.arn}:host::"
         },
         {
           name      = "DBPORT"
-          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:port::"
+          valueFrom = "${data.aws_secretsmanager_secret.postgresql_secret.arn}:port::"
         },
         {
           name      = "DB"
-          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:dbname::"
+          valueFrom = "${data.aws_secretsmanager_secret.postgresql_secret.arn}:dbname::"
         },
         {
           name      = "DBUSER"
-          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:username::"
+          valueFrom = "${data.aws_secretsmanager_secret.postgresql_secret.arn}:username::"
         },
         {
           name      = "DBPASS"
-          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:password::"
+          valueFrom = "${data.aws_secretsmanager_secret.postgresql_secret.arn}:password::"
         }
       ]
       logConfiguration = {

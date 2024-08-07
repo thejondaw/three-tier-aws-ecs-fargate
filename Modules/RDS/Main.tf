@@ -1,47 +1,38 @@
 # ==================== RDS Module ==================== #
 
-# Serverless (v2) "RDS Cluster" "Aurora PostgreSQL"
-resource "aws_rds_cluster" "aurora_postgresql" {
-  cluster_identifier     = "project-db"
-  engine                 = "aurora-postgresql"
-  engine_mode            = "provisioned"
-  engine_version         = "15.3"
-  database_name          = "toptal"   #! VARS
-  master_username        = "jondaw"   #! VARS
-  master_password        = "password" #! VARS
-  storage_encrypted      = true
-  db_subnet_group_name   = aws_db_subnet_group.aurora_subnet_group.name
-  vpc_security_group_ids = [aws_security_group.sg_aurora.id]
-  skip_final_snapshot    = true
-  enable_http_endpoint   = true
-  availability_zones     = ["us-east-2a", "us-east-2b"]
+# Standard "PostgreSQL" "RDS Instance"
+resource "aws_db_instance" "postgresql" {
+  identifier        = "project-db"
+  engine            = "postgres"
+  engine_version    = "15.3"
+  instance_class    = "db.t3.micro"
+  allocated_storage = 20  # Storage size in GB
 
-  serverlessv2_scaling_configuration {
-    max_capacity = 1.0
-    min_capacity = 0.5
-  }
+  db_name  = "toptal"   #! VARS
+  username = "jondaw"   #! VARS
+  password = "password" #! VARS
+
+  storage_encrypted = true
+  db_subnet_group_name = aws_db_subnet_group.postgresql_subnet_group.name
+  vpc_security_group_ids = [aws_security_group.sg_postgresql.id]
+
+  skip_final_snapshot = true
+
+  # Additional settings as needed
+  # multi_az = true  # Uncomment to enable Multi-AZ
 }
 
-# "Instance" for Serverless (v2) "RDS Cluster"
-resource "aws_rds_cluster_instance" "rds_instance" {
-  cluster_identifier = aws_rds_cluster.aurora_postgresql.id
-  instance_class     = "db.serverless"
-  engine             = aws_rds_cluster.aurora_postgresql.engine
-  engine_version     = aws_rds_cluster.aurora_postgresql.engine_version
-}
-
-# "Subnet Group" for "Database"
-resource "aws_db_subnet_group" "aurora_subnet_group" {
-  name       = "aurora-subnet-group"
+# Subnet Group for Database
+resource "aws_db_subnet_group" "postgresql_subnet_group" {
+  name       = "postgresql-subnet-group"
   subnet_ids = [data.aws_subnet.db_1.id, data.aws_subnet.db_2.id]
 }
 
 # ==================================================== #
-
-# "Security Group" to "Aurora PostgreSQL" Database access
-resource "aws_security_group" "sg_aurora" {
-  name        = "aurora-db"
-  description = "Allow Aurora PostgreSQL access"
+# Security Group for PostgreSQL Database access
+resource "aws_security_group" "sg_postgresql" {
+  name        = "postgresql-db"
+  description = "Allow PostgreSQL access"
   vpc_id      = data.aws_vpc.main.id
 
   ingress {
@@ -60,22 +51,20 @@ resource "aws_security_group" "sg_aurora" {
 }
 
 # ================== SECRET MANAGER ================== #
-
-# "Secret Manager"
-resource "aws_secretsmanager_secret" "aurora_secret" {
-  name = "aurora-secret-u" #! VARS
+# Secret Manager
+resource "aws_secretsmanager_secret" "postgresql_secret" {
+  name = "postgresql-secret-y" #! VARS
 }
 
-# Attach "Credentials" for "Secret Manager"
-resource "aws_secretsmanager_secret_version" "aurora_credentials" {
-  secret_id = aws_secretsmanager_secret.aurora_secret.id
+# Attach Credentials for Secret Manager
+resource "aws_secretsmanager_secret_version" "postgresql_credentials" {
+  secret_id = aws_secretsmanager_secret.postgresql_secret.id
   secret_string = jsonencode({
-    username = aws_rds_cluster.aurora_postgresql.master_username
-    password = aws_rds_cluster.aurora_postgresql.master_password
-    host     = aws_rds_cluster.aurora_postgresql.endpoint
-    port     = aws_rds_cluster.aurora_postgresql.port
-    dbname   = aws_rds_cluster.aurora_postgresql.database_name
+    username = aws_db_instance.postgresql.username
+    password = aws_db_instance.postgresql.password
+    host     = aws_db_instance.postgresql.endpoint
+    port     = aws_db_instance.postgresql.port
+    dbname   = aws_db_instance.postgresql.db_name
   })
 }
-
 # ==================================================== #

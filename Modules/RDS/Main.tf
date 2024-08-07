@@ -4,7 +4,7 @@
 resource "aws_db_instance" "postgresql" {
   identifier        = "project-db"
   engine            = "postgres"
-  engine_version    = "16.3-R2"
+  engine_version    = "16.3"
   instance_class    = "db.m5d.large"
   allocated_storage = 20 # Storage size in GB
 

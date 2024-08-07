@@ -43,25 +43,25 @@ data "aws_subnet" "db_2" {
 
 # ===================== RDS DATA ===================== #
 
-# Fetch PostgreSQL RDS Instance
-data "aws_db_instance" "postgresql" {
-  db_instance_identifier = "project-db"
+# Fetch RDS Cluster of "Aurora PostgreSQL" Database
+data "aws_rds_cluster" "aurora_postgresql" {
+  cluster_identifier = "project-db"
 }
 
-# Fetch "Security Group" of PostgreSQL Database
-data "aws_security_group" "sg_postgresql" {
-  name   = "postgresql-db"
+# Fetch "Security Group" of "Aurora PostgreSQL" Database
+data "aws_security_group" "sg_aurora" {
+  name   = "aurora-db"
   vpc_id = data.aws_vpc.main.id
 }
 
 # Fetch "Secret Manager" of "RDS Module"
-data "aws_secretsmanager_secret" "postgresql_secret" {
-  name = "postgresql-secret-y" #! VARS
+data "aws_secretsmanager_secret" "aurora_secret" {
+  name = "aurora-secret-qw" #! VARS
 }
 
 # Fetch "Secret Manager Version" of "RDS Module"
-data "aws_secretsmanager_secret_version" "postgresql_credentials" {
-  secret_id = data.aws_secretsmanager_secret.postgresql_secret.id
+data "aws_secretsmanager_secret_version" "aurora_credentials" {
+  secret_id = data.aws_secretsmanager_secret.aurora_secret.id
 }
 
 # ==================================================== #

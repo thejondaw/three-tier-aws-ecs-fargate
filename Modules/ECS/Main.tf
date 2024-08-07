@@ -56,7 +56,7 @@ resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
           "secretsmanager:GetSecretValue",
           "kms:Decrypt"
         ]
-        Resource = [data.aws_secretsmanager_secret.postgresql_secret.arn]
+        Resource = [data.aws_secretsmanager_secret.aurora_secret.arn]
       }
     ]
   })
@@ -210,7 +210,7 @@ resource "aws_security_group" "alb" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  #! ЗДЕСЬ ЧТО-ТО ЕСТЬ
+
   ingress {
     from_port   = 80
     to_port     = 80
@@ -258,23 +258,23 @@ resource "aws_ecs_task_definition" "api" {
       secrets = [
         {
           name      = "DBHOST"
-          valueFrom = "${data.aws_secretsmanager_secret.postgresql_secret.arn}:host::"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:host::"
         },
         {
           name      = "DBPORT"
-          valueFrom = "${data.aws_secretsmanager_secret.postgresql_secret.arn}:port::"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:port::"
         },
         {
           name      = "DB"
-          valueFrom = "${data.aws_secretsmanager_secret.postgresql_secret.arn}:dbname::"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:dbname::"
         },
         {
           name      = "DBUSER"
-          valueFrom = "${data.aws_secretsmanager_secret.postgresql_secret.arn}:username::"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:username::"
         },
         {
           name      = "DBPASS"
-          valueFrom = "${data.aws_secretsmanager_secret.postgresql_secret.arn}:password::"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:password::"
         }
       ]
       logConfiguration = {
@@ -338,7 +338,7 @@ resource "aws_ecs_service" "api" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = [data.aws_subnet.api_1.id, data.aws_subnet.api_2.id]
+    subnets          = [data.aws_subnet.db_1.id, data.aws_subnet.db_2.id]
     security_groups  = [aws_security_group.ecs_tasks.id]
     assign_public_ip = false
   }

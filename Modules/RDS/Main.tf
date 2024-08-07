@@ -4,16 +4,16 @@
 resource "aws_db_instance" "postgresql" {
   identifier        = "project-db"
   engine            = "postgres"
-  engine_version    = "15.3"
+  engine_version    = "15.2"
   instance_class    = "db.t3.micro"
-  allocated_storage = 20  # Storage size in GB
+  allocated_storage = 20 # Storage size in GB
 
   db_name  = "toptal"   #! VARS
   username = "jondaw"   #! VARS
   password = "password" #! VARS
 
-  storage_encrypted = true
-  db_subnet_group_name = aws_db_subnet_group.postgresql_subnet_group.name
+  storage_encrypted      = true
+  db_subnet_group_name   = aws_db_subnet_group.postgresql_subnet_group.name
   vpc_security_group_ids = [aws_security_group.sg_postgresql.id]
 
   skip_final_snapshot = true

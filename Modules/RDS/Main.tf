@@ -63,7 +63,7 @@ resource "aws_security_group" "sg_aurora" {
 
 # "Secret Manager"
 resource "aws_secretsmanager_secret" "aurora_secret" {
-  name = "aurora-secret-qw" #! VARS
+  name = "aurora-secret-qe" #! VARS
 }
 
 # Attach "Credentials" for "Secret Manager"

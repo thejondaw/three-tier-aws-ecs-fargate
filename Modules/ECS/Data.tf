@@ -56,7 +56,7 @@ data "aws_security_group" "sg_aurora" {
 
 # Fetch "Secret Manager" of "RDS Module"
 data "aws_secretsmanager_secret" "aurora_secret" {
-  name = "aurora-secret-qw" #! VARS
+  name = "aurora-secret-qe" #! VARS
 }
 
 # Fetch "Secret Manager Version" of "RDS Module"

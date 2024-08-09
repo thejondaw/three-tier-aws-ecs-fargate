@@ -1,6 +1,5 @@
 # =================== CREDENTIALS ==================== #
 
-
 # "AWS Region"
 region = "us-east-2"
 
@@ -18,5 +17,11 @@ subnet_api_2_cidr = "10.0.12.0/24"
 # "Private Subnets" "DB"
 subnet_db_1_cidr = "10.0.21.0/24"
 subnet_db_2_cidr = "10.0.22.0/24"
+
+# RDS variables
+db_name            = "toptal"
+db_username        = "jondaw"
+db_password        = "password"
+aurora_secret_name = "aurora-secret-qr"
 
 # ==================================================== #

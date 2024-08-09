@@ -6,9 +6,9 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   engine                 = "aurora-postgresql"
   engine_mode            = "provisioned"
   engine_version         = "15.3"
-  database_name          = "toptal"   #! VARS
-  master_username        = "jondaw"   #! VARS
-  master_password        = "password" #! VARS
+  database_name          = var.db_name
+  master_username        = var.db_username
+  master_password        = var.db_password
   storage_encrypted      = true
   db_subnet_group_name   = aws_db_subnet_group.aurora_subnet_group.name
   vpc_security_group_ids = [aws_security_group.sg_aurora.id]
@@ -63,7 +63,7 @@ resource "aws_security_group" "sg_aurora" {
 
 # "Secret Manager"
 resource "aws_secretsmanager_secret" "aurora_secret" {
-  name = "aurora-secret-qe" #! VARS
+  name = var.aurora_secret_name
 }
 
 # Attach "Credentials" for "Secret Manager"

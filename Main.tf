@@ -25,6 +25,8 @@ module "rds" {
   source            = "./Modules/RDS"
   region            = var.region_rv
   vpc_cidr          = module.vpc.vpc_id
+  subnet_web_1_cidr = module.vpc.subnet_web_1_id
+  subnet_web_2_cidr = module.vpc.subnet_web_2_id
   subnet_api_1_cidr = module.vpc.subnet_api_1_id
   subnet_api_2_cidr = module.vpc.subnet_api_2_id
   subnet_db_1_cidr  = module.vpc.subnet_db_1_id

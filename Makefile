@@ -1,15 +1,19 @@
 # ====================== INSTRUCTIONS ====================== #
-# To use this Makefile:
-# 1. Install Terraform and setup: make terraform
-# 2. Initialize the project: make init
-# 3. Apply all modules: make all
-#    Or individually:
-#    - VPC: make apply_vpc
-#    - RDS: make apply_rds
-#    - ECS: make apply_ecs
-# 4. To destroy resources: make destroy
-#    Or by module: make destroy_vpc, make destroy_rds, make destroy_ecs
-# 5. Clean cache: make cache
+#
+# make terraform (Install Terraform)
+# make init (Initialize the Project)
+#
+# make all (Apply All Modules)
+# - make apply_vpc (Apply VPC Module)
+# - make apply_rds (Apply RDS Module)
+# - make apply_ecs (Apply ECS Module)
+#
+# make destroy (Destroy Resources)
+# - make destroy_vpc (Destroy VPC Module)
+# - make destroy_rds (Destroy RDS Module)
+# - make destroy_ecs (Destroy ECS Module)
+#
+# make cache (Clean Cache)
 # ========================================================== #
 
 # Variables

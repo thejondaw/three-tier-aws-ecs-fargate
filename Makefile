@@ -20,7 +20,7 @@
 TERRAFORM := terraform
 ROOT_DIR := $(shell pwd)
 TFVARS_FILE := $(ROOT_DIR)/Terraform.tfvars
-TERRAFORM_INIT := $(TERRAFORM) init -var-file=$(TFVARS_FILE)
+TERRAFORM_INIT := $(TERRAFORM) init
 TERRAFORM_VALIDATE := $(TERRAFORM) validate
 TERRAFORM_PLAN := $(TERRAFORM) plan -var-file=$(TFVARS_FILE)
 TERRAFORM_APPLY := $(TERRAFORM) apply --auto-approve -var-file=$(TFVARS_FILE)
@@ -54,11 +54,39 @@ init:
 	done
 
 # Module operations
-%_vpc %_rds %_ecs:
-	cd $($(shell echo $* | cut -d'_' -f2 | tr a-z A-Z)_MODULE_PATH) && \
-	$(TERRAFORM_$(shell echo $* | cut -d'_' -f1 | tr a-z A-Z)) && \
-	cd $(ROOT_DIR)
+apply_vpc:
+	cd $(VPC_MODULE_PATH) && $(TERRAFORM_APPLY)
+
+apply_rds:
+	cd $(RDS_MODULE_PATH) && $(TERRAFORM_APPLY)
+
+apply_ecs:
+	cd $(ECS_MODULE_PATH) && $(TERRAFORM_APPLY)
+
+destroy_vpc:
+	cd $(VPC_MODULE_PATH) && $(TERRAFORM_DESTROY)
+
+destroy_rds:
+	cd $(RDS_MODULE_PATH) && $(TERRAFORM_DESTROY)
+
+destroy_ecs:
+	cd $(ECS_MODULE_PATH) && $(TERRAFORM_DESTROY)
 
 # Common operations
-plan apply destroy:
-	$(TERRAFORM_$(shell echo $@ | tr a-z A-Z))
+plan:
+	@echo "Specify a module: make plan_vpc, make plan_rds, or make plan_ecs"
+
+plan_vpc:
+	cd $(VPC_MODULE_PATH) && $(TERRAFORM_PLAN)
+
+plan_rds:
+	cd $(RDS_MODULE_PATH) && $(TERRAFORM_PLAN)
+
+plan_ecs:
+	cd $(ECS_MODULE_PATH) && $(TERRAFORM_PLAN)
+
+apply:
+	@echo "Specify a module: make apply_vpc, make apply_rds, or make apply_ecs"
+
+destroy:
+	@echo "Specify a module: make destroy_vpc, make destroy_rds, or make destroy_ecs"

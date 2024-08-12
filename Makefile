@@ -18,11 +18,13 @@
 
 # Variables
 TERRAFORM := terraform
-TERRAFORM_INIT := $(TERRAFORM) init -var-file=../../Terraform.tfvars
+ROOT_DIR := $(shell pwd)
+TFVARS_FILE := $(ROOT_DIR)/Terraform.tfvars
+TERRAFORM_INIT := $(TERRAFORM) init -var-file=$(TFVARS_FILE)
 TERRAFORM_VALIDATE := $(TERRAFORM) validate
-TERRAFORM_PLAN := $(TERRAFORM) plan -var-file=../../Terraform.tfvars
-TERRAFORM_APPLY := $(TERRAFORM) apply --auto-approve -var-file=../../Terraform.tfvars
-TERRAFORM_DESTROY := $(TERRAFORM) destroy --auto-approve -var-file=../../Terraform.tfvars
+TERRAFORM_PLAN := $(TERRAFORM) plan -var-file=$(TFVARS_FILE)
+TERRAFORM_APPLY := $(TERRAFORM) apply --auto-approve -var-file=$(TFVARS_FILE)
+TERRAFORM_DESTROY := $(TERRAFORM) destroy --auto-approve -var-file=$(TFVARS_FILE)
 
 VPC_MODULE_PATH := Modules/VPC
 RDS_MODULE_PATH := Modules/RDS
@@ -48,13 +50,14 @@ cache:
 init:
 	git pull && \
 	for module in $(VPC_MODULE_PATH) $(RDS_MODULE_PATH) $(ECS_MODULE_PATH); do \
-		cd $$module && $(TERRAFORM_INIT) && $(TERRAFORM_VALIDATE) && cd -; \
+		cd $$module && $(TERRAFORM_INIT) && $(TERRAFORM_VALIDATE) && cd $(ROOT_DIR); \
 	done
 
 # Module operations
 %_vpc %_rds %_ecs:
 	cd $($(shell echo $* | cut -d'_' -f2 | tr a-z A-Z)_MODULE_PATH) && \
-	$(TERRAFORM_$(shell echo $* | cut -d'_' -f1 | tr a-z A-Z))
+	$(TERRAFORM_$(shell echo $* | cut -d'_' -f1 | tr a-z A-Z)) && \
+	cd $(ROOT_DIR)
 
 # Common operations
 plan apply destroy:

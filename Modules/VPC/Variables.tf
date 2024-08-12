@@ -32,5 +32,3 @@ variable "subnet_db_1_cidr" {
 variable "subnet_db_2_cidr" {
   description = "CIDR Block for DB Subnet #2 - Private"
 }
-
-# ==================================================== #

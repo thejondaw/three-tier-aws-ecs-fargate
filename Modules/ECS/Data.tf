@@ -51,5 +51,3 @@ data "aws_secretsmanager_secret" "aurora_secret" {
 data "aws_secretsmanager_secret_version" "aurora_credentials" {
   secret_id = data.aws_secretsmanager_secret.aurora_secret.id
 }
-
-# ==================================================== #

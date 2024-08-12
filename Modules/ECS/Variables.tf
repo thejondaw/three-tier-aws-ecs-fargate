@@ -33,12 +33,8 @@ variable "subnet_db_2_cidr" {
   description = "CIDR Block for DB Subnet #2 - Private"
 }
 
-# ==================================================== #
-
 # Variable for "Secret Manager" Name
 variable "aurora_secret_name" {
   description = "Name of the Aurora secret in Secrets Manager"
   type        = string
 }
-
-# ==================================================== #

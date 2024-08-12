@@ -38,7 +38,7 @@ variable "subnet_db_2_cidr" {
   type        = string
 }
 
-# ==================================================== #
+# ============== VARIABLES OF DATABASE =============== #
 
 # Variable for "DB Name"
 variable "db_name" {
@@ -63,5 +63,3 @@ variable "aurora_secret_name" {
   description = "Name of the Aurora secret in Secrets Manager"
   type        = string
 }
-
-# ==================================================== #

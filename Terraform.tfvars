@@ -19,5 +19,3 @@ db_name            = "toptal"
 db_username        = "jondaw"
 db_password        = "password"
 aurora_secret_name = "aurora-secret-qr"
-
-# ==================================================== #

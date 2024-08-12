@@ -77,5 +77,3 @@ resource "aws_secretsmanager_secret_version" "aurora_credentials" {
     dbname   = aws_rds_cluster.aurora_postgresql.database_name
   })
 }
-
-# ==================================================== #

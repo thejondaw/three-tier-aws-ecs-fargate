@@ -173,5 +173,3 @@ resource "aws_security_group" "sec_group_vpc" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
-# ==================================================== #

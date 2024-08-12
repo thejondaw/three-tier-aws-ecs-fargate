@@ -42,5 +42,3 @@ module "ecs" {
   subnet_db_2_cidr   = module.vpc.subnet_db_2_id
   aurora_secret_name = var.aurora_secret_name
 }
-
-# ==================================================== #

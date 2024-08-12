@@ -440,5 +440,3 @@ resource "aws_cloudwatch_log_group" "web" {
   name              = "/ecs/web-app"
   retention_in_days = 30
 }
-
-# ==================================================== #

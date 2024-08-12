@@ -16,5 +16,3 @@ data "aws_subnet" "db_2" {
   vpc_id     = data.aws_vpc.main.id
   cidr_block = var.subnet_db_2_cidr
 }
-
-# ==================================================== #

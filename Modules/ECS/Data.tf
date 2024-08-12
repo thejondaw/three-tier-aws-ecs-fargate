@@ -17,18 +17,6 @@ data "aws_subnet" "web_2" {
   cidr_block = var.subnet_web_2_cidr
 }
 
-# Fetch "API Subnet #1" "Private" info
-data "aws_subnet" "api_1" {
-  vpc_id     = data.aws_vpc.main.id
-  cidr_block = var.subnet_api_1_cidr
-}
-
-# Fetch "API Subnet #2" "Private" info
-data "aws_subnet" "api_2" {
-  vpc_id     = data.aws_vpc.main.id
-  cidr_block = var.subnet_api_2_cidr
-}
-
 # Fetch "DB Subnet #1" "Private" info
 data "aws_subnet" "db_1" {
   vpc_id     = data.aws_vpc.main.id

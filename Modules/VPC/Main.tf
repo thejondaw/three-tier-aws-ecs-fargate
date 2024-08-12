@@ -24,20 +24,6 @@ resource "aws_subnet" "subnet_web_2" {
   availability_zone       = "us-east-2b"
 }
 
-# "API Subnet #1" "Private"
-resource "aws_subnet" "subnet_api_1" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = var.subnet_api_1_cidr
-  availability_zone = "us-east-2a"
-}
-
-# "API Subnet #2" "Private"
-resource "aws_subnet" "subnet_api_2" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = var.subnet_api_2_cidr
-  availability_zone = "us-east-2b"
-}
-
 # "DB Subnet #1" "Private"
 resource "aws_subnet" "subnet_db_1" {
   vpc_id            = aws_vpc.main.id
@@ -102,18 +88,6 @@ resource "aws_route" "private_route_2" {
 }
 
 # ==================================================== #
-
-# Association of "API Subnet #1" "Private", with "Route Table #1"
-resource "aws_route_table_association" "private_api_1" {
-  subnet_id      = aws_subnet.subnet_api_1.id
-  route_table_id = aws_route_table.private_rt_1.id
-}
-
-# Association of "API Subnet #2" "Private", with "Route Table #2"
-resource "aws_route_table_association" "private_api_2" {
-  subnet_id      = aws_subnet.subnet_api_2.id
-  route_table_id = aws_route_table.private_rt_2.id
-}
 
 # Association of "DB Subnet #1" "Private", with "Route Table #1"
 resource "aws_route_table_association" "private_db_1" {

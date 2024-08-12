@@ -26,18 +26,6 @@ variable "subnet_web_2_cidr" {
   type        = string
 }
 
-# Variable for "CIDR Block" of "API Subnet #1" "Private"
-variable "subnet_api_1_cidr" {
-  description = "CIDR Block for API Subnet #1 - Private"
-  type        = string
-}
-
-# Variable for "CIDR Block" of "API Subnet #2" "Private"
-variable "subnet_api_2_cidr" {
-  description = "CIDR Block for API Subnet #2 - Private"
-  type        = string
-}
-
 # Variable for "CIDR Block" of "DB Subnet #1" "Private"
 variable "subnet_db_1_cidr" {
   description = "CIDR Block for DB Subnet #1 - Private"

@@ -14,8 +14,6 @@ module "vpc" {
   vpc_cidr          = var.vpc_cidr
   subnet_web_1_cidr = var.subnet_web_1_cidr
   subnet_web_2_cidr = var.subnet_web_2_cidr
-  subnet_api_1_cidr = var.subnet_api_1_cidr
-  subnet_api_2_cidr = var.subnet_api_2_cidr
   subnet_db_1_cidr  = var.subnet_db_1_cidr
   subnet_db_2_cidr  = var.subnet_db_2_cidr
 }
@@ -25,10 +23,6 @@ module "rds" {
   source             = "./Modules/RDS"
   region             = var.region_rv
   vpc_cidr           = module.vpc.vpc_id
-  subnet_web_1_cidr  = module.vpc.subnet_web_1_id
-  subnet_web_2_cidr  = module.vpc.subnet_web_2_id
-  subnet_api_1_cidr  = module.vpc.subnet_api_1_id
-  subnet_api_2_cidr  = module.vpc.subnet_api_2_id
   subnet_db_1_cidr   = module.vpc.subnet_db_1_id
   subnet_db_2_cidr   = module.vpc.subnet_db_2_id
   db_name            = var.db_name
@@ -44,8 +38,6 @@ module "ecs" {
   vpc_cidr           = module.vpc.vpc_id
   subnet_web_1_cidr  = module.vpc.subnet_web_1_id
   subnet_web_2_cidr  = module.vpc.subnet_web_2_id
-  subnet_api_1_cidr  = module.vpc.subnet_api_1_id
-  subnet_api_2_cidr  = module.vpc.subnet_api_2_id
   subnet_db_1_cidr   = module.vpc.subnet_db_1_id
   subnet_db_2_cidr   = module.vpc.subnet_db_2_id
   aurora_secret_name = var.aurora_secret_name

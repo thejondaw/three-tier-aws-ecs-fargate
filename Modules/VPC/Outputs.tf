@@ -1,4 +1,4 @@
-# ============== OUTPUTS OF VPC MODULE =============== # 
+# ============== OUTPUTS OF VPC MODULE =============== #
 
 # "CIDR" "Output" of "VPC"
 output "vpc_id" {
@@ -13,16 +13,6 @@ output "subnet_web_1_id" {
 # "CIDR" "Output" of "WEB Subnet #2" "Public"
 output "subnet_web_2_id" {
   value = aws_subnet.subnet_web_2.id
-}
-
-# "CIDR" "Output" of "API Subnet #1" "Private"
-output "subnet_api_1_id" {
-  value = aws_subnet.subnet_api_1.id
-}
-
-# "CIDR" "Output" of "API Subnet #2" "Private"
-output "subnet_api_2_id" {
-  value = aws_subnet.subnet_api_2.id
 }
 
 # "CIDR" "Output" of "DB Subnet #1" "Private"

@@ -138,6 +138,15 @@ resource "aws_security_group" "sec_group_vpc" {
   description = "Allow incoming HTTP Connections"
   vpc_id      = aws_vpc.main.id
 
+  # "API"
+  ingress {
+    description = "Allow incoming traffic for API"
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   # "HTTP"
   ingress {
     description = "Allow incoming HTTP for redirect to HTTPS"

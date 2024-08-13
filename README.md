@@ -1,9 +1,7 @@
-``` HTML
 <p align="center">
   <img src="Images/diagram.gif" alt="Diagram of Project">
   <br>
 </p>
-```
 
 # Toptal - Project
 

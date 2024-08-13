@@ -8,5 +8,3 @@ terraform {
     key    = "toptal/VPC/terraform.tfstate"
   }
 }
-
-# ==================================================== #

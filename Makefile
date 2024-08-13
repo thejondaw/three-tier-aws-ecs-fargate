@@ -1,123 +1,92 @@
-# ==================== Terraform ===================== #
+# ====================== INSTRUCTIONS ====================== #
+#
+# make terraform (Install Terraform)
+# make init (Initialize the Project)
+#
+# make all (Apply All Modules)
+# - make apply_vpc (Apply VPC Module)
+# - make apply_rds (Apply RDS Module)
+# - make apply_ecs (Apply ECS Module)
+#
+# make destroy (Destroy Resources)
+# - make destroy_vpc (Destroy VPC Module)
+# - make destroy_rds (Destroy RDS Module)
+# - make destroy_ecs (Destroy ECS Module)
+#
+# make cache (Clean Cache)
+# ========================================================== #
 
-# Terraform install:
-terraform:
-	sudo yum install -y yum-utils
-	sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
-	sudo yum -y install terraform
+# Variables
+TERRAFORM := terraform
+ROOT_DIR := $(shell pwd)
+TFVARS_FILE := $(ROOT_DIR)/Terraform.tfvars
+TERRAFORM_INIT := $(TERRAFORM) init
+TERRAFORM_VALIDATE := $(TERRAFORM) validate
+TERRAFORM_PLAN := $(TERRAFORM) plan -var-file=$(TFVARS_FILE)
+TERRAFORM_APPLY := $(TERRAFORM) apply --auto-approve -var-file=$(TFVARS_FILE)
+TERRAFORM_DESTROY := $(TERRAFORM) destroy --auto-approve -var-file=$(TFVARS_FILE)
 
-# ======================= Root ======================= #
-
-# Copy ".terraformrc" into /root:
-rc:
-	cp .terraformrc ~/.terraformrc
-
-# ====================== Modules ===================== #
-
-# Clean up temporal and cache files:
-cache:
-	find / -type d  -name ".terraform" -exec rm -rf {} \;
-	[ -d "$HOME/.terraform.d/plugin-cache" ] && rm -rf $HOME/.terraform.d/plugin-cache/*
-
-# Update repository, dependenties and validate:
-init:
-	git pull
-	cd $(VPC_MODULE_PATH) && terraform init -var-file=../../Terraform.tfvars
-	cd $(VPC_MODULE_PATH) && terraform validate
-	cd $(RDS_MODULE_PATH) && terraform init -var-file=../../Terraform.tfvars
-	cd $(RDS_MODULE_PATH) && terraform validate
-	cd $(ECS_MODULE_PATH) && terraform init -var-file=../../Terraform.tfvars
-	cd $(ECS_MODULE_PATH) && terraform validate
-
-# Target for planning changes:
-plan:
-	terraform plan -var-file=Terraform.tfvars
-
-# Target for applying:
-apply:
-	terraform apply --auto-approve -var-file=Terraform.tfvars
-
-# Target for destroying:
-destroy:
-	terraform destroy --auto-approve -var-file=Terraform.tfvars
-
-# ====================== Modules ===================== #
-
-# Variables with the path to Modules:
 VPC_MODULE_PATH := Modules/VPC
 RDS_MODULE_PATH := Modules/RDS
 ECS_MODULE_PATH := Modules/ECS
 
-# ======================== VPC ======================= #
+# Targets
+.PHONY: all terraform cache init plan apply destroy
 
-# Clean up temporal and cache files in VPC Module:
-cache-vpc:
-	cd $(VPC_MODULE_PATH) && find / -type d  -name ".terraform" -exec rm -rf {} \;
+all: init apply_vpc apply_rds apply_ecs
 
-# Update repository, dependenties and validate in VPC Module:
-init-vpc:
-	git pull
-	cd $(VPC_MODULE_PATH) && terraform init -var-file=../../Terraform.tfvars
-	cd $(VPC_MODULE_PATH) && terraform validate
+# Installation and setup
+terraform:
+	sudo yum install -y yum-utils && \
+	sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo && \
+	sudo yum -y install terraform && \
+	cp .terraformrc ~/.terraformrc
 
-# Target for planning changes only in VPC Module:
-plan-vpc:
-	cd $(VPC_MODULE_PATH) && terraform plan -var-file=../../Terraform.tfvars
+# Cleaning and initialization
+cache:
+	find / -type d -name ".terraform" -exec rm -rf {} + && \
+	rm -rf $$HOME/.terraform.d/plugin-cache/*
 
-# Target for applying only VPC Module:
-apply-vpc:
-	cd $(VPC_MODULE_PATH) && terraform apply --auto-approve -var-file=../../Terraform.tfvars
+init:
+	git pull && \
+	for module in $(VPC_MODULE_PATH) $(RDS_MODULE_PATH) $(ECS_MODULE_PATH); do \
+		cd $$module && $(TERRAFORM_INIT) && $(TERRAFORM_VALIDATE) && cd $(ROOT_DIR); \
+	done
 
-# Target for destroying only VPC Module:
-destroy-vpc:
-	cd $(VPC_MODULE_PATH) && terraform destroy --auto-approve -var-file=../../Terraform.tfvars
+# Module operations
+apply_vpc:
+	cd $(VPC_MODULE_PATH) && $(TERRAFORM_APPLY)
 
-# ======================== RDS ======================= #
+apply_rds:
+	cd $(RDS_MODULE_PATH) && $(TERRAFORM_APPLY)
 
-# Clean up temporal and cache files in VPC Module:
-cache-rds:
-	cd $(RDS_MODULE_PATH) && find / -type d  -name ".terraform" -exec rm -rf {} \;
+apply_ecs:
+	cd $(ECS_MODULE_PATH) && $(TERRAFORM_APPLY)
 
-# Update repository, dependenties and validate in RDS Module:
-init-rds:
-	git pull
-	cd $(RDS_MODULE_PATH) && terraform init -var-file=../../Terraform.tfvars
-	cd $(RDS_MODULE_PATH) && terraform validate
+destroy_vpc:
+	cd $(VPC_MODULE_PATH) && $(TERRAFORM_DESTROY)
 
-# Target for planning changes only in RDS Module:
-plan-rds:
-	cd $(RDS_MODULE_PATH) && terraform plan -var-file=../../Terraform.tfvars
+destroy_rds:
+	cd $(RDS_MODULE_PATH) && $(TERRAFORM_DESTROY)
 
-# Target for applying only RDS Module:
-apply-rds:
-	cd $(RDS_MODULE_PATH) && terraform apply --auto-approve -var-file=../../Terraform.tfvars
+destroy_ecs:
+	cd $(ECS_MODULE_PATH) && $(TERRAFORM_DESTROY)
 
-# Target for destroying only RDS Module:
-destroy-rds:
-	cd $(RDS_MODULE_PATH) && terraform destroy --auto-approve -var-file=../../Terraform.tfvars
+# Common operations
+plan:
+	@echo "Specify a module: make plan_vpc, make plan_rds, or make plan_ecs"
 
-# ======================== ECS ======================= #
+plan_vpc:
+	cd $(VPC_MODULE_PATH) && $(TERRAFORM_PLAN)
 
-# Clean up temporal and cache files in VPC Module:
-cache-ecs:
-	cd $(ECS_MODULE_PATH) && find / -type d  -name ".terraform" -exec rm -rf {} \;
+plan_rds:
+	cd $(RDS_MODULE_PATH) && $(TERRAFORM_PLAN)
 
-# Update repository, dependenties and validate in ECS Module:
-init-ecs:
-	git pull
-	cd $(ECS_MODULE_PATH) && terraform init -var-file=../../Terraform.tfvars
-	cd $(ECS_MODULE_PATH) && terraform validate
+plan_ecs:
+	cd $(ECS_MODULE_PATH) && $(TERRAFORM_PLAN)
 
-# Target for planning changes only in ECS Module:
-plan-ecs:
-	cd $(ECS_MODULE_PATH) && terraform plan -var-file=../../Terraform.tfvars
+apply:
+	@echo "Specify a module: make apply_vpc, make apply_rds, or make apply_ecs"
 
-# Target for applying only ECS Module:
-apply-ecs:
-	cd $(ECS_MODULE_PATH) && terraform apply --auto-approve -var-file=../../Terraform.tfvars
-
-# Target for destroying only ECS Module:
-destroy-ecs:
-	cd $(ECS_MODULE_PATH) && terraform destroy --auto-approve -var-file=../../Terraform.tfvars
-
-# ==================================================== #
+destroy:
+	@echo "Specify a module: make destroy_vpc, make destroy_rds, or make destroy_ecs"

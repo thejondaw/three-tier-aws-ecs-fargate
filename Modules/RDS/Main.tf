@@ -6,13 +6,15 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   engine                 = "aurora-postgresql"
   engine_mode            = "provisioned"
   engine_version         = "15.3"
-  database_name          = "toptal"   # VARS
-  master_username        = "jondaw"   # VARS
-  master_password        = "password"
+  database_name          = var.db_name
+  master_username        = var.db_username
+  master_password        = var.db_password
   storage_encrypted      = true
   db_subnet_group_name   = aws_db_subnet_group.aurora_subnet_group.name
   vpc_security_group_ids = [aws_security_group.sg_aurora.id]
   skip_final_snapshot    = true
+  enable_http_endpoint   = true
+  availability_zones     = ["us-east-2a", "us-east-2b"]
 
   serverlessv2_scaling_configuration {
     max_capacity = 1.0
@@ -26,6 +28,12 @@ resource "aws_rds_cluster_instance" "rds_instance" {
   instance_class     = "db.serverless"
   engine             = aws_rds_cluster.aurora_postgresql.engine
   engine_version     = aws_rds_cluster.aurora_postgresql.engine_version
+}
+
+# "Subnet Group" for "Database"
+resource "aws_db_subnet_group" "aurora_subnet_group" {
+  name       = "aurora-subnet-group"
+  subnet_ids = [data.aws_subnet.db_1.id, data.aws_subnet.db_2.id]
 }
 
 # ==================================================== #
@@ -53,17 +61,9 @@ resource "aws_security_group" "sg_aurora" {
 
 # ================== SECRET MANAGER ================== #
 
-# Random "Password" for "Secret Manager"
-resource "random_password" "aurora_password" {
-  length  = 16
-  special = true
-  numeric = true
-  upper   = true
-}
-
 # "Secret Manager"
 resource "aws_secretsmanager_secret" "aurora_secret" {
-  name = "aurora-secret-t"
+  name = var.aurora_secret_name
 }
 
 # Attach "Credentials" for "Secret Manager"
@@ -71,19 +71,9 @@ resource "aws_secretsmanager_secret_version" "aurora_credentials" {
   secret_id = aws_secretsmanager_secret.aurora_secret.id
   secret_string = jsonencode({
     username = aws_rds_cluster.aurora_postgresql.master_username
-    password = random_password.aurora_password.result
+    password = aws_rds_cluster.aurora_postgresql.master_password
     host     = aws_rds_cluster.aurora_postgresql.endpoint
     port     = aws_rds_cluster.aurora_postgresql.port
     dbname   = aws_rds_cluster.aurora_postgresql.database_name
   })
 }
-
-# ==================================================== #
-
-# "Subnet Group" for "Database"
-resource "aws_db_subnet_group" "aurora_subnet_group" {
-  name       = "aurora-subnet-group"
-  subnet_ids = [data.aws_subnet.db_1.id, data.aws_subnet.db_2.id]
-}
-
-# ==================================================== #

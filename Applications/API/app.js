@@ -8,13 +8,13 @@ const conString = {
     database: process.env.DB,
     password: process.env.DBPASS,
     host: process.env.DBHOST,
-    port: process.env.DBPORT                
+    port: process.env.DBPORT
 };
 
 // Routes
 app.get('/api/status', function(req, res) {
 //'SELECT now() as time', [], function(err, result
-  
+
   const Pool = require('pg').Pool
   const pool = new Pool(conString)
   // connection using created pool

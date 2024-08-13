@@ -23,16 +23,6 @@ variable "subnet_web_2_cidr" {
   description = "CIDR Block for WEB Subnet #2 - Public"
 }
 
-# Variable for "CIDR Block" of "API Subnet #1" "Private"
-variable "subnet_api_1_cidr" {
-  description = "CIDR Block for API Subnet #1 - Private"
-}
-
-# Variable for "CIDR Block" of "API Subnet #2" "Private"
-variable "subnet_api_2_cidr" {
-  description = "CIDR Block for API Subnet #2 - Private"
-}
-
 # Variable for "CIDR Block" of "DB Subnet #1" "Private"
 variable "subnet_db_1_cidr" {
   description = "CIDR Block for DB Subnet #1 - Private"
@@ -43,6 +33,8 @@ variable "subnet_db_2_cidr" {
   description = "CIDR Block for DB Subnet #2 - Private"
 }
 
-# ==================================================== #
-
-
+# Variable for "Secret Manager" Name
+variable "aurora_secret_name" {
+  description = "Name of the Aurora secret in Secrets Manager"
+  type        = string
+}

@@ -75,7 +75,7 @@ resource "aws_lb" "main" {
   name               = "main-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
+  security_groups    = [aws_security_group.main.id]
   subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
 }
 
@@ -164,80 +164,54 @@ resource "aws_lb_target_group" "web" {
 # ================= SECURITY GROUPS ================== #
 
 # "Security Group" for "ECS Tasks"
-resource "aws_security_group" "ecs_tasks" {
-  name        = "ecs-tasks-sg"
-  description = "Allow inbound traffic for ECS Tasks"
+resource "aws_security_group" "main" {
+  name        = "main-sg"
+  description = "Main security group for ALB and ECS tasks"
   vpc_id      = data.aws_vpc.main.id
 
-  # Incoming traffic for API
-  ingress {
-    from_port       = 3000
-    to_port         = 3000
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-  }
-
-  # Incoming traffic for WEB
-  ingress {
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-  }
-
-  # Outbound traffic to Database
-  egress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
-  }
-
-  # All Outbound traffic for other needs (e.g. updates)
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# "Security Group" for "ALB"
-resource "aws_security_group" "alb" {
-  name        = "alb-sg"
-  description = "Allow inbound traffic for ALB and outbound to ECS tasks"
-  vpc_id      = data.aws_vpc.main.id
-
-  # Входящий трафик
+  # Incoming HTTP traffic for ALB
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow incoming HTTP for ALB"
   }
 
-  # Исходящий трафик на порт 3000 (для API)
+  # Incoming traffic for API (ECS tasks)
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    self        = true
+    description = "Allow incoming traffic for API from ALB"
+  }
+
+  # Incoming traffic for WEB (ECS tasks)
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    self        = true
+    description = "Allow incoming traffic for WEB from ALB"
+  }
+
+  # Outgoing traffic to Database
   egress {
-    from_port       = 3000
-    to_port         = 3000
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ecs_tasks.id]
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
+    description = "Allow outbound traffic to Database"
   }
 
-  # Исходящий трафик на порт 80 (для веб-приложения)
-  egress {
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ecs_tasks.id]
-  }
-
-  # Общее правило для исходящего трафика (если нужно)
+  # General rule for outgoing traffic
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
   }
 }
 
@@ -347,7 +321,7 @@ resource "aws_ecs_service" "api" {
 
   network_configuration {
     subnets          = [data.aws_subnet.db_1.id, data.aws_subnet.db_2.id]
-    security_groups  = [aws_security_group.ecs_tasks.id]
+    security_groups  = [aws_security_group.main.id]
     assign_public_ip = false
   }
 
@@ -370,7 +344,7 @@ resource "aws_ecs_service" "web" {
 
   network_configuration {
     subnets          = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
-    security_groups  = [aws_security_group.ecs_tasks.id]
+    security_groups  = [aws_security_group.main.id]
     assign_public_ip = true
   }
 

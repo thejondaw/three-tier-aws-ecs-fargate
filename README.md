@@ -17,30 +17,31 @@
               +----------------------------------------------------+
               |                         VPC                        |
               | +------------------------------------------------+ |
-              | |                 Tier 1: Database               | |
               | |               (2 Private Subnets)              | |
-              | |                 |            |                 | |
-              | |    +------------+------------+------------+    | |
-              | |    |            |            |            |    | |
-              | |  DB NAME     DB PORT      DB USER    DB PASSWD | |
-              | |    |            |            |            |    | |
-              | |    |            |            |            |    | |
-              | |    |            |            |            |    | |
-              | +----+------------+------------+------------+----+ |
-              |      |            |            |            |      |
-              | +----V------------V------------V------------V----+ |
-              | |                  Tier 2: API                   | |
-              | |               (2 Private Subnets)              | |
+              | |   +----------------------------------------+   | |
+              | |   |             Tier 1: DATABASE           |   | |
+              | |   +----------------------------------------+   | |
+              | |       |           |          |         |       | |
+              | |       |           |          |         |       | |
+              | |    DB_NAME     DB_PORT     USER      PASSWD    | |
+              | |       |           |          |         |       | |
+              | |       |           |          |         |       | |
+              | |       V           V          V         V       | |
+              | |   +----------------------------------------+   | |
+              | |   |              Tier 2: API               |   | |
+              | |   +----------------------------------------+   | |
               | |                       |                        | |
               | |              +--------+--------+               | |
               | |              |                 |               | |
-              | |          API HOST          API PORT            | |
               | |              |                 |               | |
-              | +--------------+-----------------+---------------+ |
+              | |          API_HOST          API_PORT            | |
+              | +--------------|-----------------|---------------+ |
               |                |                 |                 |
               | +--------------V-----------------V---------------+ |
-              | |                  Tier 3: WEB                   | |
-              | |               (2 Public Subnets)               | |
+              | |              (2 Public Subnets)                | |
+              | |   +----------------------------------------+   | |
+              | |   |              Tier 3: WEB               |   | |
+              | |   +----------------------------------------+   | |
               | |                                                | |
               | +------------------------------------------------+ |
               +----------------------------------------------------+
@@ -50,7 +51,7 @@
 
 - Database works on 5432 PORT
 - API works on 3000 PORT
-- WEB works on 4000 PORT
+- WEB works on 80 PORT
 
 ### Docker Hub
 
@@ -108,10 +109,26 @@ sudo docker push jondaw/app-web:latest
 
 ### Variables
 
-``` HCL
-Variable 1
-Variable 2
-Variable 3
+``` Shell
+# "AWS Region"
+region = "us-east-2" # Ohio
+
+# IP Range of "VPC"
+vpc_cidr = "10.0.0.0/16"
+
+# "Public Subnets"  "WEB"
+subnet_web_1_cidr = "10.0.1.0/24"
+subnet_web_2_cidr = "10.0.2.0/24"
+
+# "Private Subnets" "DB"
+subnet_db_1_cidr = "10.0.11.0/24"
+subnet_db_2_cidr = "10.0.12.0/24"
+
+# RDS variables
+db_name            = "DB_NAME"
+db_username        = "DB_USER"
+db_password        = "DB_PASSWORD"
+aurora_secret_name = "SECRET_NAME"
 ```
 
 ### Automation

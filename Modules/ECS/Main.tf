@@ -120,7 +120,7 @@ resource "aws_lb_listener_rule" "web" {
 
   condition {
     path_pattern {
-      values = ["/web/*"]
+      values = ["/*"]
     }
   }
 }
@@ -169,6 +169,7 @@ resource "aws_security_group" "ecs_tasks" {
   description = "Allow inbound traffic for ECS Tasks"
   vpc_id      = data.aws_vpc.main.id
 
+  # Incoming traffic for API
   ingress {
     from_port       = 3000
     to_port         = 3000
@@ -176,6 +177,7 @@ resource "aws_security_group" "ecs_tasks" {
     security_groups = [aws_security_group.alb.id]
   }
 
+  # Incoming traffic for WEB
   ingress {
     from_port       = 80
     to_port         = 80
@@ -183,6 +185,7 @@ resource "aws_security_group" "ecs_tasks" {
     security_groups = [aws_security_group.alb.id]
   }
 
+  # Outbound traffic to Database
   egress {
     from_port   = 5432
     to_port     = 5432
@@ -190,6 +193,7 @@ resource "aws_security_group" "ecs_tasks" {
     cidr_blocks = [var.vpc_cidr]
   }
 
+  # All Outbound traffic for other needs (e.g. updates)
   egress {
     from_port   = 0
     to_port     = 0
@@ -201,16 +205,10 @@ resource "aws_security_group" "ecs_tasks" {
 # "Security Group" for "ALB"
 resource "aws_security_group" "alb" {
   name        = "alb-sg"
-  description = "Allow inbound traffic for ALB"
+  description = "Allow inbound traffic for ALB and outbound to ECS tasks"
   vpc_id      = data.aws_vpc.main.id
 
-  ingress {
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
+  # Входящий трафик
   ingress {
     from_port   = 80
     to_port     = 80
@@ -218,13 +216,23 @@ resource "aws_security_group" "alb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Исходящий трафик на порт 3000 (для API)
   egress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ecs_tasks.id]
   }
 
+  # Исходящий трафик на порт 80 (для веб-приложения)
+  egress {
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ecs_tasks.id]
+  }
+
+  # Общее правило для исходящего трафика (если нужно)
   egress {
     from_port   = 0
     to_port     = 0
@@ -312,7 +320,7 @@ resource "aws_ecs_task_definition" "web" {
       environment = [
         {
           name  = "API_HOST"
-          value = "http://${aws_lb.main.dns_name}"
+          value = "http://${aws_lb.main.dns_name}:3000"
         }
       ]
       logConfiguration = {

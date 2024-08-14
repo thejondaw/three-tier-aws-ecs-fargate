@@ -169,7 +169,7 @@ resource "aws_security_group" "main" {
   description = "Main security group for ALB and ECS tasks"
   vpc_id      = data.aws_vpc.main.id
 
-  # Incoming HTTP traffic for ALB
+  # "Incoming" "HTTP" traffic for "ALB"
   ingress {
     from_port   = 80
     to_port     = 80
@@ -178,7 +178,7 @@ resource "aws_security_group" "main" {
     description = "Allow incoming HTTP for ALB"
   }
 
-  # Incoming traffic for API (ECS tasks)
+  # "Incoming" traffic for "API"
   ingress {
     from_port   = 3000
     to_port     = 3000
@@ -187,7 +187,7 @@ resource "aws_security_group" "main" {
     description = "Allow incoming traffic for API from ALB"
   }
 
-  # Incoming traffic for WEB (ECS tasks)
+  # "Incoming" traffic for "WEB"
   ingress {
     from_port   = 80
     to_port     = 80
@@ -196,7 +196,7 @@ resource "aws_security_group" "main" {
     description = "Allow incoming traffic for WEB from ALB"
   }
 
-  # Outgoing traffic to Database
+  # "Outgoing" traffic to "Database"
   egress {
     from_port   = 5432
     to_port     = 5432
@@ -205,7 +205,7 @@ resource "aws_security_group" "main" {
     description = "Allow outbound traffic to Database"
   }
 
-  # General rule for outgoing traffic
+  # General rule for "Outgoing" traffic
   egress {
     from_port   = 0
     to_port     = 0
@@ -316,7 +316,7 @@ resource "aws_ecs_service" "api" {
   name            = "api-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.api.arn
-  desired_count   = 1
+  desired_count   = 2
   launch_type     = "FARGATE"
 
   network_configuration {
@@ -339,7 +339,7 @@ resource "aws_ecs_service" "web" {
   name            = "web-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.web.arn
-  desired_count   = 1
+  desired_count   = 2
   launch_type     = "FARGATE"
 
   network_configuration {
@@ -361,8 +361,8 @@ resource "aws_ecs_service" "web" {
 
 # "Auto-Scaling Target" for "API" Application
 resource "aws_appautoscaling_target" "api" {
-  max_capacity       = 2
-  min_capacity       = 1
+  max_capacity       = 4
+  min_capacity       = 2
   resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.api.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
@@ -386,8 +386,8 @@ resource "aws_appautoscaling_policy" "api_cpu" {
 
 # "Auto-Scaling Target" for "WEB" Application
 resource "aws_appautoscaling_target" "web" {
-  max_capacity       = 2
-  min_capacity       = 1
+  max_capacity       = 4
+  min_capacity       = 2
   resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.web.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"

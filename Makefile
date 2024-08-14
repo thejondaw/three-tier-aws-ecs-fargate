@@ -8,7 +8,7 @@
 # - make apply_rds (Apply RDS Module)
 # - make apply_ecs (Apply ECS Module)
 #
-# make destroy (Destroy Resources)
+# make destroy_all (Destroy All Resources)
 # - make destroy_vpc (Destroy VPC Module)
 # - make destroy_rds (Destroy RDS Module)
 # - make destroy_ecs (Destroy ECS Module)
@@ -31,7 +31,7 @@ RDS_MODULE_PATH := Modules/RDS
 ECS_MODULE_PATH := Modules/ECS
 
 # Targets
-.PHONY: all terraform cache init plan apply destroy
+.PHONY: all terraform cache init plan apply destroy destroy_all
 
 all: init apply_vpc apply_rds apply_ecs
 
@@ -72,6 +72,14 @@ destroy_rds:
 destroy_ecs:
 	cd $(ECS_MODULE_PATH) && $(TERRAFORM_DESTROY)
 
+# Destroy all resources
+destroy_all:
+	@echo "Destroying all resources..."
+	@make destroy_ecs
+	@make destroy_rds
+	@make destroy_vpc
+	@echo "All resources have been destroyed."
+
 # Common operations
 plan:
 	@echo "Specify a module: make plan_vpc, make plan_rds, or make plan_ecs"
@@ -90,3 +98,4 @@ apply:
 
 destroy:
 	@echo "Specify a module: make destroy_vpc, make destroy_rds, or make destroy_ecs"
+	@echo "Or use 'make destroy_all' to destroy all resources"

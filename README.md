@@ -11,7 +11,7 @@
   - WEB
 - Database based on `Aurora PostgreSQL 15.3 (Serverless v2)`
 
-### Diagram
+## Diagram
 
 ``` MD
                 +----------------------------------------------------+
@@ -49,13 +49,13 @@
                                         CLIENT
 ```
 
-### Applications
+## Applications
 
 - Database works on **5432** PORT
 - API works on **3000** PORT
 - WEB works on **80** PORT
 
-### Docker Hub
+## Docker Hub
 
 ``` Shell
 sudo rm -rf ~/.docker/config.json
@@ -72,7 +72,7 @@ sudo docker tag jondaw/app-web:latest app-web:latest
 sudo docker push jondaw/app-web:latest
 ```
 
-### Custom Modules
+## Custom Modules
 
 > <details>
 > <summary>VPC Module</summary>
@@ -99,7 +99,7 @@ sudo docker push jondaw/app-web:latest
 >
 > </details>
 
-### Variables for .TFVars
+## Variables for .TFVars
 
 ``` Shell
 # Set "AWS Region"
@@ -125,7 +125,7 @@ db_password        = "DB_PASSWORD"
 aurora_secret_name = "SECRET_NAME"
 ```
 
-### Automation
+## Automation
 
 - GitHub Actions - Workflow
 - Makefile

@@ -19,6 +19,7 @@
 - Из Region сделать переменную в Makefile
 
 - Создать Output для Secret Manager Name
+- Перезагрузить Dockerfile'ы
 
 ## Комментарии
 

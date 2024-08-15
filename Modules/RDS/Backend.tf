@@ -3,8 +3,8 @@
 # "S3 Bucket" - Backend
 terraform {
   backend "s3" {
-    region = "us-east-2"
-    bucket = "mrjondaw"
-    key    = "toptal/RDS/terraform.tfstate"
+    region = "us-east-2"                     #! VARS
+    bucket = "mrjondaw"                      #! VARS
+    key    = "toptal/RDS/terraform.tfstate"  #! VARS
   }
 }

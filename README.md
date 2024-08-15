@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Images/diagram.gif" alt="Diagram of Project">
+  <img src="Images/logo.gif" alt="Logo of Project">
   <br>
 </p>
 
@@ -11,48 +11,50 @@
   - WEB
 - Database based on `Aurora PostgreSQL 15.3 (Serverless v2)`
 
-### Diagram
+## Diagram
 
 ``` MD
                 +----------------------------------------------------+
                 |                         VPC                        |
                 | +------------------------------------------------+ |
-                | |               (2 Private Subnets)              | |
+                | |               (3 Private Subnets)              | |
                 | |   +----------------------------------------+   | |
                 | |   |             Tier 1: DATABASE           |   | |
-                | |   +----------------------------------------+   | |
+                | |   +---+----------+----------+----------+---+   | |
                 | |       |          |          |          |       | |
                 | |       |          |          |          |       | |
-                | |    DB_NAME    DB_PORT    DB_USER  DB_PASSWORD  | |
+                | |    DB_NAME    DB_PORT    DB_USER    DB_PASS    | |
                 | |       |          |          |          |       | |
-                | |       V          V          V          V       | |
-                | |   +----------------------------------------+   | |
+                | |       v          v          v          v       | |
+                | |   +---+----------+----------+----------+---+   | |
                 | |   |              Tier 2: API               |   | |
-                | |   +----------------------------------------+   | |
-                | |                       |                        | |
-                | |              +--------+--------+               | |
-                | |              |                 |               | |
-                | |              |                 |               | |
-                | |          API_HOST          API_PORT            | |
-                | +--------------|-----------------|---------------+ |
-                |                |                 |                 |
-                | +--------------V-----------------V---------------+ |
-                | |              (2 Public Subnets)                | |
-                | |   +----------------------------------------+   | |
+                | |   +-------+-----------------------+--------+   | |
+                | |           ^                       ^            | |
+                | |           |                       |            | |
+                | +-----------|-----------------------|------------+ |
+                |             |                       |              |
+                |         API_HOST                API_PORT           |
+                |             |                       |              |
+                | +-----------|-----------------------|------------+ |
+                | |           |  (3 Public Subnets)   |            | |
+                | |   +-------+-----------------------+--------+   | |
                 | |   |              Tier 3: WEB               |   | |
-                | |   +----------------------------------------+   | |
-                | |                                                | |
-                | +------------------------------------------------+ |
-                +----------------------------------------------------+
+                | |   +-------------------+--------------------+   | |
+                | |                       |                        | |
+                | +---------------------+ | +----------------------+ |
+                |                       | | |                        |
+                +-----------------------+ | +------------------------+
+                                          v
+                                        CLIENT
 ```
 
-### Applications
+## Applications
 
 - Database works on **5432** PORT
 - API works on **3000** PORT
 - WEB works on **80** PORT
 
-### Docker Hub
+## Docker Hub
 
 ``` Shell
 sudo rm -rf ~/.docker/config.json
@@ -69,7 +71,7 @@ sudo docker tag jondaw/app-web:latest app-web:latest
 sudo docker push jondaw/app-web:latest
 ```
 
-### Custom Modules
+## Custom Modules
 
 > <details>
 > <summary>VPC Module</summary>
@@ -96,31 +98,33 @@ sudo docker push jondaw/app-web:latest
 >
 > </details>
 
-### Variables
+## Variables for .TFVars
 
 ``` Shell
-# "AWS Region"
+# Set "AWS Region"
 region = "us-east-2" # Ohio
 
-# IP Range of "VPC"
+# Set "IP Range" of "VPC"
 vpc_cidr = "10.0.0.0/16"
 
-# "Public Subnets"  "WEB"
+# Set "CIDR Blocks" for "Public Subnets"
 subnet_web_1_cidr = "10.0.1.0/24"
 subnet_web_2_cidr = "10.0.2.0/24"
+subnet_web_3_cidr = "10.0.3.0/24"
 
-# "Private Subnets" "DB"
+# Set "CIDR Blocks" for "Private Subnets"
 subnet_db_1_cidr = "10.0.11.0/24"
 subnet_db_2_cidr = "10.0.12.0/24"
+subnet_db_3_cidr = "10.0.13.0/24"
 
-# RDS variables
+# Set details of "Database"
 db_name            = "DB_NAME"
 db_username        = "DB_USER"
 db_password        = "DB_PASSWORD"
 aurora_secret_name = "SECRET_NAME"
 ```
 
-### Automation
+## Automation
 
 - GitHub Actions - Workflow
 - Makefile

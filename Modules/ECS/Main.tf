@@ -1,8 +1,8 @@
 # ==================== ECS MODULE ==================== #
 
 # "ECS Cluster"
-resource "aws_ecs_cluster" "main" {
-  name = "nyan-cat"
+resource "aws_ecs_cluster" "project_cluster" {
+  name = "project-cluster" #! VARS
 
   setting {
     name  = "containerInsights"
@@ -29,7 +29,7 @@ resource "aws_iam_role" "ecs_task_role" {
 
 # "IAM Role" for "ECS Task Execution"
 resource "aws_iam_role" "ecs_execution_role" {
-  name = "ecs_execution_role"
+  name = "ecs-execution-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -44,7 +44,7 @@ resource "aws_iam_role" "ecs_execution_role" {
 
 # "IAM Role Policy" for permission to read "Secret Manager"
 resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
-  name = "ecs_task_execution_role_policy"
+  name = "ecs-task-execution-role-policy"
   role = aws_iam_role.ecs_execution_role.id
 
   policy = jsonencode({
@@ -56,7 +56,7 @@ resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
           "secretsmanager:GetSecretValue",
           "kms:Decrypt"
         ]
-        Resource = [data.aws_secretsmanager_secret.aurora_secret.arn]
+        Resource = [data.aws_secretsmanager_secret.secret_manager_rds.arn]
       }
     ]
   })
@@ -71,17 +71,23 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
 # ========== LOAD BALANCERS & TARGET GROUPS ========== #
 
 # "Application Load Balancer" (ALB) for "WEB" & "API" Applications
-resource "aws_lb" "main" {
-  name               = "main-alb"
+resource "aws_lb" "project_alb" {
+  name               = "project-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.main.id]
-  subnets            = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
+  security_groups    = [aws_security_group.sec_group_ecs.id]
+  subnets            = [
+    data.aws_subnet.web_1.id,
+    data.aws_subnet.web_2.id,
+    data.aws_subnet.web_3.id
+    ]
 }
+
+# ----- ----- ----- ----- ----- ----- ----- ----- ---- #
 
 # "Listener" for "ALB"
 resource "aws_lb_listener" "front_end" {
-  load_balancer_arn = aws_lb.main.arn
+  load_balancer_arn = aws_lb.project_alb.arn
   port              = 80
   protocol          = "HTTP"
 
@@ -125,6 +131,8 @@ resource "aws_lb_listener_rule" "web" {
   }
 }
 
+# ----- ----- ----- ----- ----- ----- ----- ----- ---- #
+
 # "Target Group" for "API" Application
 resource "aws_lb_target_group" "api" {
   name        = "api-tg"
@@ -164,54 +172,55 @@ resource "aws_lb_target_group" "web" {
 # ================= SECURITY GROUPS ================== #
 
 # "Security Group" for "ECS Tasks"
-resource "aws_security_group" "main" {
-  name        = "main-sg"
-  description = "Main security group for ALB and ECS tasks"
+resource "aws_security_group" "sec_group_ecs" {
+  description = "Main security group for ALB and ECS Tasks"
+  name        = "sec-group-ecs"
   vpc_id      = data.aws_vpc.main.id
 
-  # Incoming HTTP traffic for ALB
+  # "Incoming" Traffic for "API"
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow incoming HTTP for ALB"
-  }
-
-  # Incoming traffic for API (ECS tasks)
-  ingress {
+    description = "Allow Incoming Traffic for API from ALB"
     from_port   = 3000
     to_port     = 3000
     protocol    = "tcp"
     self        = true
-    description = "Allow incoming traffic for API from ALB"
   }
 
-  # Incoming traffic for WEB (ECS tasks)
+  # "Incoming" Traffic for "WEB"
   ingress {
+    description = "Allow Incoming Traffic for WEB from ALB"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     self        = true
-    description = "Allow incoming traffic for WEB from ALB"
   }
 
-  # Outgoing traffic to Database
+    # "Incoming" "HTTP" Traffic for "ALB"
+  ingress {
+    description = "Allow Incoming HTTP Traffic for ALB"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # "Outgoing" Traffic to "Database"
   egress {
+    description = "Allow Outbound Traffic to Database"
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
     cidr_blocks = [var.vpc_cidr]
-    description = "Allow outbound traffic to Database"
+
   }
 
-  # General rule for outgoing traffic
+  # Allow all "Outbound Traffic"
   egress {
+    description = "Allow all Outbound Traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all outbound traffic"
   }
 }
 
@@ -240,23 +249,23 @@ resource "aws_ecs_task_definition" "api" {
       secrets = [
         {
           name      = "DBHOST"
-          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:host::"
+          valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:host::"
         },
         {
           name      = "DBPORT"
-          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:port::"
+          valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:port::"
         },
         {
           name      = "DB"
-          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:dbname::"
+          valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:dbname::"
         },
         {
           name      = "DBUSER"
-          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:username::"
+          valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:username::"
         },
         {
           name      = "DBPASS"
-          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:password::"
+          valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:password::"
         }
       ]
       logConfiguration = {
@@ -294,7 +303,7 @@ resource "aws_ecs_task_definition" "web" {
       environment = [
         {
           name  = "API_HOST"
-          value = "http://${aws_lb.main.dns_name}"
+          value = "http://${aws_lb.project_alb.dns_name}"
         }
       ]
       logConfiguration = {
@@ -314,14 +323,18 @@ resource "aws_ecs_task_definition" "web" {
 # "ECS Service" for "API" Application
 resource "aws_ecs_service" "api" {
   name            = "api-service"
-  cluster         = aws_ecs_cluster.main.id
+  cluster         = aws_ecs_cluster.project_cluster.id
   task_definition = aws_ecs_task_definition.api.arn
-  desired_count   = 1
+  desired_count   = 2
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = [data.aws_subnet.db_1.id, data.aws_subnet.db_2.id]
-    security_groups  = [aws_security_group.main.id]
+    subnets          = [
+      data.aws_subnet.db_1.id,
+      data.aws_subnet.db_2.id,
+      data.aws_subnet.db_3.id
+      ]
+    security_groups  = [aws_security_group.sec_group_ecs.id]
     assign_public_ip = false
   }
 
@@ -337,14 +350,18 @@ resource "aws_ecs_service" "api" {
 # "ECS Service" for "WEB" Application
 resource "aws_ecs_service" "web" {
   name            = "web-service"
-  cluster         = aws_ecs_cluster.main.id
+  cluster         = aws_ecs_cluster.project_cluster.id
   task_definition = aws_ecs_task_definition.web.arn
-  desired_count   = 1
+  desired_count   = 2
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = [data.aws_subnet.web_1.id, data.aws_subnet.web_2.id]
-    security_groups  = [aws_security_group.main.id]
+    subnets          = [
+      data.aws_subnet.web_1.id,
+      data.aws_subnet.web_2.id,
+      data.aws_subnet.web_3.id
+      ]
+    security_groups  = [aws_security_group.sec_group_ecs.id]
     assign_public_ip = true
   }
 
@@ -361,9 +378,9 @@ resource "aws_ecs_service" "web" {
 
 # "Auto-Scaling Target" for "API" Application
 resource "aws_appautoscaling_target" "api" {
-  max_capacity       = 2
-  min_capacity       = 1
-  resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.api.name}"
+  max_capacity       = 4
+  min_capacity       = 2
+  resource_id        = "service/${aws_ecs_cluster.project_cluster.name}/${aws_ecs_service.api.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }
@@ -384,11 +401,13 @@ resource "aws_appautoscaling_policy" "api_cpu" {
   }
 }
 
+# ----- ----- ----- ----- ----- ----- ----- ----- ---- #
+
 # "Auto-Scaling Target" for "WEB" Application
 resource "aws_appautoscaling_target" "web" {
-  max_capacity       = 2
-  min_capacity       = 1
-  resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.web.name}"
+  max_capacity       = 4
+  min_capacity       = 2
+  resource_id        = "service/${aws_ecs_cluster.project_cluster.name}/${aws_ecs_service.web.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }

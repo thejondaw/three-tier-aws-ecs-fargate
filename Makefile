@@ -1,22 +1,28 @@
-# ====================== INSTRUCTIONS ====================== #
-#
+# =================== INSTRUCTIONS =================== #
+
+# make check-tools (Check for required tools)
 # make terraform (Install Terraform)
 # make init (Initialize the Project)
-#
-# make all (Apply All Modules)
-# - make apply_vpc (Apply VPC Module)
-# - make apply_rds (Apply RDS Module)
-# - make apply_ecs (Apply ECS Module)
-#
-# make destroy_all (Destroy All Resources)
-# - make destroy_vpc (Destroy VPC Module)
-# - make destroy_rds (Destroy RDS Module)
-# - make destroy_ecs (Destroy ECS Module)
-#
+# make fmt (Check Terraform formatting)
 # make cache (Clean Cache)
-# ========================================================== #
 
-# Variables
+# make plan-all (Plan All Modules)
+# - make plan-vpc (Plan VPC Module)
+# - make plan-rds (Plan RDS Module)
+# - make plan-ecs (Plan ECS Module)
+
+# make apply-all (Apply All Modules)
+# - make apply-vpc (Apply VPC Module)
+# - make apply-rds (Apply RDS Module)
+# - make apply-ecs (Apply ECS Module)
+
+# make destroy-all (Destroy All Resources)
+# - make destroy-vpc (Destroy VPC Module)
+# - make destroy-rds (Destroy RDS Module)
+# - make destroy-ecs (Destroy ECS Module)
+
+# ==================== VARIABLES ======================#
+
 TERRAFORM := terraform
 ROOT_DIR := $(shell pwd)
 TFVARS_FILE := $(ROOT_DIR)/Terraform.tfvars
@@ -30,22 +36,23 @@ VPC_MODULE_PATH := Modules/VPC
 RDS_MODULE_PATH := Modules/RDS
 ECS_MODULE_PATH := Modules/ECS
 
-# Targets
-.PHONY: all terraform cache init plan apply destroy destroy_all
+# ===================== TARGETS =======================#
 
-all: init apply_vpc apply_rds apply_ecs
+.PHONY: terraform cache init plan plan-vpc plan-rds plan-ecs plan-all apply apply-vpc apply-rds apply-ecs apply-all destroy destroy-vpc destroy-rds destroy-ecs destroy-all
 
-# Installation and setup
+# ============== CHECK REQUIRED TOOLS =================#
+
+check-tools:
+	@which git >/dev/null || (echo "Error: git is not installed"; exit 1)
+	@which terraform >/dev/null || (echo "Error: terraform is not installed. Run 'make terraform' to install."; exit 1)
+
+# ================= TERRAFORM SETUP ===================#
+
 terraform:
 	sudo yum install -y yum-utils && \
 	sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo && \
 	sudo yum -y install terraform && \
 	cp .terraformrc ~/.terraformrc
-
-# Cleaning and initialization
-cache:
-	find / -type d -name ".terraform" -exec rm -rf {} + && \
-	rm -rf $$HOME/.terraform.d/plugin-cache/*
 
 init:
 	git pull && \
@@ -53,49 +60,80 @@ init:
 		cd $$module && $(TERRAFORM_INIT) && $(TERRAFORM_VALIDATE) && cd $(ROOT_DIR); \
 	done
 
-# Module operations
-apply_vpc:
-	cd $(VPC_MODULE_PATH) && $(TERRAFORM_APPLY)
+fmt:
+	@echo "Checking Terraform formatting..."
+	@for module in $(VPC_MODULE_PATH) $(RDS_MODULE_PATH) $(ECS_MODULE_PATH); do \
+		cd $$module && $(TERRAFORM) fmt -check && cd $(ROOT_DIR) || exit 1; \
+	done
+	@echo "Terraform formatting check passed."
 
-apply_rds:
-	cd $(RDS_MODULE_PATH) && $(TERRAFORM_APPLY)
+cache:
+	find / -type d -name ".terraform" -exec rm -rf {} + && \
+	rm -rf $$HOME/.terraform.d/plugin-cache/*
 
-apply_ecs:
-	cd $(ECS_MODULE_PATH) && $(TERRAFORM_APPLY)
+# ================= PLAN OPERATIONS ===================#
 
-destroy_vpc:
-	cd $(VPC_MODULE_PATH) && $(TERRAFORM_DESTROY)
-
-destroy_rds:
-	cd $(RDS_MODULE_PATH) && $(TERRAFORM_DESTROY)
-
-destroy_ecs:
-	cd $(ECS_MODULE_PATH) && $(TERRAFORM_DESTROY)
-
-# Destroy all resources
-destroy_all:
-	@echo "Destroying all resources..."
-	@make destroy_ecs
-	@make destroy_rds
-	@make destroy_vpc
-	@echo "All resources have been destroyed."
-
-# Common operations
 plan:
-	@echo "Specify a module: make plan_vpc, make plan_rds, or make plan_ecs"
+	@echo "Specify a module: make plan-vpc, make plan-rds, or make plan-ecs"
+	@echo "Or use 'make plan-all' to plan all resources"
 
-plan_vpc:
+plan-vpc:
 	cd $(VPC_MODULE_PATH) && $(TERRAFORM_PLAN)
 
-plan_rds:
+plan-rds:
 	cd $(RDS_MODULE_PATH) && $(TERRAFORM_PLAN)
 
-plan_ecs:
+plan-ecs:
 	cd $(ECS_MODULE_PATH) && $(TERRAFORM_PLAN)
 
+plan-all: plan-vpc plan-rds plan-ecs
+	@echo "Planning all resources..."
+	@make plan-ecs
+	@make plan-rds
+	@make plan-vpc
+	@echo "All resources have been planned."
+
+
+# ================ APPLY OPERATIONS ===================#
+
 apply:
-	@echo "Specify a module: make apply_vpc, make apply_rds, or make apply_ecs"
+	@echo "Specify a module: make apply-vpc, make apply-rds, or make apply-ecs"
+	@echo "Or use 'make apply-all' to apply all resources"
+
+apply-vpc:
+	cd $(VPC_MODULE_PATH) && $(TERRAFORM_APPLY)
+
+apply-rds:
+	cd $(RDS_MODULE_PATH) && $(TERRAFORM_APPLY)
+
+apply-ecs:
+	cd $(ECS_MODULE_PATH) && $(TERRAFORM_APPLY)
+
+apply-all:
+	@echo "Applying all resources..."
+	@make apply-ecs
+	@make apply-rds
+	@make apply-vpc
+	@echo "All resources have been applied."
+
+# =============== DESTROY OPERATIONS ==================#
 
 destroy:
-	@echo "Specify a module: make destroy_vpc, make destroy_rds, or make destroy_ecs"
-	@echo "Or use 'make destroy_all' to destroy all resources"
+	@echo "Specify a module: make destroy-vpc, make destroy-rds, or make destroy-ecs"
+	@echo "Or use 'make destroy-all' to destroy all resources"
+
+destroy-vpc:
+	cd $(VPC_MODULE_PATH) && $(TERRAFORM_DESTROY)
+
+destroy-rds:
+	cd $(RDS_MODULE_PATH) && $(TERRAFORM_DESTROY)
+
+destroy-ecs:
+	cd $(ECS_MODULE_PATH) && $(TERRAFORM_DESTROY)
+
+destroy-all:
+	@echo "Destroying all resources..."
+	@make destroy-ecs
+	@make destroy-rds
+	@make destroy-vpc
+	@echo "All resources have been destroyed."

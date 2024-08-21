@@ -1,6 +1,11 @@
 # ============== OUTPUTS OF IAM MODULE =============== #
 
-# Output "Name" of "Secret"
-output "ecr_credentials_secret_name" {
-  value = aws_secretsmanager_secret.ecr_user_credentials.name
+# Output "URL" of "API Repository"
+output "api_repository_url" {
+  value = aws_ecr_repository.api.repository_url
+}
+
+# Output "URL" of "WEB Repository"
+output "web_repository_url" {
+  value = aws_ecr_repository.web.repository_url
 }

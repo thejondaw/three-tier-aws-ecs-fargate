@@ -278,8 +278,6 @@ resource "aws_ecs_task_definition" "api" {
       }
     }
   ])
-
-  depends_on = [null_resource.docker_build_push]
 }
 
 # Define "ECS Task" for "WEB" Application
@@ -305,7 +303,7 @@ resource "aws_ecs_task_definition" "web" {
       environment = [
         {
           name  = "API_HOST"
-          value = "http://${aws_lb.main.dns_name}"
+          value = "http://${aws_lb.project_alb.dns_name}"
         }
       ]
       logConfiguration = {
@@ -318,8 +316,6 @@ resource "aws_ecs_task_definition" "web" {
       }
     }
   ])
-
-  depends_on = [null_resource.docker_build_push]
 }
 
 # =================== ECS SERVICES =================== #

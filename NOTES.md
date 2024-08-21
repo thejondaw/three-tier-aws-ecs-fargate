@@ -20,6 +20,8 @@
 
 - Создать Output для Secret Manager Name
 
+- make cache нихера не чистит
+
 ## Комментарии
 
 > Aurora PostgreSQL лучше обычного PostgreSQL

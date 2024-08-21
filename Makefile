@@ -21,7 +21,7 @@
 # - make destroy-rds (Destroy RDS Module)
 # - make destroy-ecs (Destroy ECS Module)
 
-# ==================== VARIABLES ======================#
+# ==================== VARIABLES ====================== #
 
 TERRAFORM := terraform
 ROOT_DIR := $(shell pwd)
@@ -36,17 +36,17 @@ VPC_MODULE_PATH := Modules/VPC
 RDS_MODULE_PATH := Modules/RDS
 ECS_MODULE_PATH := Modules/ECS
 
-# ===================== TARGETS =======================#
+# ===================== TARGETS ======================= #
 
 .PHONY: terraform cache init plan plan-vpc plan-rds plan-ecs plan-all apply apply-vpc apply-rds apply-ecs apply-all destroy destroy-vpc destroy-rds destroy-ecs destroy-all
 
-# ============== CHECK REQUIRED TOOLS =================#
+# ============== CHECK REQUIRED TOOLS ================= #
 
 check-tools:
 	@which git >/dev/null || (echo "Error: git is not installed"; exit 1)
 	@which terraform >/dev/null || (echo "Error: terraform is not installed. Run 'make terraform' to install."; exit 1)
 
-# ================= TERRAFORM SETUP ===================#
+# ================= TERRAFORM SETUP =================== #
 
 terraform:
 	sudo yum install -y yum-utils && \
@@ -71,7 +71,7 @@ cache:
 	find / -type d -name ".terraform" -exec rm -rf {} + && \
 	rm -rf $$HOME/.terraform.d/plugin-cache/*
 
-# ================= PLAN OPERATIONS ===================#
+# ================= PLAN OPERATIONS =================== #
 
 plan:
 	@echo "Specify a module: make plan-vpc, make plan-rds, or make plan-ecs"
@@ -94,7 +94,7 @@ plan-all: plan-vpc plan-rds plan-ecs
 	@echo "All resources have been planned."
 
 
-# ================ APPLY OPERATIONS ===================#
+# ================ APPLY OPERATIONS =================== #
 
 apply:
 	@echo "Specify a module: make apply-vpc, make apply-rds, or make apply-ecs"
@@ -116,7 +116,7 @@ apply-all:
 	@make apply-vpc
 	@echo "All resources have been applied."
 
-# =============== DESTROY OPERATIONS ==================#
+# =============== DESTROY OPERATIONS ================== #
 
 destroy:
 	@echo "Specify a module: make destroy-vpc, make destroy-rds, or make destroy-ecs"

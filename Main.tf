@@ -22,6 +22,18 @@ module "vpc" {
 
 # ----- ----- ----- ----- ----- ----- ----- ----- ---- #
 
+# "ECR" Module
+module "ecr" {
+  source                  = "./Modules/ECR"
+  region                  = var.region_rv
+  ecr_repository_name_api = var.ecr_repository_name_api
+  ecr_repository_name_web = var.ecr_repository_name_web
+  docker_image_tag        = var.docker_image_tag
+  aws_cli_profile         = var.aws_cli_profile
+}
+
+# ----- ----- ----- ----- ----- ----- ----- ----- ---- #
+
 # "RDS" Module
 module "rds" {
   source              = "./Modules/RDS"
@@ -34,18 +46,6 @@ module "rds" {
   db_username         = var.db_username
   db_password         = var.db_password
   secret_manager_name = var.secret_manager_name
-}
-
-# ----- ----- ----- ----- ----- ----- ----- ----- ---- #
-
-# "ECR" Module
-module "ecr" {
-  source                  = "./Modules/ECR"
-  region                  = var.region_rv
-  ecr_repository_name_api = var.ecr_repository_name_api
-  ecr_repository_name_web = var.ecr_repository_name_web
-  docker_image_tag        = var.docker_image_tag
-  aws_cli_profile         = var.aws_cli_profile
 }
 
 # ----- ----- ----- ----- ----- ----- ----- ----- ---- #
@@ -63,4 +63,6 @@ module "ecs" {
   subnet_db_3_cidr        = module.vpc.subnet_db_3_id
   secret_manager_name     = var.secret_manager_name
   docker_image_tag        = var.docker_image_tag
+  ecr_repository_name_api = var.ecr_repository_name_api
+  ecr_repository_name_web = var.ecr_repository_name_web
 }

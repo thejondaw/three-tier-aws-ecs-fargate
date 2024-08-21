@@ -249,23 +249,23 @@ resource "aws_ecs_task_definition" "api" {
       secrets = [
         {
           name      = "DBHOST"
-          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:host::"
+          valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:host::"
         },
         {
           name      = "DBPORT"
-          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:port::"
+          valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:port::"
         },
         {
           name      = "DB"
-          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:dbname::"
+          valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:dbname::"
         },
         {
           name      = "DBUSER"
-          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:username::"
+          valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:username::"
         },
         {
           name      = "DBPASS"
-          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:password::"
+          valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:password::"
         }
       ]
       logConfiguration = {

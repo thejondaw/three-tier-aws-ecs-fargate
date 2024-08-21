@@ -239,7 +239,7 @@ resource "aws_ecs_task_definition" "api" {
   container_definitions = jsonencode([
     {
       name  = "api-app"
-      image = "docker.io/jondaw/app-api:latest"
+      image = "${data.aws_ecr_repository.api.repository_url}:${var.docker_image_tag}"
       portMappings = [
         {
           containerPort = 3000
@@ -249,23 +249,23 @@ resource "aws_ecs_task_definition" "api" {
       secrets = [
         {
           name      = "DBHOST"
-          valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:host::"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:host::"
         },
         {
           name      = "DBPORT"
-          valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:port::"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:port::"
         },
         {
           name      = "DB"
-          valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:dbname::"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:dbname::"
         },
         {
           name      = "DBUSER"
-          valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:username::"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:username::"
         },
         {
           name      = "DBPASS"
-          valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:password::"
+          valueFrom = "${data.aws_secretsmanager_secret.aurora_secret.arn}:password::"
         }
       ]
       logConfiguration = {
@@ -278,6 +278,8 @@ resource "aws_ecs_task_definition" "api" {
       }
     }
   ])
+
+  depends_on = [null_resource.docker_build_push]
 }
 
 # Define "ECS Task" for "WEB" Application
@@ -293,7 +295,7 @@ resource "aws_ecs_task_definition" "web" {
   container_definitions = jsonencode([
     {
       name  = "web-app"
-      image = "docker.io/jondaw/app-web:latest"
+      image = "${data.aws_ecr_repository.web.repository_url}:${var.docker_image_tag}"
       portMappings = [
         {
           containerPort = 80
@@ -303,7 +305,7 @@ resource "aws_ecs_task_definition" "web" {
       environment = [
         {
           name  = "API_HOST"
-          value = "http://${aws_lb.project_alb.dns_name}"
+          value = "http://${aws_lb.main.dns_name}"
         }
       ]
       logConfiguration = {
@@ -316,6 +318,8 @@ resource "aws_ecs_task_definition" "web" {
       }
     }
   ])
+
+  depends_on = [null_resource.docker_build_push]
 }
 
 # =================== ECS SERVICES =================== #

@@ -7,7 +7,7 @@ data "aws_vpc" "main" {
 
 # ----- ----- ----- ----- ----- ----- ----- ----- ---- #
 
-# Fetch "Public Subnet #1" info:
+# Fetch "Public Subnet #1" info
 data "aws_subnet" "web_1" {
   vpc_id     = data.aws_vpc.main.id
   cidr_block = var.subnet_web_1_cidr
@@ -66,4 +66,14 @@ data "aws_secretsmanager_secret" "secret_manager_rds" {
 # Fetch "Secret Manager Version" of "RDS Module"
 data "aws_secretsmanager_secret_version" "secret_manager_credentials" {
   secret_id = data.aws_secretsmanager_secret.secret_manager_rds.id
+}
+
+# ===================== ECR DATA ===================== #
+
+data "aws_ecr_repository" "api" {
+  name = var.ecr_repository_name_api
+}
+
+data "aws_ecr_repository" "web" {
+  name = var.ecr_repository_name_web
 }

@@ -61,7 +61,4 @@ module "ecs" {
   subnet_db_2_cidr       = module.vpc.subnet_db_2_id
   subnet_db_3_cidr       = module.vpc.subnet_db_3_id
   secret_manager_name    = var.secret_manager_name
-  ecr_repository_url_api = module.ecr.api_repository_url
-  ecr_repository_url_web = module.ecr.web_repository_url
-  docker_image_tag       = var.docker_image_tag
 }

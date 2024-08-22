@@ -67,3 +67,20 @@ data "aws_secretsmanager_secret" "secret_manager_rds" {
 data "aws_secretsmanager_secret_version" "secret_manager_credentials" {
   secret_id = data.aws_secretsmanager_secret.secret_manager_rds.id
 }
+
+# ===================== ECR DATA ===================== #
+
+# Fetch information about the "API" "ECR Repository"
+data "aws_ecr_repository" "api" {
+  name = "app-api"
+}
+
+# Fetch information about the "WEB" "ECR Repository"
+data "aws_ecr_repository" "web" {
+  name = "app-web"
+}
+
+# Fetch the Docker "Image Tag" from SSM Parameter Store
+data "aws_ssm_parameter" "docker_image_tag" {
+  name = "/app/docker-image-tag"
+}

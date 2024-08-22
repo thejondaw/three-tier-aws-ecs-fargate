@@ -240,7 +240,7 @@ resource "aws_ecs_task_definition" "api" {
     {
       # Container configuration for API
       name  = "api-app"
-      image = "${var.ecr_repository_url_api}:${var.docker_image_tag}"
+      image = "${data.aws_ecr_repository.api.repository_url}:${data.aws_ssm_parameter.docker_image_tag.value}"
       portMappings = [
         {
           containerPort = 3000
@@ -297,7 +297,7 @@ resource "aws_ecs_task_definition" "web" {
     {
       # Container configuration for WEB
       name  = "web-app"
-      image = "${var.ecr_repository_url_web}:${var.docker_image_tag}"
+      image = "${data.aws_ecr_repository.web.repository_url}:${data.aws_ssm_parameter.docker_image_tag.value}"
       portMappings = [
         {
           containerPort = 80

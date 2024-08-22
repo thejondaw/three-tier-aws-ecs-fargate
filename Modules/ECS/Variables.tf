@@ -61,24 +61,3 @@ variable "secret_manager_name" {
   description = "Name of Secrets Manager"
   type        = string
 }
-
-# ----- ----- ----- ----- ----- ----- ----- ----- ---- #
-
-# Variable for "ECR Repository URL" of "API Application"
-variable "ecr_repository_url_api" {
-  description = "URL of the ECR repository for the API application"
-  type        = string
-}
-
-# Variable for "ECR Repository URL" of "WEB Application"
-variable "ecr_repository_url_web" {
-  description = "URL of the ECR repository for the WEB application"
-  type        = string
-}
-
-# Variable for "Docker Image Tag"
-variable "docker_image_tag" {
-  description = "Tag for Docker images"
-  type        = string
-  default     = "latest"
-}

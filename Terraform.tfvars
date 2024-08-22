@@ -20,7 +20,7 @@ subnet_db_3_cidr = "10.0.13.0/24"
 db_name             = "gigabase"
 db_username         = "jondaw"
 db_password         = "super-strong-password"
-secret_manager_name = "secret-manager-ssrgh"
+secret_manager_name = "secret-manager-sfsrgh"
 
 # Set "ECR Credentials"
 ecr_repository_name_api = "app-api"

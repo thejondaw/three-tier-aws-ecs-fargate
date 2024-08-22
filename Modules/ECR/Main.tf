@@ -23,22 +23,14 @@ resource "null_resource" "docker_build_push" {
       aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${aws_ecr_repository.api.repository_url}
 
       # Build and push "API Application"
-      cd ${path.module}/Applications/API
-      if [ -f Dockerfile ]; then
-        docker buildx build --platform linux/amd64 -t ${aws_ecr_repository.api.repository_url}:${var.docker_image_tag} .
-        docker push ${aws_ecr_repository.api.repository_url}:${var.docker_image_tag}
-      else
-        echo "Dockerfile not found in API directory"
-      fi
+      cd ${path.root}/Modules/ECR/Applications/API
+      docker buildx build --platform linux/amd64 -t ${aws_ecr_repository.api.repository_url}:latest .
+      docker push ${aws_ecr_repository.api.repository_url}:latest
 
       # Build and push "WEB Application"
-      cd ${path.module}/Applications/WEB
-      if [ -f Dockerfile ]; then
-        docker buildx build --platform linux/amd64 -t ${aws_ecr_repository.web.repository_url}:${var.docker_image_tag} .
-        docker push ${aws_ecr_repository.web.repository_url}:${var.docker_image_tag}
-      else
-        echo "Dockerfile not found in WEB directory"
-      fi
+      cd ${path.root}/Modules/ECR/Applications/WEB
+      docker buildx build --platform linux/amd64 -t ${aws_ecr_repository.web.repository_url}:latest .
+      docker push ${aws_ecr_repository.web.repository_url}:latest
     EOT
   }
 

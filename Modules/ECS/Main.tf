@@ -238,16 +238,16 @@ resource "aws_ecs_task_definition" "api" {
 
   container_definitions = jsonencode([
     {
-      # Container configuration for API
+      # Container configuration for "API"
       name  = "api-app"
-      image = "${data.aws_ecr_repository.api.repository_url}:${var.docker_image_tag}"
+      image = "${data.aws_ecr_repository.api.repository_url}:latest"
       portMappings = [
         {
           containerPort = 3000
           hostPort      = 3000
         }
       ]
-      # Database connection secrets
+      # Database connection "Secrets"
       secrets = [
         {
           name      = "DBHOST"
@@ -270,7 +270,7 @@ resource "aws_ecs_task_definition" "api" {
           valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:password::"
         }
       ]
-      # CloudWatch logs configuration
+      # "CloudWatch" logs configuration
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -295,9 +295,9 @@ resource "aws_ecs_task_definition" "web" {
 
   container_definitions = jsonencode([
     {
-      # Container configuration for WEB
+      # Container configuration for "WEB"
       name  = "web-app"
-      image = "${data.aws_ecr_repository.web.repository_url}:${var.docker_image_tag}"
+      image = "${data.aws_ecr_repository.web.repository_url}:latest"
       portMappings = [
         {
           containerPort = 80
@@ -311,7 +311,7 @@ resource "aws_ecs_task_definition" "web" {
           value = "http://${aws_lb.project_alb.dns_name}"
         }
       ]
-      # CloudWatch logs configuration
+      # "CloudWatch" logs configuration
       logConfiguration = {
         logDriver = "awslogs"
         options = {

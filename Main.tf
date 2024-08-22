@@ -28,7 +28,6 @@ module "ecr" {
   region                  = var.region_rv
   ecr_repository_name_api = var.ecr_repository_name_api
   ecr_repository_name_web = var.ecr_repository_name_web
-  docker_image_tag        = var.docker_image_tag
 }
 
 # ----- ----- ----- ----- ----- ----- ----- ----- ---- #

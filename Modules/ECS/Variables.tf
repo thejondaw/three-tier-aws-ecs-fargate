@@ -61,9 +61,3 @@ variable "secret_manager_name" {
   description = "Name of Secrets Manager"
   type        = string
 }
-
-variable "docker_image_tag" {
-  description = "Docker image tag for the applications"
-  type        = string
-  default     = "latest"
-}

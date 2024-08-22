@@ -79,8 +79,3 @@ data "aws_ecr_repository" "api" {
 data "aws_ecr_repository" "web" {
   name = "app-web"
 }
-
-# Fetch the Docker "Image Tag" from SSM Parameter Store
-data "aws_ssm_parameter" "docker_image_tag" {
-  name = "/app/docker-image-tag"
-}

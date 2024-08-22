@@ -23,12 +23,12 @@ resource "null_resource" "docker_build_push" {
       aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${aws_ecr_repository.api.repository_url}
 
       # Build and push "API Application"
-      cd ${path.root}/Modules/ECR/Applications/API
+      cd ${path.module}/Applications/API || exit
       docker buildx build --platform linux/amd64 -t ${aws_ecr_repository.api.repository_url}:latest .
       docker push ${aws_ecr_repository.api.repository_url}:latest
 
       # Build and push "WEB Application"
-      cd ${path.root}/Modules/ECR/Applications/WEB
+      cd ${path.module}/Applications/WEB || exit
       docker buildx build --platform linux/amd64 -t ${aws_ecr_repository.web.repository_url}:latest .
       docker push ${aws_ecr_repository.web.repository_url}:latest
     EOT

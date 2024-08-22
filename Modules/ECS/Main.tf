@@ -76,11 +76,11 @@ resource "aws_lb" "project_alb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.sec_group_ecs.id]
-  subnets            = [
+  subnets = [
     data.aws_subnet.web_1.id,
     data.aws_subnet.web_2.id,
     data.aws_subnet.web_3.id
-    ]
+  ]
 }
 
 # ----- ----- ----- ----- ----- ----- ----- ----- ---- #
@@ -195,7 +195,7 @@ resource "aws_security_group" "sec_group_ecs" {
     self        = true
   }
 
-    # "Incoming" "HTTP" Traffic for "ALB"
+  # "Incoming" "HTTP" Traffic for "ALB"
   ingress {
     description = "Allow Incoming HTTP Traffic for ALB"
     from_port   = 80
@@ -240,7 +240,7 @@ resource "aws_ecs_task_definition" "api" {
     {
       # Container configuration for API
       name  = "api-app"
-      image = "${data.aws_ecr_repository.api.repository_url}:${data.aws_ssm_parameter.docker_image_tag.value}"
+      image = "${data.aws_ecr_repository.api.repository_url}:${var.docker_image_tag}"
       portMappings = [
         {
           containerPort = 3000
@@ -297,7 +297,7 @@ resource "aws_ecs_task_definition" "web" {
     {
       # Container configuration for WEB
       name  = "web-app"
-      image = "${data.aws_ecr_repository.web.repository_url}:${data.aws_ssm_parameter.docker_image_tag.value}"
+      image = "${data.aws_ecr_repository.web.repository_url}:${var.docker_image_tag}"
       portMappings = [
         {
           containerPort = 80
@@ -335,11 +335,11 @@ resource "aws_ecs_service" "api" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = [
+    subnets = [
       data.aws_subnet.db_1.id,
       data.aws_subnet.db_2.id,
       data.aws_subnet.db_3.id
-      ]
+    ]
     security_groups  = [aws_security_group.sec_group_ecs.id]
     assign_public_ip = false
   }
@@ -362,11 +362,11 @@ resource "aws_ecs_service" "web" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = [
+    subnets = [
       data.aws_subnet.web_1.id,
       data.aws_subnet.web_2.id,
       data.aws_subnet.web_3.id
-      ]
+    ]
     security_groups  = [aws_security_group.sec_group_ecs.id]
     assign_public_ip = true
   }

@@ -16,18 +16,17 @@ resource "null_resource" "docker_build_push" {
     api_repo_url = aws_ecr_repository.api.repository_url
     web_repo_url = aws_ecr_repository.web.repository_url
   }
-
+  # Authentication to ECR, "Build & Push" "API" & "WEB" Applications
   provisioner "local-exec" {
     command = <<-EOT
-      # Authenticate in "ECR"
       aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${aws_ecr_repository.api.repository_url}
 
-      # Build and push "API Application"
+      aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${aws_ecr_repository.web.repository_url}
+
       cd ${path.module}/Applications/API || exit
       docker buildx build --platform linux/amd64 -t ${aws_ecr_repository.api.repository_url}:latest .
       docker push ${aws_ecr_repository.api.repository_url}:latest
 
-      # Build and push "WEB Application"
       cd ${path.module}/Applications/WEB || exit
       docker buildx build --platform linux/amd64 -t ${aws_ecr_repository.web.repository_url}:latest .
       docker push ${aws_ecr_repository.web.repository_url}:latest

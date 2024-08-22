@@ -226,7 +226,7 @@ resource "aws_security_group" "sec_group_ecs" {
 
 # ================= TASK DEFINITIONS ================= #
 
-# Define "ECS Task "for "API" Application
+# "Task Definition" for "API Application"
 resource "aws_ecs_task_definition" "api" {
   family                   = "api-app"
   network_mode             = "awsvpc"
@@ -238,14 +238,16 @@ resource "aws_ecs_task_definition" "api" {
 
   container_definitions = jsonencode([
     {
+      # Container configuration for API
       name  = "api-app"
-      image = "${data.aws_ecr_repository.api.repository_url}:${var.docker_image_tag}"
+      image = "${var.ecr_repository_url_api}:${var.docker_image_tag}"
       portMappings = [
         {
           containerPort = 3000
           hostPort      = 3000
         }
       ]
+      # Database connection secrets
       secrets = [
         {
           name      = "DBHOST"
@@ -268,6 +270,7 @@ resource "aws_ecs_task_definition" "api" {
           valueFrom = "${data.aws_secretsmanager_secret.secret_manager_rds.arn}:password::"
         }
       ]
+      # CloudWatch logs configuration
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -280,7 +283,7 @@ resource "aws_ecs_task_definition" "api" {
   ])
 }
 
-# Define "ECS Task" for "WEB" Application
+# "Task Definition" for "WEB Application"
 resource "aws_ecs_task_definition" "web" {
   family                   = "web-app"
   network_mode             = "awsvpc"
@@ -292,20 +295,23 @@ resource "aws_ecs_task_definition" "web" {
 
   container_definitions = jsonencode([
     {
+      # Container configuration for WEB
       name  = "web-app"
-      image = "${data.aws_ecr_repository.web.repository_url}:${var.docker_image_tag}"
+      image = "${var.ecr_repository_url_web}:${var.docker_image_tag}"
       portMappings = [
         {
           containerPort = 80
           hostPort      = 80
         }
       ]
+      # Environment variables
       environment = [
         {
           name  = "API_HOST"
           value = "http://${aws_lb.project_alb.dns_name}"
         }
       ]
+      # CloudWatch logs configuration
       logConfiguration = {
         logDriver = "awslogs"
         options = {

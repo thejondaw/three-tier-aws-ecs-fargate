@@ -94,16 +94,9 @@ variable "ecr_repository_name_web" {
   type        = string
 }
 
-# Variable for Docker image tag
+# Variable for Docker "Image Tag"
 variable "docker_image_tag" {
   description = "Tag for Docker images"
   type        = string
   default     = "latest"
-}
-
-# Variable for "AWS CLI Profile"
-variable "aws_cli_profile" {
-  description = "AWS CLI Profile to use for authentication"
-  type        = string
-  default     = "default"
 }

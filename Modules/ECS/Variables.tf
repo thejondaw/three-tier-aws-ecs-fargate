@@ -64,19 +64,19 @@ variable "secret_manager_name" {
 
 # ----- ----- ----- ----- ----- ----- ----- ----- ---- #
 
-# Variable for "ECR Repository" name for "API Application"
-variable "ecr_repository_name_api" {
-  description = "Name of the ECR Repository for API"
+# Variable for "ECR Repository URL" of "API Application"
+variable "ecr_repository_url_api" {
+  description = "URL of the ECR repository for the API application"
   type        = string
 }
 
-# Variable for "ECR Repository" name for "WEB Application"
-variable "ecr_repository_name_web" {
-  description = "Name of the ECR Repository for WEB"
+# Variable for "ECR Repository URL" of "WEB Application"
+variable "ecr_repository_url_web" {
+  description = "URL of the ECR repository for the WEB application"
   type        = string
 }
 
-# Variable for Docker image tag
+# Variable for "Docker Image Tag"
 variable "docker_image_tag" {
   description = "Tag for Docker images"
   type        = string

@@ -29,7 +29,6 @@ module "ecr" {
   ecr_repository_name_api = var.ecr_repository_name_api
   ecr_repository_name_web = var.ecr_repository_name_web
   docker_image_tag        = var.docker_image_tag
-  aws_cli_profile         = var.aws_cli_profile
 }
 
 # ----- ----- ----- ----- ----- ----- ----- ----- ---- #
@@ -52,17 +51,17 @@ module "rds" {
 
 # "ECS" Module
 module "ecs" {
-  source                  = "./Modules/ECS"
-  region                  = var.region_rv
-  vpc_cidr                = module.vpc.vpc_id
-  subnet_web_1_cidr       = module.vpc.subnet_web_1_id
-  subnet_web_2_cidr       = module.vpc.subnet_web_2_id
-  subnet_web_3_cidr       = module.vpc.subnet_web_3_id
-  subnet_db_1_cidr        = module.vpc.subnet_db_1_id
-  subnet_db_2_cidr        = module.vpc.subnet_db_2_id
-  subnet_db_3_cidr        = module.vpc.subnet_db_3_id
-  secret_manager_name     = var.secret_manager_name
-  docker_image_tag        = var.docker_image_tag
-  ecr_repository_name_api = var.ecr_repository_name_api
-  ecr_repository_name_web = var.ecr_repository_name_web
+  source                 = "./Modules/ECS"
+  region                 = var.region_rv
+  vpc_cidr               = module.vpc.vpc_id
+  subnet_web_1_cidr      = module.vpc.subnet_web_1_id
+  subnet_web_2_cidr      = module.vpc.subnet_web_2_id
+  subnet_web_3_cidr      = module.vpc.subnet_web_3_id
+  subnet_db_1_cidr       = module.vpc.subnet_db_1_id
+  subnet_db_2_cidr       = module.vpc.subnet_db_2_id
+  subnet_db_3_cidr       = module.vpc.subnet_db_3_id
+  secret_manager_name    = var.secret_manager_name
+  ecr_repository_url_api = module.ecr.api_repository_url
+  ecr_repository_url_web = module.ecr.web_repository_url
+  docker_image_tag       = var.docker_image_tag
 }

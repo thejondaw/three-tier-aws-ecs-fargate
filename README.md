@@ -54,7 +54,7 @@
 - API works on **3000** PORT
 - WEB works on **80** PORT
 
-## Docker Hub
+## Docker
 
 ``` Shell
 sudo rm -rf ~/.docker/config.json
@@ -69,59 +69,6 @@ sudo docker push jondaw/app-api:latest
 sudo docker buildx build --platform linux/amd64 -t jondaw/app-web:latest .
 sudo docker tag jondaw/app-web:latest app-web:latest
 sudo docker push jondaw/app-web:latest
-```
-
-## Custom Modules
-
-> <details>
-> <summary>VPC Module</summary>
->
-> - TEST
->
-> </details>
-
-
-
-> <details>
-> <summary>RDS Module</summary>
->
-> - TEST
->
-> </details>
-
-
-
-> <details>
-> <summary>ECS Module</summary>
->
->  - TEST
->
-> </details>
-
-## Variables for .TFVars
-
-``` Shell
-# Set "AWS Region"
-region = "us-east-2" # Ohio
-
-# Set "IP Range" of "VPC"
-vpc_cidr = "10.0.0.0/16"
-
-# Set "CIDR Blocks" for "Public Subnets"
-subnet_web_1_cidr = "10.0.1.0/24"
-subnet_web_2_cidr = "10.0.2.0/24"
-subnet_web_3_cidr = "10.0.3.0/24"
-
-# Set "CIDR Blocks" for "Private Subnets"
-subnet_db_1_cidr = "10.0.11.0/24"
-subnet_db_2_cidr = "10.0.12.0/24"
-subnet_db_3_cidr = "10.0.13.0/24"
-
-# Set details of "Database"
-db_name            = "DB_NAME"
-db_username        = "DB_USER"
-db_password        = "DB_PASSWORD"
-aurora_secret_name = "SECRET_NAME"
 ```
 
 ## Automation

@@ -3,7 +3,7 @@
   <br>
 </p>
 
-# Toptal - Project
+# Three-Tier on AWS ECS Fargate
 
 - **Three-Tier Application** on `AWS`, using `Terraform`
 - Application based on `Node.js`
